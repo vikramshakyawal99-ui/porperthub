@@ -13,7 +13,7 @@ export default function FeaturedProperties() {
           {properties.map((property) => (
             <PropertyCard
               key={property.id}
-              {...property}
+              property={property}
             />
           ))}
         </div>
