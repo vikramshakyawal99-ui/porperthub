@@ -5,8 +5,6 @@ import ImageGallery from "../../../components/ImageGallery";
 import Amenities from "../../../components/Amenities";
 import BuilderCard from "../../../components/BuilderCard";
 import SiteVisitForm from "../../../components/SiteVisitForm";
-import GoogleMap from "../../../components/GoogleMap";
-import NearbyPlaces from "../../../components/NearbyPlaces";
 import PropertyActions from "../../../components/PropertyActions";
 
 type Props = {
@@ -154,10 +152,6 @@ export default async function PropertyDetails({ params }: Props) {
             <PropertyActions propertyId={property.id} />
 
             {/* Site Visit Form */}
-            <GoogleMap location={property.location} />
-
-            <NearbyPlaces location={property.location} />
-
             <SiteVisitForm />
 
           </div>

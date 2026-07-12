@@ -3,42 +3,21 @@
 import { useState } from "react";
 import { properties } from "../../data/properties";
 import PropertyCard from "../../components/PropertyCard";
-import PropertyFilters from "../../components/PropertyFilters";
 import Navbar from "../../components/Navbar";
 
 export default function PropertiesPage() {
 
-  const [filters, setFilters] = useState({
-    search: "",
-    location: "",
-    bhk: "",
-  });
-
+  const [search, setSearch] = useState("");
 
   const filteredProperties = properties.filter((property) => {
 
-    const searchText =
-      `${property.title} ${property.builder}`
-      .toLowerCase()
-      .includes(filters.search.toLowerCase());
+    const text =
+      `${property.title} ${property.location} ${property.builder}`
+        .toLowerCase();
 
-
-    const locationMatch =
-      property.location
-      .toLowerCase()
-      .includes(filters.location.toLowerCase());
-
-
-    const bhkMatch =
-      filters.bhk === ""
-      ? true
-      : property.bedrooms === Number(filters.bhk);
-
-
-    return searchText && locationMatch && bhkMatch;
+    return text.includes(search.toLowerCase());
 
   });
-
 
 
   return (
@@ -49,20 +28,21 @@ export default function PropertiesPage() {
 
         <div className="mx-auto max-w-7xl px-6">
 
-
-          <h1 className="mb-8 text-4xl font-bold">
-            🏠 Explore Properties
+          <h1 className="mb-8 text-4xl font-bold text-gray-900">
+            🏠 All Properties
           </h1>
 
 
-          <PropertyFilters
-            onFilterChange={setFilters}
-          />
+          <div className="mb-10 rounded-2xl bg-white p-6 shadow">
 
-          <div className="mb-8 rounded-xl bg-white px-6 py-4 shadow">
-            <p className="text-lg font-semibold text-gray-700">
-              🏠 {filteredProperties.length} Properties Found
-            </p>
+            <input
+              type="text"
+              placeholder="Search property, city or builder..."
+              value={search}
+              onChange={(e)=>setSearch(e.target.value)}
+              className="w-full rounded-xl border px-5 py-4 outline-none focus:border-blue-600"
+            />
+
           </div>
 
 
@@ -99,7 +79,6 @@ export default function PropertiesPage() {
         </div>
 
       </main>
-
     </>
   );
 }

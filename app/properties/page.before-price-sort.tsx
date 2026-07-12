@@ -59,12 +59,6 @@ export default function PropertiesPage() {
             onFilterChange={setFilters}
           />
 
-          <div className="mb-8 rounded-xl bg-white px-6 py-4 shadow">
-            <p className="text-lg font-semibold text-gray-700">
-              🏠 {filteredProperties.length} Properties Found
-            </p>
-          </div>
-
 
 
           {filteredProperties.length === 0 ? (
