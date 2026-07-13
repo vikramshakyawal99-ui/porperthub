@@ -6,8 +6,11 @@ type Props = {
   images?: string[];
 };
 
-export default function ImageGallery({ images = [] }: Props) {
-  const [selectedImage, setSelectedImage] = useState(images[0] || "");
+export default function ImageGallery({
+  images = [],
+}: Props) {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [fullscreen, setFullscreen] = useState(false);
 
   if (images.length === 0) {
     return (
@@ -17,29 +20,85 @@ export default function ImageGallery({ images = [] }: Props) {
     );
   }
 
-  return (
-    <div className="mb-10">
-      {/* Main Image */}
-      <img
-        src={selectedImage}
-        alt="Property"
-        className="h-[500px] w-full rounded-2xl object-cover shadow-xl"
-      />
+  function previousImage() {
+    setSelectedIndex((prev) =>
+      prev === 0 ? images.length - 1 : prev - 1
+    );
+  }
 
-      {/* Thumbnails */}
-      <div className="mt-5 grid grid-cols-5 gap-4">
-        {images.map((image, index) => (
-          <img
-            key={index}
-            src={image}
-            alt={`Property ${index + 1}`}
-            onClick={() => setSelectedImage(image)}
-            className={`h-24 w-full cursor-pointer rounded-xl object-cover transition-all duration-300 hover:scale-105 ${
-              selectedImage === image ? "ring-4 ring-blue-600" : ""
-            }`}
-          />
-        ))}
+  function nextImage() {
+    setSelectedIndex((prev) =>
+      prev === images.length - 1 ? 0 : prev + 1
+    );
+  }
+
+  return (
+    <>
+      <div className="mb-10">
+
+        <img
+          src={images[selectedIndex]}
+          alt="Property"
+          onClick={() => setFullscreen(true)}
+          className="h-[500px] w-full cursor-zoom-in rounded-2xl object-cover shadow-xl transition hover:opacity-95"
+        />
+
+        <div className="mt-5 grid grid-cols-5 gap-4">
+
+          {images.map((image, index) => (
+
+            <img
+              key={index}
+              src={image}
+              alt={`Property ${index + 1}`}
+              onClick={() => setSelectedIndex(index)}
+              className={`h-24 w-full cursor-pointer rounded-xl object-cover transition hover:scale-105 ${
+                selectedIndex === index
+                  ? "ring-4 ring-blue-600"
+                  : ""
+              }`}
+            />
+
+          ))}
+
+        </div>
+
       </div>
-    </div>
+
+      {fullscreen && (
+
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95">
+
+          <button
+            onClick={() => setFullscreen(false)}
+            className="absolute right-6 top-6 rounded-full bg-white px-4 py-2 font-bold"
+          >
+            ✕
+          </button>
+
+          <button
+            onClick={previousImage}
+            className="absolute left-6 rounded-full bg-white p-4 text-2xl"
+          >
+            ←
+          </button>
+
+          <img
+            src={images[selectedIndex]}
+            alt="Fullscreen"
+            className="max-h-[90vh] max-w-[90vw] rounded-2xl"
+          />
+
+          <button
+            onClick={nextImage}
+            className="absolute right-6 rounded-full bg-white p-4 text-2xl"
+          >
+            →
+          </button>
+
+        </div>
+
+      )}
+    </>
   );
-}   
+}

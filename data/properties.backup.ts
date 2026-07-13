@@ -7,7 +7,6 @@ export const properties = [
     image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200",
 
     builder: "Manglam Group",
-    type: "Apartment",
     bedrooms: 3,
     bathrooms: 2,
     area: "1650 sq.ft.",
@@ -28,7 +27,6 @@ export const properties = [
     image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200",
 
     builder: "Mahima Group",
-    type: "Villa",
     bedrooms: 4,
     bathrooms: 4,
     area: "3200 sq.ft.",
@@ -49,7 +47,6 @@ export const properties = [
     image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1200",
 
     builder: "Ashiana Housing",
-    type: "Flat",
     bedrooms: 2,
     bathrooms: 2,
     area: "1180 sq.ft.",
@@ -70,7 +67,6 @@ export const properties = [
     image: "https://images.unsplash.com/photo-1494526585095-c41746248156?w=1200",
 
     builder: "Unique Builders",
-    type: "Penthouse",
     bedrooms: 4,
     bathrooms: 4,
     area: "4200 sq.ft.",

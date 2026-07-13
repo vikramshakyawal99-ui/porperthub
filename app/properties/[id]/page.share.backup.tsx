@@ -4,16 +4,11 @@ import EMICalculator from "../../../components/EMICalculator";
 import ImageGallery from "../../../components/ImageGallery";
 import Amenities from "../../../components/Amenities";
 import BuilderCard from "../../../components/BuilderCard";
-import PropertyScore from "../../../components/PropertyScore";
-import PriceTrend from "../../../components/PriceTrend";
-import AIPropertyAssistant from "../../../components/AIPropertyAssistant";
-import FavoriteButton from "../../../components/FavoriteButton";
 import SiteVisitForm from "../../../components/SiteVisitForm";
 import GoogleMap from "../../../components/GoogleMap";
 import NearbyPlaces from "../../../components/NearbyPlaces";
 import PropertyActions from "../../../components/PropertyActions";
 import WhatsAppButton from "../../../components/WhatsAppButton";
-import ShareButton from "../../../components/ShareButton";
 
 type Props = {
   params: Promise<{
@@ -129,12 +124,6 @@ export default async function PropertyDetails({ params }: Props) {
             {/* Builder Information */}
             <BuilderCard builder={property.builder} />
 
-            <PropertyScore rating={property.rating} />
-
-            <PriceTrend />
-
-            <AIPropertyAssistant />
-
             <hr className="my-10" />
 
             {/* Description */}
@@ -156,7 +145,9 @@ export default async function PropertyDetails({ params }: Props) {
                 📞 Contact Builder
               </button>
 
-              <FavoriteButton propertyId={property.id} />
+              <button className="rounded-xl border-2 border-red-500 px-8 py-4 font-bold text-red-500 transition hover:scale-105 hover:bg-red-500 hover:text-white">
+                ❤️ Add to Favorites
+              </button>
 
             </div>
 
@@ -164,7 +155,6 @@ export default async function PropertyDetails({ params }: Props) {
             <div className="flex flex-wrap gap-4">
               <PropertyActions propertyId={property.id} />
               <WhatsAppButton propertyTitle={property.title} />
-              <ShareButton />
             </div>
 
             {/* Site Visit Form */}

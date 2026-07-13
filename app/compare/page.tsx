@@ -1,183 +1,129 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { properties } from "../../data/properties";
-import Navbar from "../../components/Navbar";
+
 
 export default function ComparePage() {
 
-  const [compareIds, setCompareIds] = useState<number[]>([]);
-
-  useEffect(() => {
-    const ids = JSON.parse(
-      localStorage.getItem("compareProperties") || "[]"
-    ) as number[];
-
-    setCompareIds(ids);
-  }, []);
+  const [selected, setSelected] = useState<number[]>([]);
 
 
-  function removeCompare(id: number) {
+  function toggle(id:number) {
 
-    const updated = compareIds.filter(
-      (propertyId) => propertyId !== id
-    );
+    if(selected.includes(id)) {
 
-    setCompareIds(updated);
+      setSelected(
+        selected.filter(
+          (item)=>item !== id
+        )
+      );
 
-    localStorage.setItem(
-      "compareProperties",
-      JSON.stringify(updated)
-    );
+    } else {
+
+      if(selected.length < 2) {
+        setSelected([
+          ...selected,
+          id
+        ]);
+      }
+
+    }
+
   }
 
 
-  const compareProperties = properties.filter((property) =>
-    compareIds.includes(property.id)
-  );
+  const compare =
+    properties.filter((p)=>
+      selected.includes(p.id)
+    );
 
 
   return (
-    <>
-      <Navbar />
 
-      <main className="min-h-screen bg-gray-100 py-10">
+    <main className="min-h-screen bg-gray-50 px-6 py-16">
 
-        <div className="mx-auto max-w-7xl px-6">
+      <div className="mx-auto max-w-7xl">
 
-          <h1 className="mb-8 text-4xl font-bold">
-            ⚖️ Compare Properties
-          </h1>
+        <h1 className="mb-10 text-center text-4xl font-bold">
+          ⚖️ Compare Properties
+        </h1>
 
 
-          {compareProperties.length === 0 ? (
+        <div className="grid gap-6 md:grid-cols-4">
 
-            <div className="rounded-3xl bg-white p-10 text-center shadow">
+          {properties.map((property)=>(
 
-              <h2 className="text-3xl font-bold">
-                No Properties Selected
+            <button
+              key={property.id}
+              onClick={()=>toggle(property.id)}
+              className={`rounded-2xl bg-white p-6 text-left shadow ${
+                selected.includes(property.id)
+                ? "border-4 border-blue-600"
+                : ""
+              }`}
+            >
+
+              <h2 className="text-xl font-bold">
+                {property.title}
               </h2>
 
-              <p className="mt-4 text-gray-600">
-                Add properties from details page to compare.
+              <p className="mt-2">
+                📍 {property.location}
               </p>
 
-              <Link
-                href="/"
-                className="mt-6 inline-block rounded-xl bg-blue-600 px-6 py-3 font-bold text-white"
-              >
-                Browse Properties
-              </Link>
-
-            </div>
-
-          ) : (
-
-            <div className="overflow-x-auto rounded-2xl bg-white shadow-xl">
-
-              <table className="min-w-full">
-
-                <thead className="bg-blue-600 text-white">
-
-                  <tr>
-
-                    <th className="p-4 text-left">
-                      Feature
-                    </th>
-
-                    {compareProperties.map((property)=>(
-
-                      <th
-                        key={property.id}
-                        className="p-4 text-left"
-                      >
-
-                        {property.title}
-
-                        <button
-                          onClick={() => removeCompare(property.id)}
-                          className="ml-3 rounded bg-red-500 px-3 py-1 text-sm"
-                        >
-                          Remove
-                        </button>
-
-                      </th>
-
-                    ))}
-
-                  </tr>
-
-                </thead>
+              <p className="mt-2">
+                💰 {property.price}
+              </p>
 
 
-                <tbody>
+            </button>
 
-                  <Row title="Price" values={compareProperties.map(p=>p.price)} />
-
-                  <Row title="Location" values={compareProperties.map(p=>p.location)} />
-
-                  <Row title="Builder" values={compareProperties.map(p=>p.builder)} />
-
-                  <Row title="Bedrooms" values={compareProperties.map(p=>String(p.bedrooms))} />
-
-                  <Row title="Bathrooms" values={compareProperties.map(p=>String(p.bathrooms))} />
-
-                  <Row title="Area" values={compareProperties.map(p=>p.area)} />
-
-                  <Row title="Parking" values={compareProperties.map(p=>p.parking)} />
-
-                  <Row title="Possession" values={compareProperties.map(p=>p.possession)} />
-
-                  <Row title="Rating" values={compareProperties.map(p=>`${p.rating}/5 ⭐`)} />
-
-                </tbody>
-
-              </table>
-
-            </div>
-
-          )}
+          ))}
 
         </div>
 
-      </main>
 
-    </>
+
+        {compare.length === 2 && (
+
+          <div className="mt-12 grid gap-8 md:grid-cols-2">
+
+
+            {compare.map((p)=>(
+
+              <div
+                key={p.id}
+                className="rounded-3xl bg-white p-8 shadow-xl"
+              >
+
+                <h2 className="text-2xl font-bold">
+                  {p.title}
+                </h2>
+
+                <hr className="my-5"/>
+
+
+                <p>🏢 Builder: {p.builder}</p>
+                <p>🛏 Bedrooms: {p.bedrooms}</p>
+                <p>📐 Area: {p.area}</p>
+                <p>⭐ Rating: {p.rating}</p>
+
+
+              </div>
+
+            ))}
+
+
+          </div>
+
+        )}
+
+
+      </div>
+
+    </main>
+
   );
-}
 
-
-
-function Row({
-  title,
-  values,
-}: {
-  title:string;
-  values:string[];
-}) {
-
-  return (
-
-    <tr className="border-b">
-
-      <td className="bg-gray-50 p-4 font-bold">
-        {title}
-      </td>
-
-
-      {values.map((value,index)=>(
-
-        <td
-          key={index}
-          className="p-4"
-        >
-          {value}
-        </td>
-
-      ))}
-
-    </tr>
-
-  );
 }

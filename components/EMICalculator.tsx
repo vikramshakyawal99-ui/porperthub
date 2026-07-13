@@ -18,49 +18,122 @@ export default function EMICalculator() {
           Math.pow(1 + monthlyRate, months)) /
         (Math.pow(1 + monthlyRate, months) - 1);
 
+  const totalPayment = emi * months;
+  const interest = totalPayment - loan;
+
+  const score =
+    loan < 5000000
+      ? 9
+      : loan < 10000000
+      ? 8
+      : 7;
+
   return (
-    <div className="mt-8 rounded-xl bg-gray-50 p-6">
-      <h2 className="mb-5 text-2xl font-bold">
-        EMI Calculator
+    <div className="mt-10 rounded-3xl bg-white p-8 shadow-xl">
+
+      <h2 className="text-3xl font-bold">
+        🏦 Smart EMI Calculator
       </h2>
 
-      <div className="space-y-4">
+      <p className="mt-2 text-gray-600">
+        Check your property affordability instantly
+      </p>
 
-        <input
-          type="number"
-          value={loan}
-          onChange={(e) => setLoan(Number(e.target.value))}
-          className="w-full rounded border p-3"
-          placeholder="Loan Amount"
-        />
 
-        <input
-          type="number"
-          value={rate}
-          onChange={(e) => setRate(Number(e.target.value))}
-          className="w-full rounded border p-3"
-          placeholder="Interest Rate (%)"
-        />
+      <div className="mt-8 space-y-6">
 
-        <input
-          type="number"
-          value={years}
-          onChange={(e) => setYears(Number(e.target.value))}
-          className="w-full rounded border p-3"
-          placeholder="Loan Tenure (Years)"
-        />
 
-        <div className="rounded-lg bg-blue-600 p-4 text-white">
-          <h3 className="text-xl font-bold">
-            Monthly EMI
-          </h3>
+        <div>
+          <label className="font-semibold">
+            Loan Amount
+          </label>
 
-          <p className="mt-2 text-3xl font-bold">
-            ₹ {Math.round(emi).toLocaleString()}
+          <input
+            type="range"
+            min="1000000"
+            max="50000000"
+            step="500000"
+            value={loan}
+            onChange={(e)=>setLoan(Number(e.target.value))}
+            className="w-full"
+          />
+
+          <p className="font-bold">
+            ₹ {loan.toLocaleString()}
           </p>
         </div>
 
+
+        <div>
+          <label className="font-semibold">
+            Interest Rate
+          </label>
+
+          <input
+            type="range"
+            min="5"
+            max="15"
+            step="0.1"
+            value={rate}
+            onChange={(e)=>setRate(Number(e.target.value))}
+            className="w-full"
+          />
+
+          <p className="font-bold">
+            {rate}%
+          </p>
+        </div>
+
+
+        <div>
+          <label className="font-semibold">
+            Tenure
+          </label>
+
+          <input
+            type="range"
+            min="5"
+            max="30"
+            value={years}
+            onChange={(e)=>setYears(Number(e.target.value))}
+            className="w-full"
+          />
+
+          <p className="font-bold">
+            {years} Years
+          </p>
+        </div>
+
+
+        <div className="grid gap-5 md:grid-cols-3">
+
+          <div className="rounded-2xl bg-blue-600 p-5 text-white">
+            <p>Monthly EMI</p>
+            <h3 className="text-3xl font-bold">
+              ₹ {Math.round(emi).toLocaleString()}
+            </h3>
+          </div>
+
+
+          <div className="rounded-2xl bg-gray-100 p-5">
+            <p>Total Interest</p>
+            <h3 className="text-2xl font-bold">
+              ₹ {Math.round(interest).toLocaleString()}
+            </h3>
+          </div>
+
+
+          <div className="rounded-2xl bg-green-100 p-5">
+            <p>Affordability Score</p>
+            <h3 className="text-3xl font-bold">
+              {score}/10
+            </h3>
+          </div>
+
+        </div>
+
       </div>
+
     </div>
   );
 }
