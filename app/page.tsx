@@ -10,6 +10,7 @@ import FeaturedProperties from "../components/FeaturedProperties";
 import WhyChooseUs from "../components/WhyChooseUs";
 import LatestProjects from "../components/LatestProjects";
 import Testimonials from "../components/Testimonials";
+import HomeLoan from "../components/HomeLoan";
 
 export default function Home() {
   return (
@@ -23,6 +24,7 @@ export default function Home() {
       <PopularCities />
       <FeaturedProperties />
       <PropertyComparison />
+      <HomeLoan />
       <WhyChooseUs />
       <LatestProjects />
       <Testimonials />

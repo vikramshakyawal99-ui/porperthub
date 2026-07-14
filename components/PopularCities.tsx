@@ -24,7 +24,7 @@ export default function PopularCities() {
               className="cursor-pointer rounded-xl border bg-gray-50 p-6 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
             >
               <h3 className="text-xl font-semibold">{city}</h3>
-              <p className="mt-2 text-gray-500">
+              <p className="mt-2 text-black">
                 Explore Properties
               </p>
             </div>

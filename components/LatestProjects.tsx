@@ -53,7 +53,7 @@ export default function LatestProjects() {
                   {project.name}
                 </h3>
 
-                <p className="mt-2 text-gray-500">
+                <p className="mt-2 text-black">
                   📍 {project.location}
                 </p>
 
@@ -61,7 +61,7 @@ export default function LatestProjects() {
                   {project.price}
                 </p>
 
-                <p className="mt-2 text-sm text-gray-500">
+                <p className="mt-2 text-sm text-black">
                   Builder: {project.builder}
                 </p>
 

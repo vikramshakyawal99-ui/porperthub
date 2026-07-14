@@ -42,7 +42,7 @@ export default function NearbyPlaces({ location }: Props) {
         📍 Nearby Places
       </h2>
 
-      <p className="mb-8 text-gray-500">
+      <p className="mb-8 text-black">
         Around {location}
       </p>
 

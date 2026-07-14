@@ -48,7 +48,7 @@ export default function Testimonials() {
                 {item.name}
               </h3>
 
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-black">
                 {item.city}
               </p>
             </div>

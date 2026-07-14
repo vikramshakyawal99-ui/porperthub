@@ -54,7 +54,7 @@ export default function NearbyPlaces({ location }: Props) {
             📍 Nearby Places Intelligence
           </h2>
 
-          <p className="mt-2 text-gray-500">
+          <p className="mt-2 text-black">
             Around {location}
           </p>
         </div>
