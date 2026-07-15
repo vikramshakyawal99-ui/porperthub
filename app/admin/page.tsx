@@ -1,166 +1,82 @@
-"use client";
+import Link from "next/link";
+import AdminSidebar from "@/components/AdminSidebar";
 
-import { useEffect, useState } from "react";
-import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } from "firebase/firestore";
-import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
-import { db, auth, googleProvider } from "../../lib/firebase";
-
-export default function AdminPage() {
-  const [title, setTitle] = useState("");
-  const [location, setLocation] = useState("");
-  const [builder, setBuilder] = useState("");
-  const [price, setPrice] = useState("");
-  const [type, setType] = useState("Apartment");
-
-  const [siteVisits, setSiteVisits] = useState<any[]>([]);
-
-  useEffect(() => {
-    const q = query(
-      collection(db, "siteVisits"),
-      orderBy("createdAt", "desc")
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      setSiteVisits(data);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  async function deleteVisit(id: string) {
-    try {
-      await deleteDoc(doc(db, "siteVisits", id));
-      alert("Booking deleted");
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async function addProperty(e: React.FormEvent) {
-    e.preventDefault();
-
-    try {
-      await addDoc(collection(db, "properties"), {
-        title,
-        location,
-        builder,
-        price,
-        type,
-        createdAt: new Date(),
-      });
-
-      alert("✅ Property Added Successfully!");
-
-      setTitle("");
-      setLocation("");
-      setBuilder("");
-      setPrice("");
-      setType("Apartment");
-    } catch (err) {
-      console.error(err);
-      alert("❌ Error adding property");
-    }
-  }
-
+export default function AdminDashboard() {
   return (
-    <main className="max-w-6xl mx-auto p-10">
-      <h1 className="text-4xl font-bold mb-8">
-        🏠 PropertyHub Admin Panel
-      </h1>
+    <div className="flex min-h-screen bg-gray-100">
 
-      <section className="mb-10 rounded-2xl bg-white p-8 shadow-xl">
-        <h2 className="mb-6 text-3xl font-bold">📅 Site Visit Bookings</h2>
+      <AdminSidebar />
 
-        {siteVisits.length === 0 ? (
-          <p className="text-gray-500">No bookings found</p>
-        ) : (
-          <div className="space-y-4">
-            {siteVisits.map((visit) => (
-              <div key={visit.id} className="rounded-xl border p-5">
-                <p className="text-xl font-bold">👤 {visit.name}</p>
-                <p>📞 {visit.phone}</p>
-                <p>📅 {visit.date}</p>
+      <main className="flex-1 p-10">
 
-                <span className="inline-block mt-3 rounded-full bg-yellow-100 px-4 py-1 text-sm font-bold text-yellow-700">
-                  Pending
-                </span>
-
-                <div className="mt-4 flex gap-3">
-                  <a
-                    href={`tel:${visit.phone}`}
-                    className="rounded-xl bg-green-600 px-5 py-2 font-bold text-white"
-                  >
-                    📞 Call
-                  </a>
-
-                  <button
-                    onClick={() => deleteVisit(visit.id)}
-                    className="rounded-xl bg-red-600 px-5 py-2 font-bold text-white"
-                  >
-                    🗑️ Delete
-                  </button>
-                </div>
-              </div>
-            ))}
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-800">
+              Admin Dashboard
+            </h1>
+            <p className="mt-2 text-gray-600">
+              Welcome to PropertyHub Admin Panel
+            </p>
           </div>
-        )}
-      </section>
 
-      <form
-        onSubmit={addProperty}
-        className="grid gap-5 rounded-2xl bg-white p-8 shadow-xl"
-      >
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Property Title"
-          className="border rounded-xl p-4"
-        />
+          <Link
+            href="/admin/add-property"
+            className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
+          >
+            + Add Property
+          </Link>
+        </div>
 
-        <input
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="Location"
-          className="border rounded-xl p-4"
-        />
+        <div className="grid gap-6 md:grid-cols-4">
 
-        <input
-          value={builder}
-          onChange={(e) => setBuilder(e.target.value)}
-          placeholder="Builder"
-          className="border rounded-xl p-4"
-        />
+          <div className="rounded-3xl bg-white p-6 shadow">
+            <p className="text-gray-500">Properties</p>
+            <h2 className="mt-3 text-4xl font-bold">24</h2>
+          </div>
 
-        <input
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          placeholder="Price"
-          className="border rounded-xl p-4"
-        />
+          <div className="rounded-3xl bg-white p-6 shadow">
+            <p className="text-gray-500">Users</p>
+            <h2 className="mt-3 text-4xl font-bold">120</h2>
+          </div>
 
-        <select
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-          className="border rounded-xl p-4"
-        >
-          <option>Apartment</option>
-          <option>Villa</option>
-          <option>Flat</option>
-          <option>Penthouse</option>
-        </select>
+          <div className="rounded-3xl bg-white p-6 shadow">
+            <p className="text-gray-500">Enquiries</p>
+            <h2 className="mt-3 text-4xl font-bold">35</h2>
+          </div>
 
-        <button
-          type="submit"
-          className="rounded-xl bg-blue-600 p-4 font-bold text-white"
-        >
-          ➕ Add Property
-        </button>
-      </form>
-    </main>
+          <div className="rounded-3xl bg-white p-6 shadow">
+            <p className="text-gray-500">Builders</p>
+            <h2 className="mt-3 text-4xl font-bold">8</h2>
+          </div>
+
+        </div>
+
+        <div className="mt-10 rounded-3xl bg-white p-8 shadow">
+          <h2 className="mb-4 text-2xl font-bold">
+            Quick Actions
+          </h2>
+
+          <div className="flex flex-wrap gap-4">
+
+            <Link
+              href="/admin/add-property"
+              className="rounded-xl bg-blue-600 px-5 py-3 text-white"
+            >
+              Add Property
+            </Link>
+
+            <Link
+              href="/admin/properties"
+              className="rounded-xl bg-green-600 px-5 py-3 text-white"
+            >
+              Manage Properties
+            </Link>
+
+          </div>
+        </div>
+
+      </main>
+
+    </div>
   );
 }
