@@ -16,8 +16,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PropertyHub",
-  description: "Find your dream property",
+  title: "PropertyHub | Premium Properties in Jaipur",
+  description:
+    "Find premium residential and commercial properties in Jaipur. Explore apartments, villas, plots and latest real estate projects with PropertyHub.",
+  keywords: [
+    "Jaipur properties",
+    "buy property in Jaipur",
+    "flats in Jaipur",
+    "luxury apartments Jaipur",
+    "real estate Jaipur",
+  ],
+  openGraph: {
+    title: "PropertyHub | Premium Properties in Jaipur",
+    description:
+      "Discover your dream home with verified properties, builders and projects in Jaipur.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
