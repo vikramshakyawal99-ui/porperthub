@@ -43,7 +43,7 @@ export default function AdminDashboard() {
 
       setViewCount(viewsSnap.docs.length);
 
-      const viewMap = {};
+      const viewMap: Record<string, number> = {};
 
       viewsSnap.docs.forEach((doc) => {
         const data = doc.data();

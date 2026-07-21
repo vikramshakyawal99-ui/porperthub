@@ -37,7 +37,6 @@ interface PropertyFormProps {
   rating: number;
   setRating: (value: number) => void;
 
-  images: File[];
   setImages: (value: File[]) => void;
 }
 
