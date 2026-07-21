@@ -69,8 +69,20 @@ export default function AdminDashboard() {
 
       setFollowUpCount(followUps.length);
 
-      setRecentLeads(leadData.slice(0,5));
-      setRecentVisits(visitData.slice(0,5));
+      const sortedLeads = [...leadData].sort(
+        (a:any,b:any) =>
+          (b.createdAt?.seconds || 0) -
+          (a.createdAt?.seconds || 0)
+      );
+
+      const sortedVisits = [...visitData].sort(
+        (a:any,b:any) =>
+          (b.createdAt?.seconds || 0) -
+          (a.createdAt?.seconds || 0)
+      );
+
+      setRecentLeads(sortedLeads.slice(0,5));
+      setRecentVisits(sortedVisits.slice(0,5));
     }
 
     loadStats();
