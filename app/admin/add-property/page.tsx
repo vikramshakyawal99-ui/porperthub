@@ -5,136 +5,181 @@ import PropertyForm from "@/components/PropertyForm";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-
 export default function AddPropertyPage() {
-  const [title, setTitle] = useState("");
-  const [location, setLocation] = useState("");
-  const [price, setPrice] = useState("");
-  const [images, setImages] = useState<File[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [builder, setBuilder] = useState("");
-  const [builderContact, setBuilderContact] = useState("");
-  const [bedrooms, setBedrooms] = useState(0);
-  const [bathrooms, setBathrooms] = useState(0);
-  const [area, setArea] = useState("");
-  const [rating, setRating] = useState(0);
-  const [description, setDescription] = useState("");
-  const [projectName, setProjectName] = useState("");
-  const [reraNumber, setReraNumber] = useState("");
-  const [propertyType, setPropertyType] = useState("");
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  const [title,setTitle]=useState("");
+  const [location,setLocation]=useState("");
+  const [price,setPrice]=useState("");
+  const [images,setImages]=useState<File[]>([]);
+  const [loading,setLoading]=useState(false);
 
-    try {
-      setLoading(true);
-      console.log('START SUBMIT', images.length);
-
-      const imageUrls: string[] = [];
-
-      
+  const [builder,setBuilder]=useState("");
+  const [builderContact,setBuilderContact]=useState("");
+  const [bedrooms,setBedrooms]=useState(0);
+  const [bathrooms,setBathrooms]=useState(0);
+  const [area,setArea]=useState("");
+  const [rating,setRating]=useState(0);
+  const [description,setDescription]=useState("");
+  const [projectName,setProjectName]=useState("");
+  const [reraNumber,setReraNumber]=useState("");
+  const [propertyType,setPropertyType]=useState("");
 
 
-      
+async function handleSubmit(e:React.FormEvent){
 
-      console.log('FIRESTORE START');
-      await addDoc(collection(db, "properties"), {
-        title,
-        location,
-        price,
-        builder,
-        builderContact,
-        bedrooms,
-        bathrooms,
-        area,
-        rating,
-        description,
-        projectName,
-        reraNumber,
-        propertyType,
-        image: imageUrls[0] || "",
-        images: imageUrls,
-        createdAt: new Date(),
-      });
+ e.preventDefault();
 
-      console.log('SUCCESS');
-      alert("✅ Property Added Successfully!");
+ try{
 
-      setTitle("");
-      setLocation("");
-      setPrice("");
-      setImages([]);
-      setBuilderContact("");
-      setProjectName("");
-      setReraNumber("");
-      setPropertyType("");
-    } catch (error) {
-      console.error("Firebase Error:", error);
-      if (error instanceof Error) {
-        alert(error.message);
-      } else {
-        alert(String(error));
-      }
-      alert("❌ Error adding property");
-    } finally {
-      setLoading(false);
-    }
-  }
+  setLoading(true);
 
-  return (
-    <main className="min-h-screen bg-zinc-950 p-10">
-      <div className="mx-auto max-w-2xl rounded-3xl bg-zinc-900 p-8 shadow-xl">
-        <h1 className="mb-6 text-3xl font-bold">
-          Add Property
-        </h1>
+  console.log("START SUBMIT");
 
-        <form onSubmit={handleSubmit} className="space-y-5">
 
-          <PropertyForm
-            title={title}
-            setTitle={setTitle}
-            location={location}
-            setLocation={setLocation}
-            price={price}
-            setPrice={setPrice}
-            builder={builder}
-            setBuilder={setBuilder}
-            builderContact={builderContact}
-            setBuilderContact={setBuilderContact}
-            bedrooms={bedrooms}
-            setBedrooms={setBedrooms}
-            bathrooms={bathrooms}
-            setBathrooms={setBathrooms}
-            area={area}
-            setArea={setArea}
-            rating={rating}
-            setRating={setRating}
-            description={description}
-            setDescription={setDescription}
-
-            images={images}
-            setImages={setImages}
-
-            projectName={projectName}
-            setProjectName={setProjectName}
-
-            reraNumber={reraNumber}
-            setReraNumber={setReraNumber}
-
-            propertyType={propertyType}
-            setPropertyType={setPropertyType}
-          />
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-xl bg-blue-600 p-3 text-white"
-          >
-            {loading ? "Adding..." : "Add Property"}
-          </button>
-
-        </form>
-      </div>
-    </main>
+  const imageUrls = images.map(
+    (img)=>URL.createObjectURL(img)
   );
+
+
+  console.log("FIRESTORE START");
+
+
+  await addDoc(collection(db,"properties"),{
+
+    title,
+    location,
+    price,
+    builder,
+    builderContact,
+    bedrooms,
+    bathrooms,
+    area,
+    rating,
+    description,
+    projectName,
+    reraNumber,
+    propertyType,
+
+    image:imageUrls[0] || "",
+    images:imageUrls,
+
+    createdAt:new Date()
+
+  });
+
+
+  console.log("SUCCESS");
+
+  alert("✅ Property Added Successfully");
+
+
+  setTitle("");
+  setLocation("");
+  setPrice("");
+  setImages([]);
+  setBuilder("");
+  setBuilderContact("");
+  setProjectName("");
+  setReraNumber("");
+  setPropertyType("");
+
+
+ }catch(error){
+
+  console.log(error);
+  alert("❌ Error adding property");
+
+ }
+ finally{
+
+  setLoading(false);
+
+ }
+
+}
+
+
+
+return(
+
+<main className="min-h-screen bg-zinc-950 p-10">
+
+<div className="mx-auto max-w-2xl rounded-3xl bg-zinc-900 p-8">
+
+
+<h1 className="mb-6 text-3xl font-bold">
+Add Property
+</h1>
+
+
+<form onSubmit={handleSubmit} className="space-y-5">
+
+
+<PropertyForm
+
+title={title}
+setTitle={setTitle}
+
+location={location}
+setLocation={setLocation}
+
+price={price}
+setPrice={setPrice}
+
+builder={builder}
+setBuilder={setBuilder}
+
+builderContact={builderContact}
+setBuilderContact={setBuilderContact}
+
+bedrooms={bedrooms}
+setBedrooms={setBedrooms}
+
+bathrooms={bathrooms}
+setBathrooms={setBathrooms}
+
+area={area}
+setArea={setArea}
+
+rating={rating}
+setRating={setRating}
+
+description={description}
+setDescription={setDescription}
+
+images={images}
+setImages={setImages}
+
+projectName={projectName}
+setProjectName={setProjectName}
+
+reraNumber={reraNumber}
+setReraNumber={setReraNumber}
+
+propertyType={propertyType}
+setPropertyType={setPropertyType}
+
+/>
+
+
+<button
+type="submit"
+disabled={loading}
+className="w-full rounded-xl bg-blue-600 p-3 text-white"
+>
+
+{loading ? "Adding..." : "Add Property"}
+
+</button>
+
+
+</form>
+
+
+</div>
+
+</main>
+
+)
+
 }

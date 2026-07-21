@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, increment } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import EMICalculator from "../../../components/EMICalculator";
 import ImageGallery from "../../../components/ImageGallery";
@@ -38,6 +38,18 @@ export default async function PropertyDetails({ params }: Props) {
   } as any;
 
   console.log("PROPERTY IMAGES:", property.images);
+
+  // Property View Tracking
+  await setDoc(
+    doc(db, "propertyViews", id),
+    {
+      propertyId: id,
+      propertyTitle: property.title,
+      views: increment(1),
+      updatedAt: new Date(),
+    },
+    { merge: true }
+  );
 
   return (
     <main className="min-h-screen bg-zinc-950 py-10">
