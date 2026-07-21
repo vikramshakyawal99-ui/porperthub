@@ -24,7 +24,7 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section className="bg-white py-16">
+    <section className="bg-zinc-900 py-16">
       <div className="mx-auto max-w-7xl px-6">
         <h2 className="mb-10 text-center text-3xl font-bold text-gray-900">
           What Our Customers Say
@@ -40,7 +40,7 @@ export default function Testimonials() {
                 ⭐⭐⭐⭐⭐
               </div>
 
-              <p className="text-gray-600">
+              <p className="text-gray-300">
                 &ldquo;{item.review}&rdquo;
               </p>
 
@@ -48,7 +48,7 @@ export default function Testimonials() {
                 {item.name}
               </h3>
 
-              <p className="text-sm text-black">
+              <p className="text-sm text-white">
                 {item.city}
               </p>
             </div>

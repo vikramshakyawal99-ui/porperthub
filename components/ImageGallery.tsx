@@ -14,7 +14,7 @@ export default function ImageGallery({
 
   if (images.length === 0) {
     return (
-      <div className="mb-10 rounded-2xl bg-gray-100 p-10 text-center text-xl font-semibold">
+      <div className="mb-10 rounded-2xl bg-zinc-950 p-10 text-center text-xl font-semibold">
         No Images Available
       </div>
     );
@@ -71,14 +71,14 @@ export default function ImageGallery({
 
           <button
             onClick={() => setFullscreen(false)}
-            className="absolute right-6 top-6 rounded-full bg-white px-4 py-2 font-bold"
+            className="absolute right-6 top-6 rounded-full bg-zinc-900 px-4 py-2 font-bold"
           >
             ✕
           </button>
 
           <button
             onClick={previousImage}
-            className="absolute left-6 rounded-full bg-white p-4 text-2xl"
+            className="absolute left-6 rounded-full bg-zinc-900 p-4 text-2xl"
           >
             ←
           </button>
@@ -91,7 +91,7 @@ export default function ImageGallery({
 
           <button
             onClick={nextImage}
-            className="absolute right-6 rounded-full bg-white p-4 text-2xl"
+            className="absolute right-6 rounded-full bg-zinc-900 p-4 text-2xl"
           >
             →
           </button>

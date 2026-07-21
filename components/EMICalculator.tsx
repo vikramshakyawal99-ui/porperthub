@@ -29,13 +29,13 @@ export default function EMICalculator() {
       : 7;
 
   return (
-    <div className="mt-10 rounded-3xl bg-white p-8 shadow-xl">
+    <div className="mt-10 rounded-3xl bg-zinc-900 p-8 shadow-xl">
 
       <h2 className="text-3xl font-bold">
         🏦 Smart EMI Calculator
       </h2>
 
-      <p className="mt-2 text-gray-600">
+      <p className="mt-2 text-gray-300">
         Check your property affordability instantly
       </p>
 
@@ -115,7 +115,7 @@ export default function EMICalculator() {
           </div>
 
 
-          <div className="rounded-2xl bg-gray-100 p-5">
+          <div className="rounded-2xl bg-zinc-950 p-5">
             <p>Total Interest</p>
             <h3 className="text-2xl font-bold">
               ₹ {Math.round(interest).toLocaleString()}

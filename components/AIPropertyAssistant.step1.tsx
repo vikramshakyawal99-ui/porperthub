@@ -76,7 +76,7 @@ export default function AIPropertyAssistant() {
       </button>
 
       {open && (
-        <div className="fixed bottom-24 right-6 w-80 rounded-2xl border bg-white p-5 shadow-2xl">
+        <div className="fixed bottom-24 right-6 w-80 rounded-2xl border bg-zinc-900 p-5 shadow-2xl">
 
           <h2 className="text-xl font-bold">
             🤖 Property Assistant

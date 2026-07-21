@@ -29,7 +29,7 @@ export default function PropertyScore({ rating }: Props) {
         {scores.map((item) => (
           <div
             key={item.title}
-            className="rounded-2xl bg-white/10 p-5"
+            className="rounded-2xl bg-zinc-900/10 p-5"
           >
             <div className="flex items-center justify-between">
               <span>{item.title}</span>
@@ -38,7 +38,7 @@ export default function PropertyScore({ rating }: Props) {
               </span>
             </div>
 
-            <div className="mt-3 h-3 rounded-full bg-white/20">
+            <div className="mt-3 h-3 rounded-full bg-zinc-900/20">
               <div
                 className="h-3 rounded-full bg-green-400"
                 style={{ width: `${item.value * 10}%` }}
@@ -48,7 +48,7 @@ export default function PropertyScore({ rating }: Props) {
         ))}
       </div>
 
-      <div className="mt-8 rounded-2xl bg-white/20 p-6 text-center">
+      <div className="mt-8 rounded-2xl bg-zinc-900/20 p-6 text-center">
         <p className="text-lg">
           Overall Property Score
         </p>

@@ -1,51 +1,80 @@
 "use client";
 
 import { useState } from "react";
+import PropertyForm from "@/components/PropertyForm";
 import { collection, addDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+
 
 export default function AddPropertyPage() {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [price, setPrice] = useState("");
-  const [image, setImage] = useState<File | null>(null);
+  const [images, setImages] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
+  const [builder, setBuilder] = useState("");
+  const [builderContact, setBuilderContact] = useState("");
+  const [bedrooms, setBedrooms] = useState(0);
+  const [bathrooms, setBathrooms] = useState(0);
+  const [area, setArea] = useState("");
+  const [rating, setRating] = useState(0);
+  const [description, setDescription] = useState("");
+  const [projectName, setProjectName] = useState("");
+  const [reraNumber, setReraNumber] = useState("");
+  const [propertyType, setPropertyType] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     try {
       setLoading(true);
+      console.log('START SUBMIT', images.length);
 
-      let imageUrl = "";
+      const imageUrls: string[] = [];
 
-      if (image) {
-        const imageRef = ref(
-          storage,
-          `properties/${Date.now()}-${image.name}`
-        );
+      
 
-        await uploadBytes(imageRef, image);
-        imageUrl = await getDownloadURL(imageRef);
-      }
 
+      
+
+      console.log('FIRESTORE START');
       await addDoc(collection(db, "properties"), {
         title,
         location,
         price,
-        image: imageUrl,
+        builder,
+        builderContact,
+        bedrooms,
+        bathrooms,
+        area,
+        rating,
+        description,
+        projectName,
+        reraNumber,
+        propertyType,
+        image: imageUrls[0] || "",
+        images: imageUrls,
         createdAt: new Date(),
       });
 
+      console.log('SUCCESS');
       alert("✅ Property Added Successfully!");
 
       setTitle("");
       setLocation("");
       setPrice("");
-      setImage(null);
+      setImages([]);
+      setBuilderContact("");
+      setProjectName("");
+      setReraNumber("");
+      setPropertyType("");
     } catch (error) {
-      console.error(error);
+      console.error("Firebase Error:", error);
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert(String(error));
+      }
       alert("❌ Error adding property");
     } finally {
       setLoading(false);
@@ -53,40 +82,47 @@ export default function AddPropertyPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 p-10">
-      <div className="mx-auto max-w-2xl rounded-3xl bg-white p-8 shadow-xl">
+    <main className="min-h-screen bg-zinc-950 p-10">
+      <div className="mx-auto max-w-2xl rounded-3xl bg-zinc-900 p-8 shadow-xl">
         <h1 className="mb-6 text-3xl font-bold">
           Add Property
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-5">
 
-          <input
-            className="w-full rounded-xl border p-3"
-            placeholder="Property Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+          <PropertyForm
+            title={title}
+            setTitle={setTitle}
+            location={location}
+            setLocation={setLocation}
+            price={price}
+            setPrice={setPrice}
+            builder={builder}
+            setBuilder={setBuilder}
+            builderContact={builderContact}
+            setBuilderContact={setBuilderContact}
+            bedrooms={bedrooms}
+            setBedrooms={setBedrooms}
+            bathrooms={bathrooms}
+            setBathrooms={setBathrooms}
+            area={area}
+            setArea={setArea}
+            rating={rating}
+            setRating={setRating}
+            description={description}
+            setDescription={setDescription}
 
-          <input
-            className="w-full rounded-xl border p-3"
-            placeholder="Location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          />
+            images={images}
+            setImages={setImages}
 
-          <input
-            className="w-full rounded-xl border p-3"
-            placeholder="Price"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-          />
+            projectName={projectName}
+            setProjectName={setProjectName}
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setImage(e.target.files?.[0] || null)}
-            className="w-full rounded-xl border p-3"
+            reraNumber={reraNumber}
+            setReraNumber={setReraNumber}
+
+            propertyType={propertyType}
+            setPropertyType={setPropertyType}
           />
 
           <button

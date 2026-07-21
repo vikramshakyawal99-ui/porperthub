@@ -41,13 +41,13 @@ export default function FavoritesPage() {
         {
           favoriteProperties.length === 0 ? (
 
-            <div className="rounded-2xl bg-white p-10 text-center shadow">
+            <div className="rounded-2xl bg-zinc-900 p-10 text-center shadow">
 
               <h2 className="text-2xl font-bold">
                 No Favorites Yet
               </h2>
 
-              <p className="mt-3 text-gray-600">
+              <p className="mt-3 text-gray-300">
                 Save properties to see them here.
               </p>
 

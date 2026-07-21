@@ -40,7 +40,7 @@ export default function LatestProjects() {
           {projects.map((project) => (
             <div
               key={project.id}
-              className="overflow-hidden rounded-2xl bg-white shadow-md transition hover:-translate-y-2 hover:shadow-xl"
+              className="overflow-hidden rounded-2xl bg-zinc-900 shadow-md transition hover:-translate-y-2 hover:shadow-xl"
             >
               <img
                 src={project.image}
@@ -53,7 +53,7 @@ export default function LatestProjects() {
                   {project.name}
                 </h3>
 
-                <p className="mt-2 text-black">
+                <p className="mt-2 text-white">
                   📍 {project.location}
                 </p>
 
@@ -61,7 +61,7 @@ export default function LatestProjects() {
                   {project.price}
                 </p>
 
-                <p className="mt-2 text-sm text-black">
+                <p className="mt-2 text-sm text-white">
                   Builder: {project.builder}
                 </p>
 

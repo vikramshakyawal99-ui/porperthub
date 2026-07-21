@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { properties } from "../../../data/properties";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import EMICalculator from "../../../components/EMICalculator";
 import ImageGallery from "../../../components/ImageGallery";
 import Amenities from "../../../components/Amenities";
@@ -24,19 +25,33 @@ type Props = {
 export default async function PropertyDetails({ params }: Props) {
   const { id } = await params;
 
-  const property = properties.find((p) => p.id === Number(id));
+  const docRef = doc(db, "properties", id);
+  const docSnap = await getDoc(docRef);
 
-  if (!property) {
+  if (!docSnap.exists()) {
     notFound();
   }
 
+  const property = {
+    id: docSnap.id,
+    ...docSnap.data(),
+  } as any;
+
+  console.log("PROPERTY IMAGES:", property.images);
+
   return (
-    <main className="min-h-screen bg-gray-100 py-10">
+    <main className="min-h-screen bg-zinc-950 py-10">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="overflow-hidden rounded-3xl bg-white shadow-2xl">
+        <div className="overflow-hidden rounded-3xl bg-zinc-900 shadow-2xl">
           
           {/* Image Gallery */}
-          <ImageGallery images={[property.image]} />
+          <ImageGallery
+            images={
+              property.images && property.images.length > 0
+                ? property.images
+                : [property.image]
+            }
+          />
 
           <div className="p-8">
 
@@ -80,42 +95,63 @@ export default async function PropertyDetails({ params }: Props) {
             <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
 
               <div className="rounded-2xl bg-blue-50 p-5 shadow">
-                <h3 className="text-gray-500">Builder</h3>
+                <h3 className="text-gray-400">Builder</h3>
                 <p className="mt-2 text-xl font-bold">
                   {property.builder}
                 </p>
               </div>
 
               <div className="rounded-2xl bg-blue-50 p-5 shadow">
-                <h3 className="text-gray-500">Bedrooms</h3>
+                <h3 className="text-gray-400">Bedrooms</h3>
                 <p className="mt-2 text-xl font-bold">
                   🛏 {property.bedrooms}
                 </p>
               </div>
 
               <div className="rounded-2xl bg-blue-50 p-5 shadow">
-                <h3 className="text-gray-500">Bathrooms</h3>
+                <h3 className="text-gray-400">Bathrooms</h3>
                 <p className="mt-2 text-xl font-bold">
                   🛁 {property.bathrooms}
                 </p>
               </div>
 
               <div className="rounded-2xl bg-blue-50 p-5 shadow">
-                <h3 className="text-gray-500">Area</h3>
+                <h3 className="text-gray-400">Area</h3>
                 <p className="mt-2 text-xl font-bold">
                   📐 {property.area}
                 </p>
               </div>
 
               <div className="rounded-2xl bg-blue-50 p-5 shadow">
-                <h3 className="text-gray-500">Parking</h3>
+                <h3 className="text-gray-400">Project</h3>
+                <p className="mt-2 text-xl font-bold">
+                  🏗 {property.projectName || "-"}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-blue-50 p-5 shadow">
+                <h3 className="text-gray-400">Property Type</h3>
+                <p className="mt-2 text-xl font-bold">
+                  🏢 {property.propertyType || "-"}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-blue-50 p-5 shadow">
+                <h3 className="text-gray-400">RERA Number</h3>
+                <p className="mt-2 text-xl font-bold">
+                  📋 {property.reraNumber || "-"}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-blue-50 p-5 shadow">
+                <h3 className="text-gray-400">Parking</h3>
                 <p className="mt-2 text-xl font-bold">
                   🚗 {property.parking}
                 </p>
               </div>
 
               <div className="rounded-2xl bg-blue-50 p-5 shadow">
-                <h3 className="text-gray-500">Possession</h3>
+                <h3 className="text-gray-400">Possession</h3>
                 <p className="mt-2 text-xl font-bold">
                   🏠 {property.possession}
                 </p>
@@ -127,7 +163,12 @@ export default async function PropertyDetails({ params }: Props) {
             <Amenities />
 
             {/* Builder Information */}
-            <BuilderCard builder={property.builder} />
+            <BuilderCard
+  builder={property.builder}
+  builderContact={property.builderContact}
+  projectName={property.projectName}
+  reraNumber={property.reraNumber}
+/>
 
             <PropertyScore rating={property.rating} />
 
@@ -152,9 +193,12 @@ export default async function PropertyDetails({ params }: Props) {
             {/* Buttons */}
             <div className="mt-10 flex flex-wrap gap-5">
 
-              <button className="rounded-xl bg-blue-600 px-8 py-4 font-bold text-white transition hover:scale-105 hover:bg-blue-700">
-                📞 Contact Builder
-              </button>
+              <a
+                href={`tel:${property.builderContact}`}
+                className="rounded-xl bg-blue-600 px-8 py-4 font-bold text-white transition hover:scale-105 hover:bg-blue-700"
+              >
+                📞 Call Builder
+              </a>
 
               <FavoriteButton propertyId={property.id} />
 
@@ -162,7 +206,7 @@ export default async function PropertyDetails({ params }: Props) {
 
             {/* Property Actions */}
             <div className="flex flex-wrap gap-4">
-              <PropertyActions propertyId={property.id} />
+              <PropertyActions propertyId={property.id} propertyTitle={property.title} />
               <WhatsAppButton propertyTitle={property.title} />
               <ShareButton />
             </div>
@@ -172,7 +216,10 @@ export default async function PropertyDetails({ params }: Props) {
 
             <NearbyPlaces location={property.location} />
 
-            <SiteVisitForm />
+            <SiteVisitForm
+              propertyId={property.id}
+              propertyTitle={property.title}
+            />
 
           </div>
         </div>

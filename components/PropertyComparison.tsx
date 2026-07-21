@@ -36,7 +36,7 @@ export default function PropertyComparison() {
             className={`rounded-2xl border p-5 text-left shadow transition ${
               selected.includes(property.id)
                 ? "border-blue-600 bg-blue-50"
-                : "bg-white"
+                : "bg-zinc-900"
             }`}
           >
             <h3 className="text-xl font-bold">
@@ -65,7 +65,7 @@ export default function PropertyComparison() {
 
             <div
               key={p.id}
-              className="rounded-3xl bg-white p-8 shadow-xl"
+              className="rounded-3xl bg-zinc-900 p-8 shadow-xl"
             >
 
               <h3 className="text-2xl font-bold">

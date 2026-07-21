@@ -25,8 +25,8 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-zinc-950">
+      <div className="bg-zinc-900 p-8 rounded-2xl shadow-xl w-full max-w-md">
         <h1 className="text-3xl font-bold text-center mb-6">
           Create Account
         </h1>
@@ -35,7 +35,7 @@ export default function SignupPage() {
           <input
             type="email"
             placeholder="Email"
-            className="w-full border border-gray-400 bg-white p-3 rounded-lg text-black placeholder:text-black"
+            className="w-full border border-gray-400 bg-zinc-900 p-3 rounded-lg text-white placeholder:text-white"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -44,7 +44,7 @@ export default function SignupPage() {
           <input
             type="password"
             placeholder="Password"
-            className="w-full border border-gray-400 bg-white p-3 rounded-lg text-black placeholder:text-black"
+            className="w-full border border-gray-400 bg-zinc-900 p-3 rounded-lg text-white placeholder:text-white"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required

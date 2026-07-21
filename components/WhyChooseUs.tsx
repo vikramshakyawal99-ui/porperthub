@@ -23,7 +23,7 @@ const features = [
 
 export default function WhyChooseUs() {
   return (
-    <section className="bg-white py-16">
+    <section className="bg-zinc-900 py-16">
       <div className="mx-auto max-w-7xl px-6">
         <h2 className="mb-10 text-center text-3xl font-bold text-gray-900">
           Why Choose PropertyHub?
@@ -43,7 +43,7 @@ export default function WhyChooseUs() {
                 {feature.title}
               </h3>
 
-              <p className="text-gray-600">
+              <p className="text-gray-300">
                 {feature.description}
               </p>
             </div>

@@ -24,7 +24,7 @@ export default function Amenities() {
         {amenities.map((item) => (
           <div
             key={item.name}
-            className="rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-blue-500 hover:shadow-xl"
+            className="rounded-2xl border border-gray-200 bg-zinc-900 p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-blue-500 hover:shadow-xl"
           >
             <div className="mb-3 text-5xl">{item.icon}</div>
 

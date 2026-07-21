@@ -41,7 +41,7 @@ export default function StatsCounter({
         {suffix}
       </h2>
 
-      <p className="mt-2 text-black">
+      <p className="mt-2 text-white">
         {label}
       </p>
     </div>

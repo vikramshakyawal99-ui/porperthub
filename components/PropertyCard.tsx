@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 type Property = {
-  id: number;
+  id: string | number;
   title: string;
   location: string;
   price: string;
@@ -20,7 +20,7 @@ export default function PropertyCard({
 }) {
   return (
     <Link href={`/properties/${property.id}`}>
-      <div className="overflow-hidden rounded-2xl bg-white shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl cursor-pointer">
+      <div className="overflow-hidden rounded-2xl bg-zinc-900 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl cursor-pointer">
 
         <div className="relative">
           <img
@@ -33,7 +33,7 @@ export default function PropertyCard({
             Featured
           </span>
 
-          <span className="absolute right-4 top-4 rounded-full bg-white px-3 py-1 font-bold text-yellow-500 shadow">
+          <span className="absolute right-4 top-4 rounded-full bg-zinc-900 px-3 py-1 font-bold text-yellow-500 shadow">
             ⭐ {property.rating}
           </span>
         </div>
@@ -44,7 +44,7 @@ export default function PropertyCard({
             {property.title}
           </h2>
 
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-300">
             📍 {property.location}
           </p>
 

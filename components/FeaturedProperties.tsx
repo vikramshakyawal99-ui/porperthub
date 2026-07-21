@@ -1,7 +1,25 @@
-import { properties } from "../data/properties";
+"use client";
+
+import useProperties from "@/hooks/useProperties";
 import PropertyCard from "./PropertyCard";
 
 export default function FeaturedProperties() {
+  const { properties, loading } = useProperties();
+
+  if (loading) {
+    return (
+      <section className="bg-gray-50 py-20">
+        <div className="mx-auto max-w-7xl px-6">
+          <h2 className="mb-10 text-4xl font-bold">
+            Featured Properties
+          </h2>
+
+          <p>Loading properties...</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="bg-gray-50 py-20">
       <div className="mx-auto max-w-7xl px-6">

@@ -36,7 +36,7 @@ export default function TopBuilders() {
         {builders.map((builder) => (
           <div
             key={builder.name}
-            className="rounded-3xl border bg-white p-6 shadow-lg transition duration-300 hover:-translate-y-2 hover:shadow-2xl"
+            className="rounded-3xl border bg-zinc-900 p-6 shadow-lg transition duration-300 hover:-translate-y-2 hover:shadow-2xl"
           >
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 text-3xl">
               🏗️
@@ -46,7 +46,7 @@ export default function TopBuilders() {
               {builder.name}
             </h3>
 
-            <p className="mt-2 text-gray-600">
+            <p className="mt-2 text-gray-300">
               📍 {builder.city}
             </p>
 

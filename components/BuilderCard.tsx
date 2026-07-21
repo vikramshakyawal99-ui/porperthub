@@ -1,10 +1,18 @@
 type Props = {
   builder: string;
+  builderContact?: string;
+  projectName?: string;
+  reraNumber?: string;
 };
 
-export default function BuilderCard({ builder }: Props) {
+export default function BuilderCard({
+  builder,
+  builderContact,
+  projectName,
+  reraNumber,
+}: Props) {
   return (
-    <div className="mt-10 rounded-3xl border bg-white p-8 shadow-lg">
+    <div className="mt-10 rounded-3xl border bg-zinc-900 p-8 shadow-lg">
       <h2 className="mb-6 text-3xl font-bold text-gray-900">
         🏢 Builder Information
       </h2>
@@ -19,7 +27,7 @@ export default function BuilderCard({ builder }: Props) {
         <div className="flex-1">
           <h3 className="text-2xl font-bold">{builder}</h3>
 
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-300">
             Trusted real estate developer with quality residential projects
             across Jaipur.
           </p>
@@ -42,14 +50,19 @@ export default function BuilderCard({ builder }: Props) {
             </span>
           </div>
 
-          <div className="mt-6 flex gap-4">
-            <button className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700">
-              📞 Contact Builder
-            </button>
+          <div className="mt-6 space-y-3">
 
-            <button className="rounded-xl border border-gray-300 px-6 py-3 font-semibold hover:bg-gray-100">
-              🌐 Visit Website
-            </button>
+            <p><strong>🏗 Project:</strong> {projectName || "-"}</p>
+
+            <p><strong>📋 RERA:</strong> {reraNumber || "-"}</p>
+
+            <a
+              href={builderContact ? `tel:${builderContact}` : "#"}
+              className="inline-block rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
+            >
+              📞 Call Builder
+            </a>
+
           </div>
         </div>
       </div>

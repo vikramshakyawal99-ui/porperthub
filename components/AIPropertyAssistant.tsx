@@ -63,7 +63,7 @@ export default function AIPropertyAssistant() {
           value={message}
           onChange={(e)=>setMessage(e.target.value)}
           placeholder="Ask about investment, EMI, location..."
-          className="flex-1 rounded-xl p-4 text-black"
+          className="flex-1 rounded-xl p-4 text-white"
         />
 
 
@@ -77,7 +77,7 @@ export default function AIPropertyAssistant() {
       </div>
 
 
-      <div className="mt-6 rounded-2xl bg-white/20 p-5">
+      <div className="mt-6 rounded-2xl bg-zinc-900/20 p-5">
         {answer}
       </div>
 

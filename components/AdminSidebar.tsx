@@ -9,6 +9,8 @@ const menu = [
   { name: "Manage Properties", href: "/admin/properties" },
   { name: "Builders", href: "/admin/builders" },
   { name: "Enquiries", href: "/admin/enquiries" },
+  { name: "Site Visits", href: "/admin/site-visits" },
+  { name: "Leads", href: "/admin/leads" },
 ];
 
 export default function AdminSidebar() {

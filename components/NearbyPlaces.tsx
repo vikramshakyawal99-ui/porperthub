@@ -45,7 +45,7 @@ export default function NearbyPlaces({ location }: Props) {
 
 
   return (
-    <section className="mt-10 rounded-3xl bg-white p-8 shadow-xl">
+    <section className="mt-10 rounded-3xl bg-zinc-900 p-8 shadow-xl">
 
       <div className="flex flex-col justify-between gap-5 md:flex-row">
 
@@ -54,7 +54,7 @@ export default function NearbyPlaces({ location }: Props) {
             📍 Nearby Places Intelligence
           </h2>
 
-          <p className="mt-2 text-black">
+          <p className="mt-2 text-white">
             Around {location}
           </p>
         </div>
@@ -62,7 +62,7 @@ export default function NearbyPlaces({ location }: Props) {
 
         <div className="rounded-2xl bg-green-100 px-6 py-4 text-center">
 
-          <p className="text-gray-600">
+          <p className="text-gray-300">
             Location Score
           </p>
 
@@ -99,7 +99,7 @@ export default function NearbyPlaces({ location }: Props) {
             </h3>
 
 
-            <p className="mt-2 text-gray-600">
+            <p className="mt-2 text-gray-300">
               📏 {place.distance}
             </p>
 

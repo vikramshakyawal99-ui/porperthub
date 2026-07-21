@@ -10,9 +10,9 @@ export default function Hero() {
           Buy • Rent • Commercial • Plots • New Projects
         </p>
 
-        <div className="mt-10 rounded-xl bg-white p-4 shadow-xl">
+        <div className="mt-10 rounded-xl bg-zinc-900 p-4 shadow-xl">
           <div className="flex flex-col gap-4 md:flex-row">
-            <select className="rounded-lg border p-3 text-black md:w-52">
+            <select className="rounded-lg border p-3 text-white md:w-52">
               <option>Buy</option>
               <option>Rent</option>
               <option>Commercial</option>
@@ -22,7 +22,7 @@ export default function Hero() {
             <input
               type="text"
               placeholder="Search City, Locality or Project..."
-              className="flex-1 rounded-lg border p-3 text-black"
+              className="flex-1 rounded-lg border p-3 text-white"
             />
 
             <button className="rounded-lg bg-orange-500 px-8 py-3 font-semibold text-white hover:bg-orange-600">

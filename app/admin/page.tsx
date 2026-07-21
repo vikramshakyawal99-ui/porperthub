@@ -3,7 +3,7 @@ import AdminSidebar from "@/components/AdminSidebar";
 
 export default function AdminDashboard() {
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-zinc-950">
 
       <AdminSidebar />
 
@@ -14,7 +14,7 @@ export default function AdminDashboard() {
             <h1 className="text-4xl font-bold text-gray-800">
               Admin Dashboard
             </h1>
-            <p className="mt-2 text-gray-600">
+            <p className="mt-2 text-gray-300">
               Welcome to PropertyHub Admin Panel
             </p>
           </div>
@@ -29,29 +29,29 @@ export default function AdminDashboard() {
 
         <div className="grid gap-6 md:grid-cols-4">
 
-          <div className="rounded-3xl bg-white p-6 shadow">
-            <p className="text-gray-500">Properties</p>
+          <div className="rounded-3xl bg-zinc-900 p-6 shadow">
+            <p className="text-gray-400">Properties</p>
             <h2 className="mt-3 text-4xl font-bold">24</h2>
           </div>
 
-          <div className="rounded-3xl bg-white p-6 shadow">
-            <p className="text-gray-500">Users</p>
+          <div className="rounded-3xl bg-zinc-900 p-6 shadow">
+            <p className="text-gray-400">Users</p>
             <h2 className="mt-3 text-4xl font-bold">120</h2>
           </div>
 
-          <div className="rounded-3xl bg-white p-6 shadow">
-            <p className="text-gray-500">Enquiries</p>
+          <div className="rounded-3xl bg-zinc-900 p-6 shadow">
+            <p className="text-gray-400">Enquiries</p>
             <h2 className="mt-3 text-4xl font-bold">35</h2>
           </div>
 
-          <div className="rounded-3xl bg-white p-6 shadow">
-            <p className="text-gray-500">Builders</p>
+          <div className="rounded-3xl bg-zinc-900 p-6 shadow">
+            <p className="text-gray-400">Builders</p>
             <h2 className="mt-3 text-4xl font-bold">8</h2>
           </div>
 
         </div>
 
-        <div className="mt-10 rounded-3xl bg-white p-8 shadow">
+        <div className="mt-10 rounded-3xl bg-zinc-900 p-8 shadow">
           <h2 className="mb-4 text-2xl font-bold">
             Quick Actions
           </h2>

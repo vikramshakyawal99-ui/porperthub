@@ -1,113 +1,275 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 type Props = {
   propertyId: number;
+  propertyTitle: string;
 };
 
-export default function PropertyActions({ propertyId }: Props) {
+export default function PropertyActions({
+  propertyId,
+  propertyTitle,
+}: Props) {
+
   const [favorite, setFavorite] = useState(false);
   const [compare, setCompare] = useState(false);
 
+  const [showForm, setShowForm] = useState(false);
+
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+
   useEffect(() => {
-    const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]") as number[];
+
+    const wishlist = JSON.parse(
+      localStorage.getItem("wishlist") || "[]"
+    ) as number[];
+
     const compareList = JSON.parse(
       localStorage.getItem("compareProperties") || "[]"
     ) as number[];
 
     setFavorite(wishlist.includes(propertyId));
     setCompare(compareList.includes(propertyId));
+
   }, [propertyId]);
 
+  useEffect(() => {
+    async function trackView() {
+      try {
+        await addDoc(collection(db, "propertyViews"), {
+          propertyId,
+          propertyTitle,
+          viewedAt: new Date(),
+        });
+      } catch (err) {
+        console.error("View tracking failed:", err);
+      }
+    }
+
+    trackView();
+  }, [propertyId, propertyTitle]);
+
+
   function toggleWishlist() {
-    const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]") as number[];
+
+    const wishlist = JSON.parse(
+      localStorage.getItem("wishlist") || "[]"
+    ) as number[];
 
     if (wishlist.includes(propertyId)) {
-      const updated = wishlist.filter((id) => id !== propertyId);
-      localStorage.setItem("wishlist", JSON.stringify(updated));
+
+      const updated = wishlist.filter(
+        (id) => id !== propertyId
+      );
+
+      localStorage.setItem(
+        "wishlist",
+        JSON.stringify(updated)
+      );
+
       setFavorite(false);
+
     } else {
+
       wishlist.push(propertyId);
-      localStorage.setItem("wishlist", JSON.stringify(wishlist));
+
+      localStorage.setItem(
+        "wishlist",
+        JSON.stringify(wishlist)
+      );
+
       setFavorite(true);
+
     }
+
   }
 
+
+
   function toggleCompare() {
+
     const compareList = JSON.parse(
       localStorage.getItem("compareProperties") || "[]"
     ) as number[];
 
-    if (compareList.includes(propertyId)) {
-      const updated = compareList.filter((id) => id !== propertyId);
-      localStorage.setItem("compareProperties", JSON.stringify(updated));
+
+    if(compareList.includes(propertyId)){
+
+      const updated = compareList.filter(
+        (id)=>id!==propertyId
+      );
+
+      localStorage.setItem(
+        "compareProperties",
+        JSON.stringify(updated)
+      );
+
       setCompare(false);
       return;
+
     }
 
-    if (compareList.length >= 3) {
+
+    if(compareList.length>=3){
+
       alert("You can compare up to 3 properties only.");
       return;
+
     }
 
+
     compareList.push(propertyId);
+
     localStorage.setItem(
       "compareProperties",
       JSON.stringify(compareList)
     );
+
     setCompare(true);
+
   }
 
-  async function shareProperty() {
+
+
+  async function submitLead(){
+
+    if(!name || !phone){
+
+      alert("Please enter name and phone");
+      return;
+
+    }
+
+
+    await addDoc(
+      collection(db,"leads"),
+      {
+        name,
+        phone,
+        propertyId,
+        propertyTitle,
+        status:"New",
+        createdAt:new Date()
+      }
+    );
+
+
+    alert("✅ Inquiry submitted");
+
+    setName("");
+    setPhone("");
+    setShowForm(false);
+
+  }
+
+
+
+  async function shareProperty(){
+
     const url = window.location.href;
 
-    if (navigator.share) {
+    if(navigator.share){
+
       await navigator.share({
-        title: "PropertyHub",
-        text: "Check out this property",
+        title:"PropertyHub",
+        text:"Check out this property",
         url,
       });
-    } else {
+
+    }else{
+
       await navigator.clipboard.writeText(url);
-      alert("Property link copied to clipboard!");
+      alert("Property link copied!");
+
     }
+
   }
 
+
+
   return (
+
     <div className="mt-10 flex flex-wrap gap-4">
-      <button className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700">
-        📞 Contact Builder
+
+
+      <button
+        onClick={()=>setShowForm(!showForm)}
+        className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white"
+      >
+        📞 Send Inquiry
       </button>
+
+
+      {
+        showForm && (
+
+          <div className="w-full rounded-xl bg-zinc-900 p-5 shadow">
+
+            <input
+              placeholder="Your Name"
+              value={name}
+              onChange={(e)=>setName(e.target.value)}
+              className="mb-3 w-full rounded border p-3"
+            />
+
+            <input
+              placeholder="Phone Number"
+              value={phone}
+              onChange={(e)=>setPhone(e.target.value)}
+              className="mb-3 w-full rounded border p-3"
+            />
+
+
+            <button
+              onClick={submitLead}
+              className="rounded-xl bg-green-600 px-6 py-3 text-white"
+            >
+              Submit
+            </button>
+
+          </div>
+
+        )
+      }
+
+
 
       <button
         onClick={toggleWishlist}
-        className={`rounded-xl px-6 py-3 font-semibold transition ${
+        className={`rounded-xl px-6 py-3 font-semibold ${
           favorite
-            ? "bg-red-600 text-white"
-            : "border border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+          ? "bg-red-600 text-white"
+          : "border border-red-600 text-red-600"
         }`}
       >
         {favorite ? "❤️ Remove Wishlist" : "🤍 Add Wishlist"}
       </button>
 
+
+
       <button
         onClick={toggleCompare}
-        className={`rounded-xl px-6 py-3 font-semibold transition ${
-          compare
-            ? "bg-green-600 text-white"
-            : "bg-purple-600 text-white hover:bg-purple-700"
-        }`}
+        className="rounded-xl bg-purple-600 px-6 py-3 text-white"
       >
         {compare ? "✅ Remove Compare" : "⚖️ Add Compare"}
       </button>
 
+
+
       <button
         onClick={shareProperty}
-        className="rounded-xl bg-gray-800 px-6 py-3 font-semibold text-white hover:bg-black"
+        className="rounded-xl bg-gray-800 px-6 py-3 text-white"
       >
         📤 Share
       </button>
+
+
     </div>
+
   );
+
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { properties } from "../../data/properties";
+import useProperties from "@/hooks/useProperties";
+
 import PropertyCard from "../../components/PropertyCard";
 import PropertyFilters from "../../components/PropertyFilters";
 import Navbar from "../../components/Navbar";
@@ -14,6 +15,8 @@ export default function PropertiesPage() {
     bhk: "",
   });
 
+
+  const { properties, loading } = useProperties();
 
   const filteredProperties = properties.filter((property) => {
 
@@ -41,11 +44,19 @@ export default function PropertiesPage() {
 
 
 
+  if (loading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center text-2xl font-bold">
+        Loading properties...
+      </main>
+    );
+  }
+
   return (
     <>
       <Navbar />
 
-      <main className="min-h-screen bg-gray-100 py-10">
+      <main className="min-h-screen bg-zinc-950 py-10">
 
         <div className="mx-auto max-w-7xl px-6">
 
@@ -59,7 +70,7 @@ export default function PropertiesPage() {
             onFilterChange={setFilters}
           />
 
-          <div className="mb-8 rounded-xl bg-white px-6 py-4 shadow">
+          <div className="mb-8 rounded-xl bg-zinc-900 px-6 py-4 shadow">
             <p className="text-lg font-semibold text-gray-700">
               🏠 {filteredProperties.length} Properties Found
             </p>
@@ -69,7 +80,7 @@ export default function PropertiesPage() {
 
           {filteredProperties.length === 0 ? (
 
-            <div className="rounded-2xl bg-white p-10 text-center shadow">
+            <div className="rounded-2xl bg-zinc-900 p-10 text-center shadow">
 
               <h2 className="text-3xl font-bold">
                 No Property Found

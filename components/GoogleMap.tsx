@@ -12,12 +12,12 @@ export default function GoogleMap({ location }: Props) {
   )}`;
 
   return (
-    <div className="mt-10 rounded-3xl bg-white p-8 shadow-lg">
+    <div className="mt-10 rounded-3xl bg-zinc-900 p-8 shadow-lg">
       <h2 className="mb-2 text-3xl font-bold text-gray-900">
         🗺️ Property Location
       </h2>
 
-      <p className="mb-6 text-gray-600">
+      <p className="mb-6 text-gray-300">
         {location}
       </p>
 

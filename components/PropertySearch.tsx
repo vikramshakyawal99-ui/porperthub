@@ -36,7 +36,7 @@ export default function PropertySearch() {
   });
 
   return (
-    <section className="mx-auto mt-16 max-w-7xl rounded-3xl bg-white p-8 shadow-xl">
+    <section className="mx-auto mt-16 max-w-7xl rounded-3xl bg-zinc-900 p-8 shadow-xl">
       <h2 className="mb-6 text-3xl font-bold">
         🔍 Find Your Perfect Property
       </h2>

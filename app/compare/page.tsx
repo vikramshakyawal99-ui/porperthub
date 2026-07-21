@@ -57,7 +57,7 @@ export default function ComparePage() {
             <button
               key={property.id}
               onClick={()=>toggle(property.id)}
-              className={`rounded-2xl bg-white p-6 text-left shadow ${
+              className={`rounded-2xl bg-zinc-900 p-6 text-left shadow ${
                 selected.includes(property.id)
                 ? "border-4 border-blue-600"
                 : ""
@@ -94,7 +94,7 @@ export default function ComparePage() {
 
               <div
                 key={p.id}
-                className="rounded-3xl bg-white p-8 shadow-xl"
+                className="rounded-3xl bg-zinc-900 p-8 shadow-xl"
               >
 
                 <h2 className="text-2xl font-bold">

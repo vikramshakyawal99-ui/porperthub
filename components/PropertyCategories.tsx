@@ -32,7 +32,7 @@ export default function PropertyCategories() {
         {categories.map((item) => (
           <div
             key={item.title}
-            className="rounded-3xl bg-white p-8 text-center shadow-lg transition hover:-translate-y-2 hover:shadow-2xl"
+            className="rounded-3xl bg-zinc-900 p-8 text-center shadow-lg transition hover:-translate-y-2 hover:shadow-2xl"
           >
             <div className="text-5xl">
               {item.icon}
@@ -42,7 +42,7 @@ export default function PropertyCategories() {
               {item.title}
             </h3>
 
-            <p className="mt-3 text-gray-600">
+            <p className="mt-3 text-gray-300">
               {item.desc}
             </p>
           </div>

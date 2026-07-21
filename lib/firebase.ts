@@ -7,7 +7,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyDNXI2sYhW2AjnMRlFTBe5IGzYyUzBeyDk",
   authDomain: "propertyhub-2a2da.firebaseapp.com",
   projectId: "propertyhub-2a2da",
-  storageBucket: "propertyhub-2a2da.firebasestorage.app",
+  storageBucket: "propertyhub-2a2da.appspot.com",
   messagingSenderId: "883377553052",
   appId: "1:883377553052:web:7c23f0d7abcbcdecfc3759",
 };

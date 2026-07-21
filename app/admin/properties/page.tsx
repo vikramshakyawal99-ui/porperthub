@@ -36,7 +36,7 @@ export default function ManageProperties() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gray-100 p-10">
+    <main className="min-h-screen bg-zinc-950 p-10">
       <div className="mx-auto max-w-6xl">
 
         <h1 className="mb-8 text-4xl font-bold">
@@ -48,18 +48,46 @@ export default function ManageProperties() {
           {properties.map((property) => (
             <div
               key={property.id}
-              className="flex items-center justify-between rounded-2xl bg-white p-5 shadow"
+              className="flex items-center justify-between rounded-2xl bg-zinc-900 p-5 shadow"
             >
-              <div>
-                <h2 className="text-xl font-bold">
-                  {property.title}
-                </h2>
+              <div className="flex gap-4">
 
-                <p>{property.location}</p>
+                {property.image && (
+                  <img
+                    src={property.image}
+                    alt={property.title}
+                    className="h-24 w-32 rounded-xl object-cover"
+                  />
+                )}
 
-                <p className="font-semibold text-blue-600">
-                  {property.price}
-                </p>
+                <div>
+                  <h2 className="text-xl font-bold">
+                    {property.title}
+                  </h2>
+
+                  <p>{property.location}</p>
+
+                  <p className="font-semibold text-blue-600">
+                    {property.price}
+                  </p>
+
+                  <p>
+                    Builder: {property.builder}
+                  </p>
+
+                  <p>
+                    Type: {property.propertyType}
+                  </p>
+
+                  <p>
+                    Project: {property.projectName}
+                  </p>
+
+                  <p>
+                    RERA: {property.reraNumber}
+                  </p>
+                </div>
+
               </div>
 
               <div className="flex gap-3">

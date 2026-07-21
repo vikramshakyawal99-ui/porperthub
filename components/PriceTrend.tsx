@@ -25,7 +25,7 @@ export default function PriceTrend() {
         {data.map((item) => (
           <div
             key={item.year}
-            className="rounded-2xl bg-white/20 p-5 text-center"
+            className="rounded-2xl bg-zinc-900/20 p-5 text-center"
           >
             <h3 className="text-xl font-bold">
               {item.year}
@@ -39,7 +39,7 @@ export default function PriceTrend() {
 
       </div>
 
-      <div className="mt-8 rounded-2xl bg-white/20 p-5">
+      <div className="mt-8 rounded-2xl bg-zinc-900/20 p-5">
 
         <h3 className="text-xl font-bold">
           🚀 Investment Outlook

@@ -11,7 +11,7 @@ export default function FeaturedProjects() {
             🌟 Featured Projects
           </h2>
 
-          <p className="mt-4 text-lg text-gray-600">
+          <p className="mt-4 text-lg text-gray-300">
             Handpicked premium properties for you
           </p>
         </div>
@@ -24,7 +24,7 @@ export default function FeaturedProjects() {
               key={property.id}
               href={`/properties/${property.id}`}
             >
-              <div className="group overflow-hidden rounded-3xl bg-white shadow-lg transition-all duration-300 hover:-translate-y-3 hover:shadow-2xl">
+              <div className="group overflow-hidden rounded-3xl bg-zinc-900 shadow-lg transition-all duration-300 hover:-translate-y-3 hover:shadow-2xl">
 
                 <div className="relative overflow-hidden">
 
@@ -38,7 +38,7 @@ export default function FeaturedProjects() {
                     New Launch
                   </span>
 
-                  <span className="absolute right-4 top-4 rounded-full bg-white px-3 py-1 font-bold shadow">
+                  <span className="absolute right-4 top-4 rounded-full bg-zinc-900 px-3 py-1 font-bold shadow">
                     ⭐ {property.rating}
                   </span>
 
@@ -50,7 +50,7 @@ export default function FeaturedProjects() {
                     {property.title}
                   </h3>
 
-                  <p className="mt-3 text-gray-600">
+                  <p className="mt-3 text-gray-300">
                     📍 {property.location}
                   </p>
 

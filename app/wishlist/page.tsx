@@ -37,7 +37,7 @@ export default function WishlistPage() {
     <>
       <Navbar />
 
-      <main className="min-h-screen bg-gray-100 py-10">
+      <main className="min-h-screen bg-zinc-950 py-10">
         <div className="mx-auto max-w-7xl px-6">
 
           <h1 className="mb-8 text-4xl font-bold text-gray-900">
@@ -45,12 +45,12 @@ export default function WishlistPage() {
           </h1>
 
           {wishlistProperties.length === 0 ? (
-            <div className="rounded-3xl bg-white p-10 text-center shadow">
+            <div className="rounded-3xl bg-zinc-900 p-10 text-center shadow">
               <h2 className="text-3xl font-bold">
                 Wishlist Empty
               </h2>
 
-              <p className="mt-4 text-gray-600">
+              <p className="mt-4 text-gray-300">
                 Save your favourite properties and view them here.
               </p>
 
@@ -69,7 +69,7 @@ export default function WishlistPage() {
 
                 <div
                   key={property.id}
-                  className="overflow-hidden rounded-3xl bg-white shadow-lg"
+                  className="overflow-hidden rounded-3xl bg-zinc-900 shadow-lg"
                 >
 
                   <img
@@ -84,7 +84,7 @@ export default function WishlistPage() {
                       {property.title}
                     </h2>
 
-                    <p className="mt-2 text-gray-600">
+                    <p className="mt-2 text-gray-300">
                       📍 {property.location}
                     </p>
 

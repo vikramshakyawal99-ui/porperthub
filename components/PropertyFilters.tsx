@@ -43,7 +43,7 @@ export default function PropertyFilters({
 
 
   return (
-    <div className="mb-8 rounded-2xl bg-white p-6 shadow-lg">
+    <div className="mb-8 rounded-2xl bg-zinc-900 p-6 shadow-lg">
 
       <h2 className="mb-6 text-2xl font-bold">
         🔍 Search & Filters
