@@ -3,7 +3,8 @@
 import { useState } from "react";
 import PropertyForm from "@/components/PropertyForm";
 import { collection, addDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db, storage } from "@/lib/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export default function AddPropertyPage() {
 
@@ -36,9 +37,20 @@ async function handleSubmit(e:React.FormEvent){
   console.log("START SUBMIT");
 
 
-  const imageUrls = images.map(
-    (img)=>URL.createObjectURL(img)
-  );
+  const imageUrls: string[] = [];
+
+      for (const image of images) {
+        const imageRef = ref(
+          storage,
+          `properties/${Date.now()}-${image.name}`
+        );
+
+        await uploadBytes(imageRef, image);
+
+        const url = await getDownloadURL(imageRef);
+
+        imageUrls.push(url);
+      };
 
 
   console.log("FIRESTORE START");
