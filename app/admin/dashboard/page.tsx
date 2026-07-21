@@ -194,6 +194,24 @@ export default function AdminDashboard() {
 
               <div className="rounded-2xl bg-zinc-900 p-5 shadow">
                 <h3 className="text-gray-400">
+                  Pending Leads
+                </h3>
+                <p className="text-3xl font-bold text-red-600">
+                  {pendingLeadCount}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-zinc-900 p-5 shadow">
+                <h3 className="text-gray-400">
+                  Conversion Rate
+                </h3>
+                <p className="text-3xl font-bold text-green-600">
+                  {conversionRate}%
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-zinc-900 p-5 shadow">
+                <h3 className="text-gray-400">
                   Property Views
                 </h3>
                 <p className="text-3xl font-bold text-indigo-600">
