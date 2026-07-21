@@ -17,6 +17,8 @@ export default function AdminDashboard() {
   const [leadCount, setLeadCount] = useState(0);
   const [visitCount, setVisitCount] = useState(0);
   const [followUpCount, setFollowUpCount] = useState(0);
+  const [pendingLeadCount, setPendingLeadCount] = useState(0);
+  const [conversionRate, setConversionRate] = useState(0);
   const [viewCount, setViewCount] = useState(0);
   const [mostViewedProperty, setMostViewedProperty] = useState("N/A");
 
@@ -68,6 +70,19 @@ export default function AdminDashboard() {
       );
 
       setFollowUpCount(followUps.length);
+
+      const pendingLeads = leadData.filter(
+        (lead:any) => !lead.status || lead.status === "Pending"
+      );
+
+      setPendingLeadCount(pendingLeads.length);
+
+      const conversion =
+        leadData.length > 0
+          ? Math.round((visitData.length / leadData.length) * 100)
+          : 0;
+
+      setConversionRate(conversion);
 
       const sortedLeads = [...leadData].sort(
         (a:any,b:any) =>
