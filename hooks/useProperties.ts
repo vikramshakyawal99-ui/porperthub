@@ -17,6 +17,7 @@ export type Property = {
   image: string;
   images?: string[];
   builder: string;
+  propertyType: string;
   type: string;
   bedrooms: number;
   bathrooms: number;

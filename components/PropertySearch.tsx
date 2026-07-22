@@ -31,7 +31,7 @@ export default function PropertySearch() {
 
     const typeMatch =
       type === "All" ||
-      property.type === type;
+      property.propertyType === type;
 
     const price = parseFloat(property.price.replace(/[^0-9.]/g, ""));
 

@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db, storage } from "@/lib/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import PropertyForm from "@/components/PropertyForm";
 
 export default function EditPropertyPage() {
@@ -67,20 +68,16 @@ export default function EditPropertyPage() {
     const uploadedImages = [...images];
 
     for (const image of newImages) {
-      const formData = new FormData();
-      formData.append("file", image);
-      formData.append("upload_preset", "propertyhub");
-
-      const response = await fetch(
-        "https://api.cloudinary.com/v1_1/p2nmnqbx/image/upload",
-        {
-          method: "POST",
-          body: formData,
-        }
+      const imageRef = ref(
+        storage,
+        `properties/${Date.now()}-${image.name}`
       );
 
-      const data = await response.json();
-      uploadedImages.push(data.secure_url);
+      await uploadBytes(imageRef, image);
+
+      const url = await getDownloadURL(imageRef);
+
+      uploadedImages.push(url);
     }
 
     await updateDoc(doc(db, "properties", id as string), {
