@@ -21,7 +21,7 @@ Sprint 1
 - [x] Property CRUD
 - [x] Site Visit
 - [x] Leads
-- [ ] Dashboard Analytics
+- [x] Dashboard Analytics
 - [ ] Firebase Storage
 - [ ] Authentication
 - [ ] AI Upgrade
