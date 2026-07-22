@@ -15,6 +15,7 @@ import NearbyPlaces from "../../../components/NearbyPlaces";
 import PropertyActions from "../../../components/PropertyActions";
 import WhatsAppButton from "../../../components/WhatsAppButton";
 import ShareButton from "../../../components/ShareButton";
+import PropertySchema from "../../../components/PropertySchema";
 
 type Props = {
   params: Promise<{
@@ -83,7 +84,10 @@ export default async function PropertyDetails({ params }: Props) {
   );
 
   return (
-    <main className="min-h-screen bg-zinc-950 py-10">
+    <>
+      <PropertySchema property={property} />
+
+      <main className="min-h-screen bg-zinc-950 py-10">
       <div className="mx-auto max-w-7xl px-6">
         <div className="overflow-hidden rounded-3xl bg-zinc-900 shadow-2xl">
           
@@ -268,5 +272,6 @@ export default async function PropertyDetails({ params }: Props) {
         </div>
       </div>
     </main>
+    </>
   );
 }
