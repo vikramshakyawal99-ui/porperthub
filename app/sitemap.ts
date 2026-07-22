@@ -1,7 +1,18 @@
 import { MetadataRoute } from "next";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://propertyhub.com";
+
+  const snapshot = await getDocs(
+    collection(db, "properties")
+  );
+
+  const properties = snapshot.docs.map((doc) => ({
+    url: `${baseUrl}/properties/${doc.id}`,
+    lastModified: new Date(),
+  }));
 
   return [
     {
@@ -12,13 +23,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${baseUrl}/properties`,
       lastModified: new Date(),
     },
-    {
-      url: `${baseUrl}/login`,
-      lastModified: new Date(),
-    },
-    {
-      url: `${baseUrl}/signup`,
-      lastModified: new Date(),
-    },
+    ...properties,
   ];
 }
