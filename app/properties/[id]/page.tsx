@@ -22,6 +22,37 @@ type Props = {
   }>;
 };
 
+
+export async function generateMetadata({ params }: Props) {
+  const { id } = await params;
+
+  const docRef = doc(db, "properties", id);
+  const docSnap = await getDoc(docRef);
+
+  if (!docSnap.exists()) {
+    return {
+      title: "Property Not Found | PropertyHub",
+      description: "Property details not available.",
+    };
+  }
+
+  const property = docSnap.data() as any;
+
+  return {
+    title: `${property.title} | PropertyHub`,
+    description:
+      `Buy ${property.title} in ${property.location}. Explore price, builder, amenities and property details on PropertyHub.`,
+    openGraph: {
+      title: `${property.title} | PropertyHub`,
+      description:
+        `Explore ${property.title} located in ${property.location}.`,
+      images: [
+        property.image || "/logo.png",
+      ],
+    },
+  };
+}
+
 export default async function PropertyDetails({ params }: Props) {
   const { id } = await params;
 
