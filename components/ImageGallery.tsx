@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 
 type Props = {
@@ -36,34 +37,44 @@ export default function ImageGallery({
     <>
       <div className="mb-10">
 
-        <img
-          src={images[selectedIndex]}
-          alt="Property"
-          onClick={() => setFullscreen(true)}
-          className="h-[500px] w-full cursor-zoom-in rounded-2xl object-cover shadow-xl transition hover:opacity-95"
-        />
+        <div className="relative h-[500px] w-full">
+          <Image
+            src={images[selectedIndex]}
+            alt="Property image"
+            fill
+            priority
+            className="cursor-zoom-in rounded-2xl object-cover shadow-xl transition hover:opacity-95"
+            onClick={() => setFullscreen(true)}
+          />
+        </div>
 
         <div className="mt-5 grid grid-cols-5 gap-4">
 
           {images.map((image, index) => (
 
-            <img
+            <div
               key={index}
-              src={image}
-              alt={`Property ${index + 1}`}
-              onClick={() => setSelectedIndex(index)}
-              className={`h-24 w-full cursor-pointer rounded-xl object-cover transition hover:scale-105 ${
-                selectedIndex === index
-                  ? "ring-4 ring-blue-600"
-                  : ""
-              }`}
-            />
+              className="relative h-24 w-full"
+            >
+              <Image
+                src={image}
+                alt={`Property ${index + 1}`}
+                fill
+                onClick={() => setSelectedIndex(index)}
+                className={`cursor-pointer rounded-xl object-cover transition hover:scale-105 ${
+                  selectedIndex === index
+                    ? "ring-4 ring-blue-600"
+                    : ""
+                }`}
+              />
+            </div>
 
           ))}
 
         </div>
 
       </div>
+
 
       {fullscreen && (
 
@@ -76,6 +87,7 @@ export default function ImageGallery({
             ✕
           </button>
 
+
           <button
             onClick={previousImage}
             className="absolute left-6 rounded-full bg-zinc-900 p-4 text-2xl"
@@ -83,11 +95,16 @@ export default function ImageGallery({
             ←
           </button>
 
-          <img
-            src={images[selectedIndex]}
-            alt="Fullscreen"
-            className="max-h-[90vh] max-w-[90vw] rounded-2xl"
-          />
+
+          <div className="relative h-[90vh] w-[90vw]">
+            <Image
+              src={images[selectedIndex]}
+              alt="Fullscreen property image"
+              fill
+              className="rounded-2xl object-contain"
+            />
+          </div>
+
 
           <button
             onClick={nextImage}
@@ -99,6 +116,7 @@ export default function ImageGallery({
         </div>
 
       )}
+
     </>
   );
 }
