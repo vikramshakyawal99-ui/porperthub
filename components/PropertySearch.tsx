@@ -1,14 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { properties } from "../data/properties";
+import useProperties from "../hooks/useProperties";
 import PropertyCard from "./PropertyCard";
 
 export default function PropertySearch() {
+  const { properties, loading } = useProperties();
   const [search, setSearch] = useState("");
   const [bhk, setBhk] = useState("All");
   const [type, setType] = useState("All");
   const [budget, setBudget] = useState("All");
+
+  if (loading) {
+    return (
+      <section className="mx-auto mt-16 max-w-7xl rounded-3xl bg-zinc-900 p-8 text-center text-white">
+        Loading properties...
+      </section>
+    );
+  }
 
   const filteredProperties = properties.filter((property) => {
     const text =
