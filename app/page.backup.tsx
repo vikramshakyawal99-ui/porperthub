@@ -19,7 +19,7 @@ export default function Home() {
       <Hero />
       <PropertyCategories />
       <PropertySearch />
-      <FeaturedProjects />
+<FeaturedProjects />
       <TopBuilders />
       <PopularCities />
       <FeaturedProperties />

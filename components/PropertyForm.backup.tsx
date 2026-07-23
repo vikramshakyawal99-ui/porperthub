@@ -205,18 +205,11 @@ export default function PropertyForm({
         value={propertyType}
         onChange={setPropertyType}
         options={[
-          "🏠 New Property",
-          "🔄 Resale Property",
-          "🏢 Commercial Property",
-          "🛏️ Room Rent",
-          "👦 Boys PG",
-          "👧 Girls PG",
-          "🏨 Hostel Room",
-          "🤝 Flatmate",
-          "🌾 Plot / Land",
-          "🏡 Villa",
-          "🏢 Apartment",
-          "🏙️ Penthouse",
+          "Apartment",
+          "Villa",
+          "Plot",
+          "Penthouse",
+          "Commercial",
         ]}
       />
 

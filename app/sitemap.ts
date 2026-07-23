@@ -9,20 +9,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     collection(db, "properties")
   );
 
-  const properties = snapshot.docs.map((doc) => ({
+  const propertyUrls = snapshot.docs.map((doc) => ({
     url: `${baseUrl}/properties/${doc.id}`,
     lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.8,
   }));
 
   return [
     {
       url: baseUrl,
       lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 1,
     },
     {
       url: `${baseUrl}/properties`,
       lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.9,
     },
-    ...properties,
+    ...propertyUrls,
   ];
 }

@@ -8,8 +8,15 @@ export default function robots(): MetadataRoute.Robots {
       disallow: [
         "/admin/",
         "/admin-login/",
+        "/login/",
+        "/signup/",
+        "/forgot-password/",
+        "/wishlist/",
+        "/favorites/",
+        "/compare/",
       ],
     },
+
     sitemap: "https://propertyhub.com/sitemap.xml",
   };
 }
