@@ -8,17 +8,20 @@ import {
   ReactNode,
 } from "react";
 
-import { 
-  User, 
-  onAuthStateChanged 
+import {
+  User,
+  onAuthStateChanged
 } from "firebase/auth";
 
-import { 
-  doc, 
-  getDoc 
+import {
+  doc,
+  getDoc
 } from "firebase/firestore";
 
-import { auth, db } from "@/lib/firebase";
+import {
+  auth,
+  db
+} from "@/lib/firebase";
 
 
 type AuthContextType = {
@@ -29,95 +32,109 @@ type AuthContextType = {
 
 
 const AuthContext = createContext<AuthContextType>({
-  user: null,
-  role: null,
-  loading: true,
+  user:null,
+  role:null,
+  loading:true,
 });
 
 
 export function AuthProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
-
-  const [user, setUser] = useState<User | null>(null);
-  const [role, setRole] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  children
+}:{
+  children:ReactNode;
+}){
 
 
-  useEffect(() => {
-
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      async(firebaseUser)=>{
-
-
-        setUser(firebaseUser);
-
-
-        if(firebaseUser){
-
-          const userRef = doc(
-            db,
-            "users",
-            firebaseUser.uid
-          );
-
-
-          const userSnap = await getDoc(userRef);
-
-
-          if(userSnap.exists()){
-
-            setRole(
-              userSnap.data().role || "user"
-            );
-
-          }else{
-
-            setRole("user");
-
-          }
-
-
-        }else{
-
-          setRole(null);
-
-        }
-
-
-        setLoading(false);
-
-
-      }
-    );
-
-
-    return ()=>unsubscribe();
-
-
-  },[]);
+const [user,setUser]=useState<User|null>(null);
+const [role,setRole]=useState<string|null>(null);
+const [loading,setLoading]=useState(true);
 
 
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        role,
-        loading,
-      }}
-    >
+useEffect(()=>{
 
-      {children}
 
-    </AuthContext.Provider>
-  );
+const unsubscribe = onAuthStateChanged(
+auth,
+async(firebaseUser)=>{
+
+
+setUser(firebaseUser);
+
+
+
+if(firebaseUser){
+
+
+const userRef = doc(
+db,
+"users",
+firebaseUser.uid
+);
+
+
+const snap = await getDoc(userRef);
+
+
+
+if(snap.exists()){
+
+const userRole = snap.data().role;
+
+console.log("USER ROLE:",userRole);
+
+setRole(userRole || "user");
+
+
+}else{
+
+console.log("USER ROLE: user");
+
+setRole("user");
 
 }
 
 
-export const useAuth = () => 
-useContext(AuthContext);
+}else{
+
+setRole(null);
+
+}
+
+
+
+setLoading(false);
+
+
+});
+
+
+return ()=>unsubscribe();
+
+
+},[]);
+
+
+
+return (
+
+<AuthContext.Provider
+value={{
+user,
+role,
+loading
+}}
+>
+
+{children}
+
+</AuthContext.Provider>
+
+);
+
+
+}
+
+
+
+export const useAuth = ()=>useContext(AuthContext);

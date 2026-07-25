@@ -1,210 +1,291 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, getDocs, query, where, deleteDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
+
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/components/AuthProvider";
 
 
-export default function OwnerListingsPage() {
+export default function OwnerListingsPage(){
 
+const {user}=useAuth();
 
-  const { user } = useAuth();
+const [properties,setProperties]=useState<any[]>([]);
+const [filter,setFilter]=useState("all");
+const [loading,setLoading]=useState(true);
 
-  const [properties,setProperties] = useState<any[]>([]);
-  const [loading,setLoading] = useState(true);
 
 
+async function fetchProperties(){
 
-  async function fetchProperties(){
+if(!user) return;
 
 
-    if(!user) return;
+const q=query(
+collection(db,"properties"),
+where("ownerId","==",user.uid)
+);
 
 
-    const q = query(
-      collection(db,"properties"),
-      where("ownerId","==",user.uid)
-    );
+const snap=await getDocs(q);
 
 
-    const snapshot = await getDocs(q);
+const data=snap.docs.map((item)=>({
 
+id:item.id,
+...item.data()
 
-    const data = snapshot.docs.map((item)=>({
+}));
 
-      id:item.id,
-      ...item.data()
 
-    }));
+setProperties(data);
+setLoading(false);
 
+}
 
-    setProperties(data);
 
-    setLoading(false);
 
+async function deleteProperty(id:string){
 
-  }
+const ok=confirm(
+"Delete this listing?"
+);
 
+if(!ok) return;
 
 
+await deleteDoc(
+doc(db,"properties",id)
+);
 
 
-  async function deleteProperty(id:string){
+fetchProperties();
 
+}
 
-    const confirmDelete = confirm(
-      "Delete this listing?"
-    );
 
 
-    if(!confirmDelete) return;
+useEffect(()=>{
 
+fetchProperties();
 
+},[user]);
 
-    await deleteDoc(
-      doc(db,"properties",id)
-    );
 
 
-    fetchProperties();
 
+if(loading){
 
-  }
+return(
+<div className="p-10">
+Loading Listings...
+</div>
+);
 
+}
 
 
 
+const filteredProperties =
+filter==="all"
+?
+properties
+:
+properties.filter(
+(property)=>property.status===filter
+);
 
-  useEffect(()=>{
 
-    fetchProperties();
 
-  },[user]);
+return(
 
+<div className="min-h-screen bg-zinc-950 text-white p-10">
 
 
+<div className="max-w-7xl mx-auto">
 
 
-  if(loading){
+<h1 className="text-4xl font-bold mb-8">
+🏠 My Listings
+</h1>
 
-    return (
 
-      <div className="min-h-screen flex items-center justify-center">
 
-        Loading...
+<div className="flex gap-3 mb-8">
 
-      </div>
 
-    );
+{
+["all","pending","approved","rejected"].map((item)=>(
 
-  }
+<button
 
+key={item}
 
+onClick={()=>setFilter(item)}
 
+className="px-5 py-2 rounded-xl bg-blue-600"
 
+>
 
-  return (
+{item.toUpperCase()}
 
-    <div className="min-h-screen bg-zinc-950 text-white p-10">
+</button>
 
+))
 
-      <div className="max-w-6xl mx-auto">
+}
 
 
-        <h1 className="text-4xl font-bold mb-8">
+</div>
 
-          🏠 My Listings
 
-        </h1>
 
 
 
+{
+filteredProperties.length===0 ?
 
-        {properties.length === 0 ? (
+<div className="bg-zinc-900 p-8 rounded-xl">
 
-          <div className="bg-zinc-900 p-8 rounded-xl">
+No listings found
 
-            No listings added yet
+</div>
 
-          </div>
 
-        ) : (
+:
 
+<div className="grid md:grid-cols-3 gap-6">
 
-          <div className="grid md:grid-cols-3 gap-6">
 
+{
+filteredProperties.map((property)=>(
 
-            {properties.map((property)=>(
 
+<div
+key={property.id}
+className="bg-zinc-900 rounded-2xl overflow-hidden shadow-xl"
+>
 
-              <div
-                key={property.id}
-                className="bg-zinc-900 rounded-xl p-6"
-              >
 
 
-                <h2 className="text-xl font-bold">
+{
+property.image &&
 
-                  {property.title}
+<img
+src={property.image}
+className="w-full h-48 object-cover"
+/>
 
-                </h2>
+}
 
 
-                <p className="text-gray-400">
 
-                  {property.location}
 
-                </p>
+<div className="p-5">
 
 
-                <p className="mt-2 text-green-400">
+<h2 className="text-xl font-bold">
+{property.title}
+</h2>
 
-                  {property.type}
 
-                </p>
+<p>
+📍 {property.location}
+</p>
 
 
-                <p>
+<p>
+💰 ₹ {property.price}
+</p>
 
-                  ₹ {property.price}
 
-                </p>
+<p>
+🏠 Type: {property.type}
+</p>
 
 
 
-                <button
 
-                  onClick={()=>deleteProperty(property.id)}
+<div className="mt-3">
 
-                  className="mt-5 bg-red-600 px-4 py-2 rounded-lg"
 
-                >
+{
+property.status==="approved" ?
 
-                  Delete
+<span className="bg-green-600 px-3 py-1 rounded-full">
+✅ Approved
+</span>
 
-                </button>
 
+:
 
+property.status==="rejected" ?
 
-              </div>
+<span className="bg-red-600 px-3 py-1 rounded-full">
+❌ Rejected
+</span>
 
 
-            ))}
+:
 
+<span className="bg-yellow-500 text-black px-3 py-1 rounded-full">
+⏳ Pending
+</span>
 
-          </div>
+}
 
 
-        )}
+</div>
 
 
 
-      </div>
 
+<button
 
-    </div>
+onClick={()=>deleteProperty(property.id)}
 
-  );
+className="mt-5 bg-red-600 px-5 py-2 rounded-xl"
+
+>
+
+Delete
+
+</button>
+
+
+
+</div>
+
+
+</div>
+
+
+))
+
+}
+
+
+</div>
+
+
+}
+
+
+
+</div>
+
+
+</div>
+
+
+);
 
 }

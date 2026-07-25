@@ -5,18 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: [
-        "/admin/",
-        "/admin-login/",
-        "/login/",
-        "/signup/",
-        "/forgot-password/",
-        "/wishlist/",
-        "/favorites/",
-        "/compare/",
-      ],
     },
-
     sitemap: "https://propertyhub.com/sitemap.xml",
   };
 }

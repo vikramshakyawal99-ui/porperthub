@@ -8,36 +8,48 @@ export async function createUserProfile(
     name?: string;
     email: string;
     role?: string;
+    ownerType?: string;
     phone?: string;
   }
 ) {
 
-  await setDoc(doc(db, "users", uid), {
+  await setDoc(
+    doc(db, "users", uid),
+    {
 
-    name: data.name || "",
+      name: data.name || "",
 
-    email: data.email,
+      email: data.email,
 
-    role: data.role || "buyer",
+      role: data.role || "buyer",
 
-    phone: data.phone || "",
+      ownerType: data.ownerType || "",
 
-    createdAt: new Date(),
+      phone: data.phone || "",
 
-  });
+      createdAt: new Date(),
+
+    }
+  );
 
 }
 
 
 
-export async function getUserProfile(uid: string) {
+export async function getUserProfile(uid:string){
 
-  const userRef = doc(db, "users", uid);
+  const userRef = doc(
+    db,
+    "users",
+    uid
+  );
+
 
   const snapshot = await getDoc(userRef);
 
 
-  if (snapshot.exists()) {
+
+  if(snapshot.exists()){
 
     return snapshot.data();
 

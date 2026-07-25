@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
 
-export default function AdminLayout({
+export default function OwnerLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -19,15 +19,17 @@ export default function AdminLayout({
     if (!loading) {
 
       if (!user) {
-
-        router.replace("/admin-login");
-
+        router.replace("/login");
       }
 
-      else if (role !== "admin") {
-
+      else if (
+        role !== "property_owner" &&
+        role !== "hostel_owner" &&
+        role !== "pg_owner" &&
+        role !== "room_owner" &&
+        role !== "resale_seller"
+      ) {
         router.replace("/");
-
       }
 
     }
@@ -48,17 +50,6 @@ export default function AdminLayout({
 
 
   if (!user) return null;
-
-
-  if (role !== "admin") {
-
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        Unauthorized
-      </div>
-    );
-
-  }
 
 
   return (

@@ -5,7 +5,7 @@ import { addDoc, collection } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 type Props = {
-  propertyId: string;
+  propertyId: number;
   propertyTitle: string;
   ownerId: string;
 };
@@ -16,82 +16,71 @@ export default function PropertyActions({
   ownerId,
 }: Props) {
 
-  const [favorite,setFavorite] = useState(false);
-  const [compare,setCompare] = useState(false);
+  const [favorite, setFavorite] = useState(false);
+  const [compare, setCompare] = useState(false);
 
-  const [showForm,setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(false);
 
-  const [name,setName] = useState("");
-  const [phone,setPhone] = useState("");
-  const [email,setEmail] = useState("");
-
-  const [loading,setLoading] = useState(false);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
 
 
-
-  useEffect(()=>{
+  useEffect(() => {
 
     const wishlist =
       JSON.parse(
         localStorage.getItem("wishlist") || "[]"
-      ) as string[];
-
+      ) as number[];
 
     const compareList =
       JSON.parse(
         localStorage.getItem("compareProperties") || "[]"
-      ) as string[];
+      ) as number[];
 
 
     setFavorite(
       wishlist.includes(propertyId)
     );
 
-
     setCompare(
       compareList.includes(propertyId)
     );
 
-
-  },[propertyId]);
-
+  }, [propertyId]);
 
 
-  function toggleWishlist(){
+
+  function toggleWishlist() {
 
     const wishlist =
       JSON.parse(
         localStorage.getItem("wishlist") || "[]"
-      ) as string[];
+      ) as number[];
 
 
-    if(wishlist.includes(propertyId)){
+    if (wishlist.includes(propertyId)) {
 
       const updated =
         wishlist.filter(
-          (id)=>id !== propertyId
+          (id) => id !== propertyId
         );
-
 
       localStorage.setItem(
         "wishlist",
         JSON.stringify(updated)
       );
 
-
       setFavorite(false);
 
-    }
-    else{
+
+    } else {
 
       wishlist.push(propertyId);
-
 
       localStorage.setItem(
         "wishlist",
         JSON.stringify(wishlist)
       );
-
 
       setFavorite(true);
 
@@ -101,15 +90,15 @@ export default function PropertyActions({
 
 
 
-  function toggleCompare(){
+  function toggleCompare() {
 
     const compareList =
       JSON.parse(
         localStorage.getItem("compareProperties") || "[]"
-      ) as string[];
+      ) as number[];
 
 
-    if(compareList.includes(propertyId)){
+    if(compareList.includes(propertyId)) {
 
       const updated =
         compareList.filter(
@@ -133,7 +122,7 @@ export default function PropertyActions({
     if(compareList.length >= 3){
 
       alert(
-        "Maximum 3 properties compare kar sakte hain"
+        "You can compare up to 3 properties only."
       );
 
       return;
@@ -161,7 +150,7 @@ export default function PropertyActions({
     if(!name || !phone){
 
       alert(
-        "Name aur mobile number required hai"
+        "Please enter name and phone"
       );
 
       return;
@@ -169,72 +158,28 @@ export default function PropertyActions({
     }
 
 
-    if(phone.length < 10){
-
-      alert(
-        "Valid mobile number dalo"
-      );
-
-      return;
-
-    }
-
-
-    try{
-
-      setLoading(true);
+    await addDoc(
+      collection(db,"leads"),
+      {
+        name,
+        phone,
+        propertyId,
+        propertyTitle,
+        ownerId,
+        status:"New",
+        createdAt:new Date(),
+      }
+    );
 
 
-      await addDoc(
-        collection(db,"leads"),
-        {
-
-          name,
-
-          phone,
-
-          email,
-
-          propertyId,
-
-          propertyTitle,
-
-          ownerId,
-
-          status:"New",
-
-          createdAt:new Date(),
-
-        }
-      );
+    alert(
+      "✅ Inquiry submitted"
+    );
 
 
-      alert(
-        "✅ Inquiry sent. Owner contact karega."
-      );
-
-
-      setName("");
-      setPhone("");
-      setEmail("");
-      setShowForm(false);
-
-
-    }
-    catch(error){
-
-      console.log(error);
-
-      alert(
-        "Something went wrong"
-      );
-
-    }
-    finally{
-
-      setLoading(false);
-
-    }
+    setName("");
+    setPhone("");
+    setShowForm(false);
 
   }
 
@@ -244,11 +189,13 @@ export default function PropertyActions({
 
     navigator.share?.({
 
-      title:propertyTitle,
+      title: propertyTitle,
 
-      text:"Check this property",
+      text:
+        "Check this property",
 
-      url:window.location.href
+      url:
+        window.location.href
 
     });
 
@@ -273,47 +220,30 @@ export default function PropertyActions({
       {
         showForm && (
 
-          <div className="w-full rounded-xl border p-5 space-y-3">
-
+          <div className="w-full rounded-xl border p-4">
 
             <input
               placeholder="Your Name"
               value={name}
               onChange={(e)=>setName(e.target.value)}
-              className="w-full rounded border p-3"
+              className="mb-3 w-full rounded border p-2"
             />
 
 
             <input
-              placeholder="Mobile Number"
+              placeholder="Phone"
               value={phone}
               onChange={(e)=>setPhone(e.target.value)}
-              className="w-full rounded border p-3"
-            />
-
-
-            <input
-              placeholder="Email (optional)"
-              value={email}
-              onChange={(e)=>setEmail(e.target.value)}
-              className="w-full rounded border p-3"
+              className="mb-3 w-full rounded border p-2"
             />
 
 
             <button
               onClick={submitLead}
-              disabled={loading}
-              className="rounded-xl bg-blue-600 px-6 py-3 text-white"
+              className="rounded-xl bg-green-600 px-6 py-3 text-white"
             >
-
-              {
-                loading
-                ? "Sending..."
-                : "Submit"
-              }
-
+              Submit
             </button>
-
 
           </div>
 
@@ -324,7 +254,7 @@ export default function PropertyActions({
 
       <button
         onClick={toggleWishlist}
-        className={`rounded-xl px-6 py-3 ${
+        className={`rounded-xl px-6 py-3 font-semibold ${
           favorite
           ? "bg-red-600 text-white"
           : "border border-red-600 text-red-600"
@@ -335,6 +265,7 @@ export default function PropertyActions({
           ? "❤️ Remove Wishlist"
           : "🤍 Add Wishlist"
         }
+
       </button>
 
 
@@ -348,6 +279,7 @@ export default function PropertyActions({
           ? "✅ Remove Compare"
           : "⚖️ Add Compare"
         }
+
       </button>
 
 

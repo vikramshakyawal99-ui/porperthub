@@ -10,6 +10,7 @@ export default function SignupPage() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("buyer");
   const [loading, setLoading] = useState(false);
@@ -36,6 +37,7 @@ export default function SignupPage() {
         {
           name,
           email,
+          phone,
           role,
         }
       );
@@ -90,6 +92,16 @@ export default function SignupPage() {
             className="w-full p-3 rounded-lg text-black"
             value={email}
             onChange={(e)=>setEmail(e.target.value)}
+            required
+          />
+
+
+          <input
+            type="tel"
+            placeholder="Phone Number"
+            className="w-full p-3 rounded-lg text-black"
+            value={phone}
+            onChange={(e)=>setPhone(e.target.value)}
             required
           />
 

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, increment } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 import EMICalculator from "../../../components/EMICalculator";
@@ -16,7 +16,6 @@ import NearbyPlaces from "../../../components/NearbyPlaces";
 import PropertyActions from "../../../components/PropertyActions";
 import WhatsAppButton from "../../../components/WhatsAppButton";
 import ShareButton from "../../../components/ShareButton";
-import LeadForm from "../../../components/LeadForm";
 import PropertySchema from "../../../components/PropertySchema";
 
 
@@ -150,6 +149,30 @@ export default async function PropertyDetails({ params }: Props) {
   console.log(
     "PROPERTY IMAGES:",
     property.images
+  );
+
+
+
+  await setDoc(
+
+    doc(db,"propertyViews",id),
+
+    {
+
+      propertyId:id,
+
+      propertyTitle:property.title,
+
+      views:increment(1),
+
+      updatedAt:new Date(),
+
+    },
+
+    {
+      merge:true
+    }
+
   );
 
 
@@ -384,12 +407,6 @@ export default async function PropertyDetails({ params }: Props) {
                 ownerId={property.ownerId}
               />
 
-              <LeadForm
-                propertyId={property.id}
-                propertyTitle={property.title}
-                ownerId={property.ownerId}
-              />
-
 
             </div>
 
@@ -404,4 +421,5 @@ export default async function PropertyDetails({ params }: Props) {
 
     </>
   );
+
 }

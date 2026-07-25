@@ -1,0 +1,160 @@
+rules_version = '2';
+
+service cloud.firestore {
+
+  match /databases/{database}/documents {
+
+
+    // Check user login
+    function isLoggedIn() {
+      return request.auth != null;
+    }
+
+
+    // Admin check
+    function isAdmin() {
+      return isLoggedIn()
+        && request.auth.token.email == "vikramshakyawal99@gmail.com";
+    }
+
+
+    // Owner check
+    function isOwner() {
+      return isLoggedIn();
+    }
+
+
+
+    // =========================
+    // PROPERTIES
+    // =========================
+
+    match /properties/{propertyId} {
+
+
+      // Anyone can view properties
+      allow read: if true;
+
+
+      // Logged users can add property
+      allow create: if isLoggedIn();
+
+
+      // Owner or admin can update
+      allow update: if isAdmin()
+        || (
+          isOwner()
+          && resource.data.ownerId == request.auth.uid
+        );
+
+
+      // Owner or admin can delete
+      allow delete: if isAdmin()
+        || (
+          isOwner()
+          && resource.data.ownerId == request.auth.uid
+        );
+
+    }
+
+
+
+
+    // =========================
+    // LEADS
+    // =========================
+
+    match /leads/{leadId} {
+
+
+      // Customer enquiry submit
+      allow create: if true;
+
+
+      // Admin and owner can view leads
+      allow read: if isLoggedIn();
+
+
+      // Only admin can manage lead status
+      allow update, delete: if isAdmin();
+
+
+    }
+
+
+
+
+    // =========================
+    // SITE VISITS
+    // =========================
+
+    match /siteVisits/{visitId} {
+
+
+      // Customer can book visit
+      allow create: if true;
+
+
+      // Logged users can view
+      allow read: if isLoggedIn();
+
+
+      allow update, delete: if isAdmin();
+
+    }
+
+
+
+
+    // =========================
+    // PROPERTY VIEWS
+    // =========================
+
+    match /propertyViews/{viewId} {
+
+      allow read: if true;
+
+      allow write: if true;
+
+    }
+
+
+
+
+    // =========================
+    // USERS
+    // =========================
+
+    match /users/{userId} {
+
+
+      allow read: if isLoggedIn();
+
+
+      allow create: if isLoggedIn();
+
+
+      allow update: if request.auth.uid == userId
+        || isAdmin();
+
+
+      allow delete: if isAdmin();
+
+    }
+
+
+
+    // =========================
+    // DEFAULT BLOCK
+    // =========================
+
+    match /{document=**} {
+
+      allow read, write: if false;
+
+    }
+
+
+  }
+
+}

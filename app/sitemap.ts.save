@@ -48,9 +48,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         property.status === "approved"
     )
     .map((property) => ({
-      url: `${baseUrl}/jaipur/${String(property.location)
+      url: `${baseUrl}/jaipur/${property.location
         .toLowerCase()
-        .replace(/\s+/g, "-")}/${categoryMap[String(property.type)] ?? String(property.type)}`,
+        .replace(/\s+/g, "-")}/${categoryMap[property.type] ?? property.type}`,
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.8,

@@ -56,9 +56,28 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "PropertyHub | Premium Properties in Jaipur",
-    description:
-      "Find premium flats, villas and plots in Jaipur.",
+    description: "Find premium flats, villas and plots in Jaipur.",
     images: ["/og-image.jpg"],
+  },
+};
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "RealEstateAgent",
+  name: "PropertyHub",
+  url: "https://propertyhub.com",
+  logo: "https://propertyhub.com/logo.png",
+  description:
+    "Find verified properties, flats, villas, plots, PGs, hostels and rental listings in Jaipur.",
+  areaServed: {
+    "@type": "City",
+    name: "Jaipur",
+  },
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Jaipur",
+    addressRegion: "Rajasthan",
+    addressCountry: "IN",
   },
 };
 
@@ -73,9 +92,14 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(structuredData),
+          }}
+        />
+
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

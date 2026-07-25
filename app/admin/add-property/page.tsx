@@ -28,85 +28,108 @@ export default function AddPropertyPage() {
 
 async function handleSubmit(e:React.FormEvent){
 
- e.preventDefault();
+e.preventDefault();
 
- try{
+try{
 
-  setLoading(true);
+setLoading(true);
 
-  console.log("START SUBMIT");
-
-
-  const imageUrls: string[] = [];
-
-      for (const image of images) {
-        const imageRef = ref(
-          storage,
-          `properties/${Date.now()}-${image.name}`
-        );
-
-        await uploadBytes(imageRef, image);
-
-        const url = await getDownloadURL(imageRef);
-
-        imageUrls.push(url);
-      };
+console.log("START SUBMIT");
 
 
-  console.log("FIRESTORE START");
+const imageUrls:string[]=[];
 
 
-  await addDoc(collection(db,"properties"),{
+for(const image of images){
 
-    title,
-    location,
-    price,
-    builder,
-    builderContact,
-    bedrooms,
-    bathrooms,
-    area,
-    rating,
-    description,
-    projectName,
-    reraNumber,
-    propertyType,
-
-    image:imageUrls[0] || "",
-    images:imageUrls,
-
-    createdAt:new Date()
-
-  });
+console.log("Uploading:",image.name);
 
 
-  console.log("SUCCESS");
-
-  alert("✅ Property Added Successfully");
-
-
-  setTitle("");
-  setLocation("");
-  setPrice("");
-  setImages([]);
-  setBuilder("");
-  setBuilderContact("");
-  setProjectName("");
-  setReraNumber("");
-  setPropertyType("");
+const imageRef=ref(
+storage,
+`properties/${Date.now()}-${image.name}`
+);
 
 
- }catch(error){
+await uploadBytes(imageRef,image);
 
-  console.log(error);
-  alert("❌ Error adding property");
 
- }
- finally{
+console.log("Upload Done");
 
-  setLoading(false);
 
- }
+const url=await getDownloadURL(imageRef);
+
+
+console.log("Image URL:",url);
+
+
+imageUrls.push(url);
+
+}
+
+
+console.log("FIRESTORE START");
+
+
+const docRef=await addDoc(
+collection(db,"properties"),
+{
+
+title,
+location,
+price,
+builder,
+builderContact,
+bedrooms,
+bathrooms,
+area,
+rating,
+description,
+projectName,
+reraNumber,
+propertyType,
+
+image:imageUrls[0] || "",
+images:imageUrls,
+
+createdAt:new Date()
+
+});
+
+
+console.log("SUCCESS ID:",docRef.id);
+
+
+alert("Property Added Successfully");
+
+
+setTitle("");
+setLocation("");
+setPrice("");
+setImages([]);
+setBuilder("");
+setBuilderContact("");
+setProjectName("");
+setReraNumber("");
+setPropertyType("");
+
+
+}
+catch(error){
+
+console.error("ADD PROPERTY ERROR:",error);
+
+alert("Error adding property");
+
+}
+finally{
+
+console.log("FINISHED");
+
+setLoading(false);
+
+}
+
 
 }
 

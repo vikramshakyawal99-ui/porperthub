@@ -1,0 +1,8 @@
+{
+  "firestore": {
+    "database": "(default)",
+    "location": "nam5",
+    "rules": "firestore.rules",
+    "indexes": "? What file should be used for Firestore indexes? (firestore.indexes.json)"
+  }
+}
