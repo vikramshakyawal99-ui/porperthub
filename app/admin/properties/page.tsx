@@ -8,11 +8,14 @@ import {
   deleteDoc,
   doc,
   updateDoc,
+  addDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 type Property = {
   id: string;
+  ownerId?: string;
   title?: string;
   image?: string;
   location?: string;
@@ -49,9 +52,56 @@ export default function ManageProperties() {
     id: string,
     status: "approved" | "rejected"
   ) {
-    await updateDoc(doc(db, "properties", id), {
-      status,
-    });
+
+    const property = properties.find(
+      (item)=>item.id===id
+    );
+
+    if(!property) return;
+
+
+    await updateDoc(
+      doc(db,"properties",id),
+      {
+        status,
+      }
+    );
+
+
+    if(property.ownerId){
+
+      await addDoc(
+        collection(db,"notifications"),
+        {
+          ownerId: property.ownerId,
+
+          title:
+            status==="approved"
+            ?
+            "Property Approved ✅"
+            :
+            "Property Rejected ❌",
+
+          message:
+            status==="approved"
+            ?
+            "Your property has been approved by admin."
+            :
+            "Your property has been rejected by admin.",
+
+          propertyTitle:
+            property.title || "",
+
+          read:false,
+
+          createdAt:
+            serverTimestamp()
+
+        }
+      );
+
+    }
+
 
     loadProperties();
   }

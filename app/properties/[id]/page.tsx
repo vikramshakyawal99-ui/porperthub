@@ -10,6 +10,7 @@ import PropertyScore from "../../../components/PropertyScore";
 import PriceTrend from "../../../components/PriceTrend";
 import AIPropertyAssistant from "../../../components/AIPropertyAssistant";
 import FavoriteButton from "../../../components/FavoriteButton";
+import WishlistButton from "../../../components/WishlistButton";
 import SiteVisitForm from "../../../components/SiteVisitForm";
 import GoogleMap from "../../../components/GoogleMap";
 import NearbyPlaces from "../../../components/NearbyPlaces";
@@ -233,6 +234,48 @@ export default async function PropertyDetails({ params }: Props) {
 
                   </h2>
 
+
+                  {(property.propertyType==="pg" ||
+                    property.propertyType==="hostel" ||
+                    property.propertyType==="room_rent") && (
+
+                    <div className="mt-4 flex flex-wrap justify-center gap-2">
+
+
+                      <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-600">
+                        {property.propertyType==="pg"
+                          ? "PG"
+                          : property.propertyType==="hostel"
+                          ? "Hostel"
+                          : "Room Rent"}
+                      </span>
+
+
+                      {property.gender && (
+                        <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-600">
+                          {property.gender}
+                        </span>
+                      )}
+
+
+                      {property.food==="yes" && (
+                        <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-600">
+                          🍽 Food
+                        </span>
+                      )}
+
+
+                      {property.ac==="yes" && (
+                        <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-600">
+                          ❄ AC
+                        </span>
+                      )}
+
+
+                    </div>
+
+                  )}
+
                 </div>
 
 
@@ -343,7 +386,10 @@ export default async function PropertyDetails({ params }: Props) {
                 </a>
 
 
+                <div className="flex flex-wrap gap-4">
                 <FavoriteButton propertyId={property.id} />
+                <WishlistButton propertyId={property.id} />
+              </div>
 
 
               </div>

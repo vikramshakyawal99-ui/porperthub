@@ -9,53 +9,55 @@ export default function OwnerLayout({
 }: {
   children: React.ReactNode;
 }) {
-
   const { user, role, loading } = useAuth();
   const router = useRouter();
 
-
   useEffect(() => {
+    if (loading) return;
 
-    if (!loading) {
-
-      if (!user) {
-        router.replace("/login");
-      }
-
-      else if (
-        role !== "property_owner" &&
-        role !== "hostel_owner" &&
-        role !== "pg_owner" &&
-        role !== "room_owner" &&
-        role !== "resale_seller"
-      ) {
-        router.replace("/");
-      }
-
+    if (!user) {
+      router.replace("/login");
+      return;
     }
 
+    const allowedRoles = [
+      "admin",
+      "property_owner",
+      "hostel_owner",
+      "pg_owner",
+      "room_owner",
+      "resale_seller",
+    ];
+
+    if (!role || !allowedRoles.includes(role)) {
+      router.replace("/");
+    }
   }, [user, role, loading, router]);
 
-
-
   if (loading) {
-
     return (
       <div className="flex min-h-screen items-center justify-center">
         Loading...
       </div>
     );
-
   }
 
+  if (!user) {
+    return null;
+  }
 
-  if (!user) return null;
+  const allowedRoles = [
+    "admin",
+    "property_owner",
+    "hostel_owner",
+    "pg_owner",
+    "room_owner",
+    "resale_seller",
+  ];
 
+  if (!role || !allowedRoles.includes(role)) {
+    return null;
+  }
 
-  return (
-    <>
-      {children}
-    </>
-  );
-
+  return <>{children}</>;
 }

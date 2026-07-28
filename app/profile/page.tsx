@@ -22,6 +22,8 @@ export default function ProfilePage() {
 
         const data = await getUserProfile(user.uid);
 
+        console.log("PROFILE DATA:", data);
+
         setProfile(data);
 
       }

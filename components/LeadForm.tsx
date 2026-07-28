@@ -28,12 +28,11 @@ export default function LeadForm({
   const [message,setMessage] = useState("");
   const [loading,setLoading] = useState(false);
 
-
   async function submitLead(e: React.FormEvent){
 
     e.preventDefault();
 
-    try {
+    try{
 
       setLoading(true);
 
@@ -57,6 +56,17 @@ export default function LeadForm({
         }
       );
 
+      await addDoc(
+        collection(db,"notifications"),
+        {
+          ownerId,
+          title:"📞 New Lead",
+          message:`${name} submitted an enquiry`,
+          propertyTitle,
+          read:false,
+          createdAt:serverTimestamp()
+        }
+      );
 
       alert("Lead submitted successfully");
 
@@ -65,12 +75,12 @@ export default function LeadForm({
       setEmail("");
       setMessage("");
 
-    } catch(error){
+    }catch(error){
 
       console.log(error);
       alert("Lead failed");
 
-    } finally {
+    }finally{
 
       setLoading(false);
 
@@ -78,8 +88,7 @@ export default function LeadForm({
 
   }
 
-
-  return (
+  return(
 
     <div className="mt-10 rounded-2xl bg-white p-6 shadow">
 
@@ -87,27 +96,24 @@ export default function LeadForm({
         Enquire Now
       </h2>
 
-
       <form
         onSubmit={submitLead}
         className="space-y-4"
-      >
-
-        <input
+      >        <input
           className="w-full rounded-lg border p-3"
           placeholder="Name"
           value={name}
           onChange={(e)=>setName(e.target.value)}
+          required
         />
-
 
         <input
           className="w-full rounded-lg border p-3"
           placeholder="Phone"
           value={phone}
           onChange={(e)=>setPhone(e.target.value)}
+          required
         />
-
 
         <input
           className="w-full rounded-lg border p-3"
@@ -116,27 +122,20 @@ export default function LeadForm({
           onChange={(e)=>setEmail(e.target.value)}
         />
 
-
         <textarea
           className="w-full rounded-lg border p-3"
           placeholder="Message"
           value={message}
           onChange={(e)=>setMessage(e.target.value)}
-        />
-
-
-        <button
+          rows={4}
+        />        <button
           disabled={loading}
-          className="w-full rounded-lg bg-blue-600 px-6 py-3 font-bold text-white"
+          className="w-full rounded-lg bg-blue-600 px-6 py-3 font-bold text-white disabled:opacity-50"
         >
-
           {loading ? "Submitting..." : "Submit Enquiry"}
-
         </button>
 
-
       </form>
-
 
     </div>
 

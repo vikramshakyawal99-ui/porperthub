@@ -16,45 +16,66 @@ export default function SiteVisitForm({
   ownerId,
 }: Props) {
 
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [name,setName] = useState("");
+  const [phone,setPhone] = useState("");
+  const [date,setDate] = useState("");
+  const [time,setTime] = useState("");
+  const [message,setMessage] = useState("");
+  const [loading,setLoading] = useState(false);
 
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e:React.FormEvent){
+
     e.preventDefault();
 
-    try {
+    try{
 
       setLoading(true);
 
 
-      await addDoc(collection(db, "siteVisits"), {
+      // Site Visit Save
+
+      await addDoc(collection(db,"siteVisits"),{
 
         name,
-
         phone,
-
         date,
-
         time,
-
         message,
+
+        propertyId,
+        propertyTitle,
+        ownerId,
+
+        status:"Pending",
+
+        createdAt:serverTimestamp()
+
+      });
+
+
+
+      // Owner Notification Create
+
+      await addDoc(collection(db,"notifications"),{
+
+        ownerId,
+
+        title:"New Site Visit Request",
+
+        message:
+        `${name} requested a visit for ${propertyTitle}`,
 
         propertyId,
 
         propertyTitle,
 
-        ownerId,
+        read:false,
 
-        status: "Pending",
-
-        createdAt: serverTimestamp(),
+        createdAt:serverTimestamp()
 
       });
+
 
 
       alert("Site Visit Booked Successfully ✅");
@@ -67,14 +88,14 @@ export default function SiteVisitForm({
       setMessage("");
 
 
-    } catch (error) {
+    }catch(error){
 
       console.log(error);
 
       alert("Something went wrong");
 
-
-    } finally {
+    }
+    finally{
 
       setLoading(false);
 
@@ -83,151 +104,111 @@ export default function SiteVisitForm({
   }
 
 
-  return (
 
-    <div className="mt-10 rounded-3xl bg-zinc-900 p-8 shadow-xl border">
+return (
 
+<div className="mt-10 rounded-3xl bg-zinc-900 p-8 shadow-xl border">
 
-      <h2 className="mb-2 text-3xl font-bold">
-        📅 Book a Site Visit
-      </h2>
 
+<h2 className="mb-2 text-3xl font-bold">
+📅 Book a Site Visit
+</h2>
 
-      <p className="mb-8 text-gray-300">
-        Fill the form and our property expert will contact you.
-      </p>
 
+<p className="mb-8 text-gray-300">
+Fill the form and our property expert will contact you.
+</p>
 
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-5"
-      >
+<form
+onSubmit={handleSubmit}
+className="space-y-5"
+>
 
 
-        <input
+<input
+placeholder="Your Name"
+value={name}
+onChange={(e)=>setName(e.target.value)}
+required
+className="w-full rounded-xl border p-4"
+/>
 
-          placeholder="Your Name"
 
-          value={name}
+<input
+type="tel"
+placeholder="Mobile Number"
+value={phone}
+onChange={(e)=>setPhone(e.target.value)}
+required
+className="w-full rounded-xl border p-4"
+/>
 
-          onChange={(e)=>setName(e.target.value)}
 
-          required
+<input
+type="date"
+value={date}
+onChange={(e)=>setDate(e.target.value)}
+required
+className="w-full rounded-xl border p-4"
+/>
 
-          className="w-full rounded-xl border p-4"
 
-        />
+<select
+value={time}
+onChange={(e)=>setTime(e.target.value)}
+required
+className="w-full rounded-xl border p-4"
+>
 
+<option value="">
+Select Time
+</option>
 
+<option>
+Morning (9 AM - 12 PM)
+</option>
 
-        <input
+<option>
+Afternoon (12 PM - 4 PM)
+</option>
 
-          type="tel"
+<option>
+Evening (4 PM - 7 PM)
+</option>
 
-          placeholder="Mobile Number"
+</select>
 
-          value={phone}
 
-          onChange={(e)=>setPhone(e.target.value)}
 
-          required
+<textarea
+placeholder="Message (Optional)"
+value={message}
+onChange={(e)=>setMessage(e.target.value)}
+className="w-full rounded-xl border p-4"
+/>
 
-          className="w-full rounded-xl border p-4"
 
-        />
 
+<button
+disabled={loading}
+className="w-full rounded-xl bg-blue-600 py-4 font-bold text-white"
+>
 
+{
+loading
+?"Booking..."
+:"Book Free Visit"
+}
 
-        <input
+</button>
 
-          type="date"
 
-          value={date}
+</form>
 
-          onChange={(e)=>setDate(e.target.value)}
 
-          required
+</div>
 
-          className="w-full rounded-xl border p-4"
-
-        />
-
-
-
-        <select
-
-          value={time}
-
-          onChange={(e)=>setTime(e.target.value)}
-
-          required
-
-          className="w-full rounded-xl border p-4"
-
-        >
-
-          <option value="">
-            Select Time
-          </option>
-
-
-          <option>
-            Morning (9 AM - 12 PM)
-          </option>
-
-
-          <option>
-            Afternoon (12 PM - 4 PM)
-          </option>
-
-
-          <option>
-            Evening (4 PM - 7 PM)
-          </option>
-
-
-        </select>
-
-
-
-        <textarea
-
-          placeholder="Message (Optional)"
-
-          value={message}
-
-          onChange={(e)=>setMessage(e.target.value)}
-
-          className="w-full rounded-xl border p-4"
-
-        />
-
-
-
-        <button
-
-          disabled={loading}
-
-          className="w-full rounded-xl bg-blue-600 py-4 font-bold text-white"
-
-        >
-
-          {
-            loading
-            ? "Booking..."
-            : "Book Free Visit"
-          }
-
-        </button>
-
-
-
-      </form>
-
-
-    </div>
-
-  );
+);
 
 }

@@ -6,12 +6,12 @@ import {
 
 import { db } from "./firebase";
 
-export async function addFavorite(
+export async function addWishlist(
   uid: string,
   propertyId: string
 ) {
   await setDoc(
-    doc(db, "users", uid, "favorites", propertyId),
+    doc(db, "users", uid, "wishlist", propertyId),
     {
       propertyId,
       createdAt: Date.now(),
@@ -19,11 +19,11 @@ export async function addFavorite(
   );
 }
 
-export async function removeFavorite(
+export async function removeWishlist(
   uid: string,
   propertyId: string
 ) {
   await deleteDoc(
-    doc(db, "users", uid, "favorites", propertyId)
+    doc(db, "users", uid, "wishlist", propertyId)
   );
 }

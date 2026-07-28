@@ -1,55 +1,118 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import {
   collection,
   getDocs,
   query,
   where,
   updateDoc,
-  doc
+  doc,
+  serverTimestamp,
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/components/AuthProvider";
 
 
+type Visit = {
+  id:string;
+  name?:string;
+  phone?:string;
+  propertyTitle?:string;
+  visitDate?:string;
+  status?:string;
+};
+
+
+
+
 export default function OwnerSiteVisitsPage(){
+
 
 const {user}=useAuth();
 
-const [visits,setVisits]=useState<any[]>([]);
+
 const [loading,setLoading]=useState(true);
-const [filter,setFilter]=useState("all");
+
+const [visits,setVisits]=useState<Visit[]>([]);
+
+
 
 
 
 async function fetchVisits(){
 
-if(!user) return;
+
+if(!user){
+return;
+}
+
+
+
+try{
 
 
 const q=query(
+
 collection(db,"siteVisits"),
-where("ownerId","==",user.uid)
+
+where(
+"ownerId",
+"==",
+user.uid
+)
+
 );
+
 
 
 const snap=await getDocs(q);
 
 
-const data=snap.docs.map((item)=>({
+
+const data=snap.docs.map((item)=>(
+
+{
 
 id:item.id,
+
 ...item.data()
 
-}));
+}
+
+)) as Visit[];
+
 
 
 setVisits(data);
+
+
+
+}
+
+
+catch(error){
+
+console.log(
+"SITE VISITS ERROR",
+error
+);
+
+}
+
+
+finally{
+
 setLoading(false);
 
 }
+
+
+}
+
+
 
 
 
@@ -64,22 +127,63 @@ fetchVisits();
 
 
 
+
+
 async function updateStatus(
 id:string,
 status:string
 ){
 
+
+
 await updateDoc(
-doc(db,"siteVisits",id),
+
+doc(
+db,
+"siteVisits",
+id
+),
+
 {
-status
+
+status,
+
+updatedAt:serverTimestamp()
+
 }
+
 );
 
 
-fetchVisits();
+
+
+
+setVisits((prev)=>
+
+prev.map((visit)=>
+
+visit.id===id
+
+?
+
+{
+...visit,
+status
+}
+
+:
+
+visit
+
+)
+
+);
+
+
 
 }
+
+
 
 
 
@@ -87,10 +191,15 @@ fetchVisits();
 
 if(loading){
 
+
 return(
-<div className="p-8">
+
+<div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
+
 Loading Site Visits...
+
 </div>
+
 );
 
 }
@@ -99,14 +208,32 @@ Loading Site Visits...
 
 
 
-const filteredVisits =
-filter==="all"
-?
-visits
-:
+
+
+const total=visits.length;
+
+
+const pending=
 visits.filter(
-(visit)=>visit.status===filter
-);
+(v)=>!v.status || v.status==="Pending"
+).length;
+
+
+
+const scheduled=
+visits.filter(
+(v)=>v.status==="Scheduled"
+).length;
+
+
+
+const completed=
+visits.filter(
+(v)=>v.status==="Completed"
+).length;
+
+
+
 
 
 
@@ -114,42 +241,78 @@ visits.filter(
 
 return(
 
-<main className="min-h-screen bg-zinc-950 text-white p-8">
+
+<div className="min-h-screen bg-zinc-950 text-white p-8">
 
 
-<div className="max-w-6xl mx-auto">
 
+<h1 className="text-4xl font-bold mb-8">
 
-<h1 className="text-3xl font-bold mb-8">
-📅 My Site Visits
+📅 Owner Site Visits
+
 </h1>
 
 
 
 
-<div className="flex gap-3 mb-8">
 
 
-{
-["all","Pending","Approved","Rejected"].map((item)=>(
+<div className="grid md:grid-cols-4 gap-5 mb-10">
 
-<button
 
-key={item}
 
-onClick={()=>setFilter(item)}
+<div className="bg-zinc-900 p-5 rounded-xl">
 
-className="bg-blue-600 px-5 py-2 rounded-xl"
+<h2>Total Visits</h2>
 
->
+<p className="text-3xl font-bold">
+{total}
+</p>
 
-{item}
+</div>
 
-</button>
 
-))
 
-}
+
+
+<div className="bg-yellow-500 text-black p-5 rounded-xl">
+
+<h2>Pending</h2>
+
+<p className="text-3xl font-bold">
+{pending}
+</p>
+
+</div>
+
+
+
+
+
+<div className="bg-blue-600 p-5 rounded-xl">
+
+<h2>Scheduled</h2>
+
+<p className="text-3xl font-bold">
+{scheduled}
+</p>
+
+</div>
+
+
+
+
+
+<div className="bg-green-600 p-5 rounded-xl">
+
+<h2>Completed</h2>
+
+<p className="text-3xl font-bold">
+{completed}
+</p>
+
+</div>
+
 
 
 </div>
@@ -158,91 +321,107 @@ className="bg-blue-600 px-5 py-2 rounded-xl"
 
 
 
+
+
+
+
+<h2 className="text-3xl font-bold mb-5">
+
+All Site Visits
+
+</h2>
+
+
+
+
+
+
+
 {
-filteredVisits.length===0 ?
+
+visits.length===0 ?
+
 
 <div className="bg-zinc-900 p-6 rounded-xl">
+
 No Site Visits Found
+
 </div>
+
 
 
 :
 
 
-<div className="space-y-5">
+
+<div className="grid md:grid-cols-2 gap-6">
+
 
 
 {
-filteredVisits.map((visit)=>(
+
+visits.map((visit)=>(
+
 
 
 <div
 
 key={visit.id}
 
-className="bg-zinc-900 rounded-2xl p-6 shadow"
+className="bg-zinc-900 p-6 rounded-2xl"
 
 >
 
 
-<h2 className="text-xl font-bold">
-🏠 {visit.propertyTitle}
-</h2>
+
+<h3 className="text-2xl font-bold">
+
+{visit.name || "Customer"}
+
+</h3>
 
 
-<p>
-👤 {visit.name}
-</p>
 
 
-<p>
-📞 {visit.phone}
-</p>
+<p className="mt-2">
 
+📞 {visit.phone || "No phone"}
 
-<p>
-📅 {visit.date}
-</p>
-
-
-<p>
-⏰ {visit.time}
-</p>
-
-
-<p>
-📝 {visit.message || "-"}
 </p>
 
 
 
-<div className="mt-3">
+
+<p>
+
+🏠 {visit.propertyTitle || "Property"}
+
+</p>
 
 
-{
-visit.status==="Approved" ?
 
-<span className="bg-green-600 px-3 py-1 rounded-full">
-✅ Approved
+
+
+<p>
+
+📅 {visit.visitDate || "Date not set"}
+
+</p>
+
+
+
+
+
+
+
+<div className="mt-4">
+
+
+<span className="bg-zinc-700 px-3 py-1 rounded">
+
+{visit.status || "Pending"}
+
 </span>
-
-
-:
-
-visit.status==="Rejected" ?
-
-<span className="bg-red-600 px-3 py-1 rounded-full">
-❌ Rejected
-</span>
-
-
-:
-
-<span className="bg-yellow-500 text-black px-3 py-1 rounded-full">
-⏳ Pending
-</span>
-
-}
 
 
 </div>
@@ -250,7 +429,55 @@ visit.status==="Rejected" ?
 
 
 
-<div className="mt-5 flex flex-wrap gap-3">
+
+
+
+
+<select
+
+value={visit.status || "Pending"}
+
+onChange={(e)=>
+
+updateStatus(
+visit.id,
+e.target.value
+)
+
+}
+
+className="mt-4 text-black p-2 rounded w-full"
+
+>
+
+
+<option>
+Pending
+</option>
+
+<option>
+Scheduled
+</option>
+
+<option>
+Completed
+</option>
+
+<option>
+Cancelled
+</option>
+
+
+</select>
+
+
+
+
+
+
+
+
+<div className="mt-5 flex gap-3">
 
 
 <a
@@ -260,8 +487,11 @@ href={`tel:${visit.phone}`}
 className="bg-blue-600 px-5 py-2 rounded-xl"
 
 >
+
 📞 Call
+
 </a>
+
 
 
 
@@ -275,47 +505,21 @@ target="_blank"
 className="bg-green-600 px-5 py-2 rounded-xl"
 
 >
-💬 WhatsApp
+
+WhatsApp
+
 </a>
 
 
 
-
-<button
-
-onClick={()=>updateStatus(
-visit.id,
-"Approved"
-)}
-
-className="bg-green-700 px-5 py-2 rounded-xl"
-
->
-Approve
-</button>
+</div>
 
 
-
-
-<button
-
-onClick={()=>updateStatus(
-visit.id,
-"Rejected"
-)}
-
-className="bg-red-700 px-5 py-2 rounded-xl"
-
->
-Reject
-</button>
 
 
 
 </div>
 
-
-</div>
 
 
 ))
@@ -325,14 +529,15 @@ Reject
 
 </div>
 
+
 }
+
 
 
 </div>
 
 
-</main>
-
 );
+
 
 }

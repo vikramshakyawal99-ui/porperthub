@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import {
   collection,
   getDocs,
@@ -8,343 +9,686 @@ import {
   where,
   updateDoc,
   doc,
+  serverTimestamp,
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/components/AuthProvider";
 
 
-export default function OwnerLeadsPage() {
+type Lead = {
+  id:string;
+  name?:string;
+  phone?:string;
+  propertyTitle?:string;
+  status?:string;
+  notes?:string;
+  followUpDate?:string;
+};
 
-  const { user } = useAuth();
 
-  const [leads,setLeads] = useState<any[]>([]);
-  const [loading,setLoading] = useState(true);
 
+export default function OwnerLeadsPage(){
 
 
-  async function fetchLeads(){
+const {user}=useAuth();
 
-    if(!user) return;
 
+const [loading,setLoading]=useState(true);
 
-    const q=query(
-      collection(db,"leads"),
-      where("ownerId","==",user.uid)
-    );
+const [leads,setLeads]=useState<Lead[]>([]);
 
 
-    const snap=await getDocs(q);
 
+const [followNotes,setFollowNotes]=useState<Record<string,string>>({});
 
-    const data=snap.docs.map((item)=>({
-      id:item.id,
-      ...item.data()
-    }));
+const [followDates,setFollowDates]=useState<Record<string,string>>({});
 
 
-    setLeads(data);
-    setLoading(false);
 
-  }
 
 
+async function fetchLeads(){
 
-  useEffect(()=>{
 
-    fetchLeads();
+if(!user){
+return;
+}
 
-  },[user]);
 
+try{
 
 
+const q=query(
+collection(db,"leads"),
+where("ownerId","==",user.uid)
+);
 
 
-  async function updateStatus(
-    id:string,
-    status:string
-  ){
 
-    await updateDoc(
-      doc(db,"leads",id),
-      {
-        status
-      }
-    );
+const snap=await getDocs(q);
 
 
-    setLeads((prev)=>
-      prev.map((lead)=>
-        lead.id===id
-        ?
-        {...lead,status}
-        :
-        lead
-      )
-    );
 
-  }
+const data=snap.docs.map((item)=>({
 
+id:item.id,
+...item.data()
 
+})) as Lead[];
 
 
 
-  async function saveFollowUp(
-    id:string,
-    notes:string,
-    date:string
-  ){
+setLeads(data);
 
-    await updateDoc(
-      doc(db,"leads",id),
-      {
-        notes,
-        followUpDate:date
-      }
-    );
 
 
-    setLeads((prev)=>
-      prev.map((lead)=>
-        lead.id===id
-        ?
-        {
-          ...lead,
-          notes,
-          followUpDate:date
-        }
-        :
-        lead
-      )
-    );
+}
 
-  }
 
+catch(error){
 
+console.log(
+"OWNER LEADS ERROR",
+error
+);
 
+}
 
-  if(loading){
 
-    return(
-      <div className="p-8">
-        Loading Leads...
-      </div>
-    );
+finally{
 
-  }
+setLoading(false);
 
+}
 
 
+}
 
 
-  return (
 
-    <div className="p-8 bg-zinc-950 min-h-screen text-white">
 
 
-      <h1 className="text-3xl font-bold mb-8">
-        📞 My Leads
-      </h1>
+useEffect(()=>{
 
+fetchLeads();
 
+},[user]);
 
-      {
-        leads.length===0 ?
 
-        <div className="bg-zinc-900 p-6 rounded-xl">
-          No Leads Found
-        </div>
 
 
-        :
 
-        <div className="grid gap-6">
 
+async function updateStatus(
+id:string,
+status:string
+){
 
-        {
-          leads.map((lead)=>(
 
+await updateDoc(
 
-            <div
-              key={lead.id}
-              className="bg-zinc-900 rounded-2xl p-6 shadow"
-            >
+doc(db,"leads",id),
 
+{
+status,
+updatedAt:serverTimestamp()
+}
 
-              <h2 className="text-xl font-bold">
-                {lead.name || "Customer"}
-              </h2>
+);
 
 
-              <p>
-                📞 {lead.phone}
-              </p>
 
+setLeads((prev)=>
 
-              <p>
-                🏠 {lead.propertyTitle || "Property"}
-              </p>
+prev.map((lead)=>
 
+lead.id===id
 
+?
 
-              <div className="mt-3">
+{
+...lead,
+status
+}
 
-              {
-                lead.status==="Closed" ?
+:
 
-                <span className="bg-green-600 px-3 py-1 rounded">
-                  Closed
-                </span>
+lead
 
-                :
+)
 
-                lead.status==="Rejected" ?
+);
 
-                <span className="bg-red-600 px-3 py-1 rounded">
-                  Rejected
-                </span>
 
-                :
+}
 
-                <span className="bg-yellow-500 text-black px-3 py-1 rounded">
-                  {lead.status || "New"}
-                </span>
 
-              }
 
-              </div>
 
 
 
 
-              <select
+async function saveFollowUp(
+id:string
+){
 
-                value={lead.status || "New"}
 
-                onChange={(e)=>
-                  updateStatus(
-                    lead.id,
-                    e.target.value
-                  )
-                }
+const notes=
+followNotes[id] || "";
 
-                className="mt-4 text-black rounded p-2"
 
-              >
+const date=
+followDates[id] || "";
 
-                <option>New</option>
-                <option>Contacted</option>
-                <option>Interested</option>
-                <option>Site Visit Scheduled</option>
-                <option>Closed</option>
-                <option>Rejected</option>
 
-              </select>
 
+await updateDoc(
 
+doc(db,"leads",id),
 
+{
+notes,
+followUpDate:date,
+status:"Follow Up",
+updatedAt:serverTimestamp()
+}
 
+);
 
-              <input
 
-                id={`date-${lead.id}`}
 
-                type="date"
+setLeads((prev)=>
 
-                defaultValue={lead.followUpDate || ""}
+prev.map((lead)=>
 
-                className="mt-4 block text-black rounded p-2"
+lead.id===id
 
-              />
+?
 
+{
+...lead,
+notes,
+followUpDate:date,
+status:"Follow Up"
+}
 
+:
 
+lead
 
-              <textarea
+)
 
-                id={`note-${lead.id}`}
+);
 
-                defaultValue={lead.notes || ""}
 
-                placeholder="Add Notes"
 
-                className="mt-3 block w-full text-black rounded p-2"
+alert(
+"Follow up saved"
+);
 
-              />
 
+}
 
 
 
 
-              <button
 
-                onClick={()=>{
 
-                  const date =
-                  (document.getElementById(`date-${lead.id}`) as HTMLInputElement).value;
+if(loading){
 
 
-                  const notes =
-                  (document.getElementById(`note-${lead.id}`) as HTMLTextAreaElement).value;
+return(
 
+<div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
 
-                  saveFollowUp(
-                    lead.id,
-                    notes,
-                    date
-                  );
+Loading Leads...
 
-                }}
+</div>
 
-                className="mt-3 bg-green-600 px-5 py-2 rounded-xl"
+);
 
-              >
-                Save Follow-up
+}
 
-              </button>
 
 
 
 
-              <div className="mt-5 flex gap-3">
+const total=leads.length;
 
 
-                <a
-                  href={`tel:${lead.phone}`}
-                  className="bg-blue-600 px-5 py-2 rounded-xl"
-                >
-                  📞 Call
-                </a>
+const newLeads=
+leads.filter(
+(l)=>!l.status || l.status==="New"
+).length;
 
 
 
-                <a
-                  href={`https://wa.me/91${lead.phone}`}
-                  target="_blank"
-                  className="bg-green-600 px-5 py-2 rounded-xl"
-                >
-                  WhatsApp
-                </a>
+const contacted=
+leads.filter(
+(l)=>l.status==="Contacted"
+).length;
 
 
-              </div>
 
+const followUps=
+leads.filter(
+(l)=>l.status==="Follow Up"
+).length;
 
 
-            </div>
 
+const closed=
+leads.filter(
+(l)=>l.status==="Closed"
+).length;
 
-          ))
-        }
 
 
-        </div>
 
-      }
 
 
-    </div>
+return(
 
-  );
+
+<div className="min-h-screen bg-zinc-950 text-white p-8">
+
+
+<h1 className="text-4xl font-bold mb-8">
+
+📞 Owner Lead CRM
+
+</h1>
+
+
+
+
+
+<div className="grid md:grid-cols-5 gap-5 mb-10">
+
+
+
+<div className="bg-zinc-900 p-5 rounded-xl">
+
+<h2>Total</h2>
+
+<p className="text-3xl font-bold">
+{total}
+</p>
+
+</div>
+
+
+
+
+<div className="bg-yellow-500 text-black p-5 rounded-xl">
+
+<h2>New</h2>
+
+<p className="text-3xl font-bold">
+{newLeads}
+</p>
+
+</div>
+
+
+
+
+<div className="bg-blue-600 p-5 rounded-xl">
+
+<h2>Contacted</h2>
+
+<p className="text-3xl font-bold">
+{contacted}
+</p>
+
+</div>
+
+
+
+
+<div className="bg-purple-600 p-5 rounded-xl">
+
+<h2>Follow Up</h2>
+
+<p className="text-3xl font-bold">
+{followUps}
+</p>
+
+</div>
+
+
+
+
+<div className="bg-green-600 p-5 rounded-xl">
+
+<h2>Closed</h2>
+
+<p className="text-3xl font-bold">
+{closed}
+</p>
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+<h2 className="text-3xl font-bold mb-5">
+
+All Leads
+
+</h2>
+
+
+
+
+
+
+
+{
+leads.length===0 ?
+
+
+<div className="bg-zinc-900 p-6 rounded-xl">
+
+No Leads Found
+
+</div>
+
+
+
+:
+
+
+<div className="grid md:grid-cols-2 gap-6">
+
+
+
+{
+
+leads.map((lead)=>(
+
+
+
+<div
+
+key={lead.id}
+
+className="bg-zinc-900 p-6 rounded-2xl"
+
+>
+
+
+
+<h3 className="text-2xl font-bold">
+
+{lead.name || "Customer"}
+
+</h3>
+
+
+
+
+<p className="mt-2">
+
+📞 {lead.phone || "No phone"}
+
+</p>
+
+
+
+<p>
+
+🏠 {lead.propertyTitle || "Property"}
+
+</p>
+
+
+
+
+
+
+<div className="mt-4">
+
+
+<span className="bg-zinc-700 px-3 py-1 rounded">
+
+{lead.status || "New"}
+
+</span>
+
+
+</div>
+
+
+
+
+
+
+
+
+<select
+
+value={lead.status || "New"}
+
+onChange={(e)=>
+
+updateStatus(
+lead.id,
+e.target.value
+)
+
+}
+
+className="mt-4 text-black p-2 rounded w-full"
+
+>
+
+
+<option>
+New
+</option>
+
+<option>
+Contacted
+</option>
+
+<option>
+Follow Up
+</option>
+
+<option>
+Closed
+</option>
+
+<option>
+Lost
+</option>
+
+
+</select>
+
+
+
+
+
+
+
+<input
+
+
+type="date"
+
+
+value={
+
+followDates[lead.id] ??
+
+lead.followUpDate ??
+
+""
+
+}
+
+
+
+onChange={(e)=>
+
+setFollowDates({
+
+...followDates,
+
+[lead.id]:e.target.value
+
+})
+
+}
+
+
+
+className="mt-4 text-black p-2 rounded w-full"
+
+/>
+
+
+
+
+
+
+
+
+<textarea
+
+
+value={
+
+followNotes[lead.id] ??
+
+lead.notes ??
+
+""
+
+}
+
+
+
+onChange={(e)=>
+
+setFollowNotes({
+
+...followNotes,
+
+[lead.id]:e.target.value
+
+})
+
+}
+
+
+
+placeholder="Follow up notes"
+
+
+
+className="mt-3 w-full text-black p-2 rounded"
+
+/>
+
+
+
+
+
+
+
+
+<button
+
+
+onClick={()=>saveFollowUp(lead.id)}
+
+
+className="mt-4 bg-green-600 px-5 py-2 rounded-xl"
+
+>
+
+
+Save Follow-up
+
+
+</button>
+
+
+
+
+
+
+
+<div className="mt-5 flex gap-3">
+
+
+<a
+
+href={`tel:${lead.phone}`}
+
+className="bg-blue-600 px-5 py-2 rounded-xl"
+
+>
+
+📞 Call
+
+</a>
+
+
+
+
+<a
+
+href={`https://wa.me/91${lead.phone}`}
+
+target="_blank"
+
+className="bg-green-600 px-5 py-2 rounded-xl"
+
+>
+
+WhatsApp
+
+</a>
+
+
+</div>
+
+
+
+
+
+</div>
+
+
+
+))
+
+
+}
+
+
+</div>
+
+
+}
+
+
+
+</div>
+
+
+);
 
 }

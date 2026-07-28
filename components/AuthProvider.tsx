@@ -54,9 +54,19 @@ const [loading,setLoading]=useState(true);
 useEffect(()=>{
 
 
+console.log("AUTH LISTENER STARTED");
+
+
 const unsubscribe = onAuthStateChanged(
 auth,
 async(firebaseUser)=>{
+
+
+console.log("FIREBASE USER:", firebaseUser?.uid);
+
+
+
+try{
 
 
 setUser(firebaseUser);
@@ -64,6 +74,9 @@ setUser(firebaseUser);
 
 
 if(firebaseUser){
+
+
+try{
 
 
 const userRef = doc(
@@ -79,31 +92,95 @@ const snap = await getDoc(userRef);
 
 if(snap.exists()){
 
+
 const userRole = snap.data().role;
 
-console.log("USER ROLE:",userRole);
 
-setRole(userRole || "user");
+console.log(
+"USER ROLE:",
+userRole
+);
+
+
+setRole(
+userRole || "user"
+);
 
 
 }else{
 
-console.log("USER ROLE: user");
+
+console.log(
+"USER DOCUMENT NOT FOUND"
+);
+
 
 setRole("user");
 
+
 }
+
+
+
+}
+catch(error){
+
+
+console.log(
+"USER DOC ERROR:",
+error
+);
+
+
+setRole("user");
+
+
+}
+
 
 
 }else{
 
+
+console.log(
+"NO USER LOGIN"
+);
+
+
 setRole(null);
+
 
 }
 
 
 
+}
+catch(error){
+
+
+console.log(
+"AUTH ERROR:",
+error
+);
+
+
+setRole("user");
+
+
+}
+finally{
+
+
+console.log(
+"AUTH LOADING FALSE"
+);
+
+
 setLoading(false);
+
+
+}
+
 
 
 });

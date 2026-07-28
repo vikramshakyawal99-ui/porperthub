@@ -12,7 +12,9 @@ import LocationPicker from "@/components/LocationPicker";
 export default function AddPropertyPage(){
 
 const {user}=useAuth();
+
 const router=useRouter();
+
 
 const [loading,setLoading]=useState(false);
 
@@ -20,34 +22,61 @@ const [image,setImage]=useState<File|null>(null);
 
 
 const [locationData,setLocationData]=useState({
- latitude:"",
- longitude:""
+
+latitude:"",
+longitude:""
+
 });
 
 
 const [form,setForm]=useState({
 
 title:"",
-type:"property_sale",
 
-roomType:"",
-sharingType:"",
-food:"",
-bathroom:"",
-ac:"",
+propertyType:"flat",
+
+purpose:"buy",
 
 location:"",
+
 price:"",
+
+rent:"",
+
 bedrooms:"",
+
 area:"",
+
 contact:"",
+
 description:"",
+
+roomType:"",
+
+sharingType:"",
+
+gender:"",
+
+food:"",
+
+ac:"",
+
+suitableFor:"",
+
+society:"",
+
+plotSize:""
 
 });
 
 
-
-function handleChange(e:any){
+function handleChange(
+e:React.ChangeEvent<
+HTMLInputElement |
+HTMLTextAreaElement |
+HTMLSelectElement
+>
+){
 
 setForm({
 
@@ -69,6 +98,7 @@ e.preventDefault();
 if(!user){
 
 alert("Please login first");
+
 return;
 
 }
@@ -119,7 +149,7 @@ createdAt:serverTimestamp()
 
 
 
-alert("✅ Listing Added Successfully");
+alert("Listing Added Successfully");
 
 
 router.push("/owner/listings");
@@ -141,14 +171,11 @@ setLoading(false);
 
 
 
-
-
 return (
 
 <div className="min-h-screen bg-zinc-950 text-white p-10">
 
-
-<div className="max-w-3xl mx-auto bg-zinc-900 p-8 rounded-2xl">
+<div className="mx-auto max-w-3xl bg-zinc-900 rounded-2xl p-8">
 
 
 <h1 className="text-3xl font-bold mb-6">
@@ -156,65 +183,171 @@ return (
 </h1>
 
 
-
 <form onSubmit={handleSubmit} className="space-y-4">
-
 
 
 <input
 name="title"
 placeholder="Property Title"
-className="w-full p-3 rounded text-black"
+value={form.title}
 onChange={handleChange}
-required
+className="w-full p-3 rounded text-black"
 />
 
 
 
 <select
-name="type"
-className="w-full p-3 rounded text-black"
-value={form.type}
+name="purpose"
+value={form.purpose}
 onChange={handleChange}
+className="w-full p-3 rounded text-black"
+>
+
+<option value="buy">
+Buy
+</option>
+
+<option value="rent">
+Rent
+</option>
+
+<option value="resale">
+Resale
+</option>
+
+</select>
+
+
+
+
+<select
+name="propertyType"
+value={form.propertyType}
+onChange={handleChange}
+className="w-full p-3 rounded text-black"
 >
 
 
-<option value="property_sale">
-New Property Sale
+<option value="flat">
+Flat
 </option>
 
-
-<option value="property_rent">
-Property Rent
+<option value="villa">
+Villa
 </option>
 
-
-<option value="resale">
-Resale Property
+<option value="plot">
+Plot
 </option>
 
+<option value="room_rent">
+Room Rent
+</option>
+
+<option value="pg">
+PG
+</option>
 
 <option value="hostel">
 Hostel
 </option>
 
 
-<option value="pg_boys">
-Boys PG
-</option>
-
-
-<option value="pg_girls">
-Girls PG
-</option>
-
-
-<option value="room_rent">
-Room Rent
-</option>
-
-
 </select>
+
+
+
+<input
+name="location"
+placeholder="Location"
+value={form.location}
+onChange={handleChange}
+className="w-full p-3 rounded text-black"
+/>
+
+
+
+<input
+name="price"
+placeholder="Price"
+value={form.price}
+onChange={handleChange}
+className="w-full p-3 rounded text-black"
+/>
+
+
+
+<input
+name="rent"
+placeholder="Rent"
+value={form.rent}
+onChange={handleChange}
+className="w-full p-3 rounded text-black"
+/>
+
+
+
+
+{
+(form.propertyType==="flat" ||
+form.propertyType==="villa") &&
+
+<input
+name="bedrooms"
+placeholder="Bedrooms"
+value={form.bedrooms}
+onChange={handleChange}
+className="w-full p-3 rounded text-black"
+/>
+
+}
+
+
+
+
+{
+(form.propertyType==="flat" ||
+form.propertyType==="villa" ||
+form.propertyType==="plot") &&
+
+<input
+name="area"
+placeholder="Area"
+value={form.area}
+onChange={handleChange}
+className="w-full p-3 rounded text-black"
+/>
+
+}
+
+
+
+
+{
+form.propertyType==="plot" &&
+
+<>
+
+<input
+name="society"
+placeholder="Society / JDA"
+value={form.society}
+onChange={handleChange}
+className="w-full p-3 rounded text-black"
+/>
+
+
+<input
+name="plotSize"
+placeholder="Plot Size"
+value={form.plotSize}
+onChange={handleChange}
+className="w-full p-3 rounded text-black"
+/>
+
+</>
+
+}
 
 
 
@@ -222,71 +355,91 @@ Room Rent
 
 {
 (
-form.type==="hostel" ||
-form.type==="pg_boys" ||
-form.type==="pg_girls" ||
-form.type==="room_rent"
+form.propertyType==="room_rent" ||
+form.propertyType==="pg" ||
+form.propertyType==="hostel"
 )
+
 &&
+
 <>
 
 
 <select
 name="roomType"
-className="w-full p-3 rounded text-black"
+value={form.roomType}
 onChange={handleChange}
+className="w-full p-3 rounded text-black"
 >
 
 <option value="">
-Select Room Type
+Room Type
 </option>
 
-<option value="one_room">
-1 Room
+<option value="single">
+Single Room
 </option>
 
-<option value="two_room">
-2 Room
+<option value="shared">
+Shared Room
 </option>
 
-<option value="double_seater">
-Double Seater
+<option value="private">
+Private Room
 </option>
-
-<option value="triple_seater">
-Triple Seater
-</option>
-
-<option value="four_seater">
-Four Seater
-</option>
-
 
 </select>
 
 
 
-
 <select
 name="sharingType"
-className="w-full p-3 rounded text-black"
+value={form.sharingType}
 onChange={handleChange}
+className="w-full p-3 rounded text-black"
 >
 
 <option value="">
-Sharing Type
+Sharing
 </option>
 
-<option value="single">
-Single
+<option value="1">
+1 Sharing
 </option>
 
-<option value="double">
-Double Sharing
+<option value="2">
+2 Sharing
 </option>
 
-<option value="triple">
-Triple Sharing
+<option value="3">
+3 Sharing
+</option>
+
+<option value="4">
+4 Sharing
+</option>
+
+</select>
+
+
+
+<select
+name="ac"
+value={form.ac}
+onChange={handleChange}
+className="w-full p-3 rounded text-black"
+>
+
+<option value="">
+AC Facility
+</option>
+
+<option value="yes">
+AC
+</option>
+
+<option value="no">
+Non AC
 </option>
 
 </select>
@@ -296,20 +449,21 @@ Triple Sharing
 
 <select
 name="food"
-className="w-full p-3 rounded text-black"
+value={form.food}
 onChange={handleChange}
+className="w-full p-3 rounded text-black"
 >
 
 <option value="">
-Food Available?
+Food Facility
 </option>
 
 <option value="yes">
-Yes
+Food Available
 </option>
 
 <option value="no">
-No
+Non Food
 </option>
 
 </select>
@@ -318,45 +472,28 @@ No
 
 
 <select
-name="bathroom"
-className="w-full p-3 rounded text-black"
+name="suitableFor"
+value={form.suitableFor}
 onChange={handleChange}
+className="w-full p-3 rounded text-black"
 >
 
 <option value="">
-Bathroom
+Suitable For
 </option>
 
-<option value="attached">
-Attached Bathroom
+<option value="boys">
+Boys
 </option>
 
-<option value="common">
-Common Bathroom
+<option value="girls">
+Girls
 </option>
 
-</select>
-
-
-
-
-<select
-name="ac"
-className="w-full p-3 rounded text-black"
-onChange={handleChange}
->
-
-<option value="">
-AC Type
+<option value="family">
+Family
 </option>
 
-<option value="ac">
-AC
-</option>
-
-<option value="non_ac">
-Non AC
-</option>
 
 </select>
 
@@ -370,113 +507,57 @@ Non AC
 
 
 <input
-name="location"
-placeholder="Location"
-className="w-full p-3 rounded text-black"
-onChange={handleChange}
-/>
-
-
-
-<LocationPicker
-
-onLocationSelect={(data)=>{
-
-setLocationData(data)
-
-}}
-
-/>
-
-
-
-
-<input
-name="price"
-placeholder="Price / Rent"
-className="w-full p-3 rounded text-black"
-onChange={handleChange}
-required
-/>
-
-
-
-<input
-name="bedrooms"
-placeholder="Bedrooms"
-className="w-full p-3 rounded text-black"
-onChange={handleChange}
-/>
-
-
-
-<input
-name="area"
-placeholder="Area sq ft"
-className="w-full p-3 rounded text-black"
-onChange={handleChange}
-/>
-
-
-
-<input
 name="contact"
 placeholder="Contact Number"
-className="w-full p-3 rounded text-black"
+value={form.contact}
 onChange={handleChange}
+className="w-full p-3 rounded text-black"
 />
 
 
 
 <textarea
-
 name="description"
-
 placeholder="Description"
-
-className="w-full p-3 rounded text-black"
-
+value={form.description}
 onChange={handleChange}
-
+className="w-full p-3 rounded text-black"
 />
-
 
 
 
 <input
-
 type="file"
-
 accept="image/*"
-
-className="w-full p-3 rounded text-black bg-white"
-
 onChange={(e)=>{
 
-if(e.target.files){
-
+if(e.target.files)
 setImage(e.target.files[0]);
 
-}
-
 }}
-
+className="w-full p-3 bg-white text-black rounded"
 />
 
 
 
+<LocationPicker onLocationSelect={setLocationData}/>
+
+
+
 <button
-
 disabled={loading}
-
-className="w-full bg-green-600 p-3 rounded-xl"
-
+className="w-full bg-blue-600 p-3 rounded font-bold"
 >
 
-{loading ? "Uploading..." : "Add Listing"}
+{
+loading
+?
+"Adding..."
+:
+"Add Listing"
+}
 
 </button>
-
 
 
 </form>
@@ -484,9 +565,9 @@ className="w-full bg-green-600 p-3 rounded-xl"
 
 </div>
 
-
 </div>
 
 );
+
 
 }

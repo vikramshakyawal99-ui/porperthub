@@ -2,150 +2,229 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { collection, getDocs, query, where } from "firebase/firestore";
+
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  limit
+} from "firebase/firestore";
+
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/components/AuthProvider";
 
 
-export default function OwnerDashboardPage() {
+export default function OwnerDashboardPage(){
 
-  const { user } = useAuth();
+const { user } = useAuth();
 
+const [loading,setLoading]=useState(true);
 
-  const [stats,setStats] = useState({
-    properties:0,
-    pending:0,
-    approved:0,
-    leads:0,
-    visits:0,
-  });
 
+const [data,setData]=useState({
 
-  const [recentProperties,setRecentProperties] = useState<any[]>([]);
+properties:0,
+pending:0,
+approved:0,
+rejected:0,
+leads:0,
+visits:0,
 
+recentProperties:[],
+recentLeads:[]
 
+});
 
-  useEffect(()=>{
 
 
-    async function loadDashboard(){
+useEffect(()=>{
 
-      if(!user) return;
 
+async function load(){
 
-      try{
+if(!user){
 
+setLoading(false);
+return;
 
-        const propertyQuery=query(
-          collection(db,"properties"),
-          where("ownerId","==",user.uid)
-        );
+}
 
 
-        const propertySnap=await getDocs(propertyQuery);
+try{
 
 
+const propertyQuery=query(
+collection(db,"properties"),
+where("ownerId","==",user.uid)
+);
 
-        const propertyData=propertySnap.docs.map((item)=>({
-          id:item.id,
-          ...item.data()
-        }));
 
+const propertySnap=await getDocs(propertyQuery);
 
 
-        let pending=0;
-        let approved=0;
+let pending=0;
+let approved=0;
+let rejected=0;
 
 
+propertySnap.docs.forEach((doc)=>{
 
-        propertyData.forEach((property:any)=>{
+const property=doc.data();
 
-          if(property.status==="pending"){
-            pending++;
-          }
 
+if(property.status==="pending"){
+pending++;
+}
 
-          if(property.status==="approved"){
-            approved++;
-          }
+if(property.status==="approved"){
+approved++;
+}
 
-        });
+if(property.status==="rejected"){
+rejected++;
+}
 
+});
 
 
-        const leadsQuery=query(
-          collection(db,"leads"),
-          where("ownerId","==",user.uid)
-        );
 
+const recentPropertyQuery=query(
+collection(db,"properties"),
+where("ownerId","==",user.uid),
+limit(5)
+);
 
-        const leadsSnap=await getDocs(leadsQuery);
 
+const recentPropertySnap=await getDocs(
+recentPropertyQuery
+);
 
 
-        const visitsQuery=query(
-          collection(db,"siteVisits"),
-          where("ownerId","==",user.uid)
-        );
+const recentProperties:any =
+recentPropertySnap.docs.map((doc)=>({
 
+id:doc.id,
+...doc.data()
 
-        const visitsSnap=await getDocs(visitsQuery);
+}));
 
 
 
-        setStats({
 
-          properties:propertyData.length,
-          pending,
-          approved,
-          leads:leadsSnap.size,
-          visits:visitsSnap.size,
+const leadsQuery=query(
+collection(db,"leads"),
+where("ownerId","==",user.uid)
+);
 
-        });
 
+const leadsSnap=await getDocs(leadsQuery);
 
 
-        setRecentProperties(
-          propertyData.slice(0,5)
-        );
 
+const recentLeadQuery=query(
+collection(db,"leads"),
+where("ownerId","==",user.uid),
+limit(5)
+);
 
 
-      }catch(error){
+const recentLeadSnap=await getDocs(
+recentLeadQuery
+);
 
-        console.log(error);
 
-      }
+const recentLeads:any =
+recentLeadSnap.docs.map((doc)=>({
 
+id:doc.id,
+...doc.data()
 
-    }
+}));
 
 
 
-    loadDashboard();
 
+const visitsQuery=query(
+collection(db,"siteVisits"),
+where("ownerId","==",user.uid)
+);
 
-  },[user]);
 
+const visitsSnap=await getDocs(visitsQuery);
 
 
 
-  const approvalRate =
-    stats.properties===0
-    ? 0
-    : Math.round(
-      (stats.approved/stats.properties)*100
-    );
+setData({
+
+properties:propertySnap.size,
+
+pending,
+
+approved,
+
+rejected,
+
+leads:leadsSnap.size,
+
+visits:visitsSnap.size,
+
+recentProperties,
+
+recentLeads
+
+});
+
+
+}
+catch(error){
+
+console.log(
+"DASHBOARD ERROR",
+error
+);
+
+}
+
+finally{
+
+setLoading(false);
+
+}
+
+
+}
+
+
+load();
+
+
+},[user]);
+
+
+
+
+if(loading){
+
+return(
+
+<div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
+
+Loading Dashboard...
+
+</div>
+
+);
+
+}
+
 
 
 
 
 return(
 
-<div className="min-h-screen bg-zinc-950 text-white p-8">
-
-
-<div className="max-w-7xl mx-auto">
+<div className="min-h-screen bg-zinc-950 text-white p-10">
 
 
 <h1 className="text-4xl font-bold mb-8">
@@ -154,31 +233,15 @@ return(
 
 
 
-<div className="grid gap-5 md:grid-cols-6">
 
-
-<Card title="Properties" value={stats.properties}/>
-<Card title="Pending" value={stats.pending}/>
-<Card title="Approved" value={stats.approved}/>
-<Card title="Leads" value={stats.leads}/>
-<Card title="Visits" value={stats.visits}/>
-<Card title="Approval %" value={`${approvalRate}%`}/>
-
-
-</div>
-
-
-
-
-
-<div className="grid md:grid-cols-4 gap-5 mt-10">
+<div className="grid md:grid-cols-6 gap-5 mb-10">
 
 
 <Link
 href="/owner/add-property"
-className="bg-zinc-900 rounded-xl p-6"
+className="bg-blue-600 p-5 rounded-xl"
 >
-<h2 className="text-xl font-bold">
+<h2 className="font-bold">
 ➕ Add Property
 </h2>
 <p>Create listing</p>
@@ -188,22 +251,21 @@ className="bg-zinc-900 rounded-xl p-6"
 
 <Link
 href="/owner/my-properties"
-className="bg-zinc-900 rounded-xl p-6"
+className="bg-green-600 p-5 rounded-xl"
 >
-<h2 className="text-xl font-bold">
+<h2 className="font-bold">
 🏠 My Properties
 </h2>
-<p>Edit/Delete</p>
+<p>Manage listings</p>
 </Link>
-
 
 
 
 <Link
 href="/owner/leads"
-className="bg-zinc-900 rounded-xl p-6"
+className="bg-purple-600 p-5 rounded-xl"
 >
-<h2 className="text-xl font-bold">
+<h2 className="font-bold">
 📞 Leads
 </h2>
 <p>Customer enquiries</p>
@@ -211,15 +273,38 @@ className="bg-zinc-900 rounded-xl p-6"
 
 
 
-
 <Link
 href="/owner/site-visits"
-className="bg-zinc-900 rounded-xl p-6"
+className="bg-orange-600 p-5 rounded-xl"
 >
-<h2 className="text-xl font-bold">
+<h2 className="font-bold">
 📅 Site Visits
 </h2>
-<p>Appointments</p>
+<p>Customer visits</p>
+</Link>
+
+
+
+<Link
+href="/owner/notifications"
+className="bg-pink-600 p-5 rounded-xl"
+>
+<h2 className="font-bold">
+🔔 Notifications
+</h2>
+<p>Owner alerts</p>
+</Link>
+
+
+
+<Link
+href="/owner/dashboard"
+className="bg-zinc-800 p-5 rounded-xl"
+>
+<h2 className="font-bold">
+📊 Analytics
+</h2>
+<p>Dashboard stats</p>
 </Link>
 
 
@@ -229,114 +314,144 @@ className="bg-zinc-900 rounded-xl p-6"
 
 
 
-<h2 className="text-2xl font-bold mt-10 mb-5">
-Latest Properties
+<div className="grid md:grid-cols-3 gap-6">
+
+
+<div className="bg-zinc-900 p-6 rounded-xl">
+<h2>Total Properties</h2>
+<p className="text-3xl">{data.properties}</p>
+</div>
+
+
+<div className="bg-yellow-600 p-6 rounded-xl">
+<h2>Pending</h2>
+<p className="text-3xl">{data.pending}</p>
+</div>
+
+
+<div className="bg-green-600 p-6 rounded-xl">
+<h2>Approved</h2>
+<p className="text-3xl">{data.approved}</p>
+</div>
+
+
+<div className="bg-red-600 p-6 rounded-xl">
+<h2>Rejected</h2>
+<p className="text-3xl">{data.rejected}</p>
+</div>
+
+
+<div className="bg-blue-600 p-6 rounded-xl">
+<h2>Leads</h2>
+<p className="text-3xl">{data.leads}</p>
+</div>
+
+
+<div className="bg-purple-600 p-6 rounded-xl">
+<h2>Site Visits</h2>
+<p className="text-3xl">{data.visits}</p>
+</div>
+
+
+</div>
+
+
+
+
+
+<h2 className="text-3xl font-bold mt-12 mb-5">
+Recent Properties
 </h2>
-
-
 
 
 <div className="grid md:grid-cols-3 gap-6">
 
 
 {
-recentProperties.length===0 ? (
+data.recentProperties.length===0 ?
 
-<p>No properties added yet</p>
-
-)
+<p>No properties found</p>
 
 :
 
-recentProperties.map((property)=>(
-
+data.recentProperties.map((property:any)=>(
 
 <div
 key={property.id}
-className="bg-zinc-900 rounded-xl p-5"
+className="bg-zinc-900 p-5 rounded-xl"
 >
 
-
-{
-property.image &&
-
-<img
-src={property.image}
-className="h-48 w-full object-cover rounded-xl mb-4"
-/>
-
-}
-
-
-
-<h3 className="text-xl font-bold">
+<h3 className="font-bold">
 {property.title}
 </h3>
-
 
 <p>
 📍 {property.location}
 </p>
 
-
 <p>
-💰 ₹ {property.price}
+Status: {property.status}
 </p>
 
-
-
-<span className="inline-block mt-3 rounded-full bg-yellow-600 px-3 py-1 text-sm">
-{property.status || "pending"}
-</span>
-
-
+<p>
+₹ {property.price}
+</p>
 
 </div>
-
 
 ))
 
-
 }
 
 
-
 </div>
 
 
-</div>
-
-
-</div>
-
-);
-
-
-}
 
 
 
-function Card(
-{
-title,
-value
-}:{
-title:string;
-value:any;
-}){
-
-return(
-
-<div className="rounded-xl bg-zinc-900 p-5">
-
-<h2 className="text-lg font-bold">
-{title}
+<h2 className="text-3xl font-bold mt-12 mb-5">
+Recent Leads
 </h2>
 
 
-<p className="text-3xl font-bold mt-3">
-{value}
+<div className="grid md:grid-cols-3 gap-6">
+
+
+{
+data.recentLeads.length===0 ?
+
+<p>No leads found</p>
+
+:
+
+data.recentLeads.map((lead:any)=>(
+
+<div
+key={lead.id}
+className="bg-zinc-900 p-5 rounded-xl"
+>
+
+<h3 className="font-bold">
+{lead.name}
+</h3>
+
+<p>
+📞 {lead.phone}
 </p>
+
+<p>
+{lead.propertyTitle}
+</p>
+
+</div>
+
+))
+
+}
+
+
+</div>
 
 
 </div>

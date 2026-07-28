@@ -6,263 +6,699 @@ import {
   getDoc,
   updateDoc,
 } from "firebase/firestore";
+
 import { db } from "@/lib/firebase";
 import { uploadToCloudinary } from "@/lib/cloudinary";
+
 import { useRouter, useParams } from "next/navigation";
 import LocationPicker from "@/components/LocationPicker";
 
-export default function EditPropertyPage() {
 
-  const router = useRouter();
-  const params = useParams();
+export default function EditPropertyPage(){
 
-  const [loading, setLoading] = useState(false);
-  const [image, setImage] = useState<File | null>(null);
-
-  const [locationData, setLocationData] = useState({
-    latitude: "",
-    longitude: "",
-  });
-
-  const [form, setForm] = useState({
-    title: "",
-    type: "property_sale",
-
-    roomType: "",
-    sharingType: "",
-    food: "",
-    bathroom: "",
-    ac: "",
-
-    location: "",
-    price: "",
-    bedrooms: "",
-    area: "",
-    contact: "",
-    description: "",
-
-    image: "",
-  });
-
-  useEffect(() => {
-    async function loadProperty() {
-
-      const snap = await getDoc(
-        doc(db, "properties", params.id as string)
-      );
-
-      if (!snap.exists()) {
-        alert("Property not found");
-        router.push("/owner/my-properties");
-        return;
-      }
-
-      const data: any = snap.data();
-
-      setForm({
-        title: data.title || "",
-        type: data.type || "property_sale",
-
-        roomType: data.roomType || "",
-        sharingType: data.sharingType || "",
-        food: data.food || "",
-        bathroom: data.bathroom || "",
-        ac: data.ac || "",
-
-        location: data.location || "",
-        price: data.price || "",
-        bedrooms: data.bedrooms || "",
-        area: data.area || "",
-        contact: data.contact || "",
-        description: data.description || "",
-
-        image: data.image || "",
-      });
-
-      setLocationData({
-        latitude: data.latitude || "",
-        longitude: data.longitude || "",
-      });
-
-    }
-
-    loadProperty();
-
-  }, [params.id, router]);
-
-  function handleChange(e: any) {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  }
+const router = useRouter();
+const params = useParams();
 
 
-async function handleSubmit(e: React.FormEvent) {
+const [loading,setLoading]=useState(false);
 
-  e.preventDefault();
+const [image,setImage]=useState<File|null>(null);
 
-  setLoading(true);
 
-  try {
+const [locationData,setLocationData]=useState({
 
-    let imageUrl = form.image;
+latitude:"",
+longitude:""
 
-    if (image) {
+});
 
-      imageUrl = await uploadToCloudinary(image);
 
-    }
 
-    await updateDoc(
+const [form,setForm]=useState({
 
-      doc(db, "properties", params.id as string),
+title:"",
 
-      {
+purpose:"buy",
 
-        ...form,
+propertyType:"flat",
 
-        image: imageUrl,
+location:"",
 
-        latitude: locationData.latitude,
+price:"",
 
-        longitude: locationData.longitude,
+bedrooms:"",
 
-      }
+area:"",
 
-    );
+contact:"",
 
-    alert("✅ Property Updated Successfully");
+description:"",
 
-    router.push("/owner/my-properties");
+roomType:"",
 
-  } catch (error: any) {
+sharingType:"",
 
-    alert(error.message);
+gender:"",
 
-  }
+food:"",
 
-  setLoading(false);
+rent:"",
+
+image:""
+
+});
+
+
+
+
+useEffect(()=>{
+
+
+async function loadProperty(){
+
+
+const snap = await getDoc(
+
+doc(
+db,
+"properties",
+params.id as string
+)
+
+);
+
+
+
+if(!snap.exists()){
+
+alert("Property not found");
+
+router.push("/owner/my-properties");
+
+return;
 
 }
+
+
+
+const data:any=snap.data();
+
+
+
+setForm({
+
+title:data.title || "",
+
+purpose:data.purpose || "buy",
+
+propertyType:data.propertyType || "flat",
+
+location:data.location || "",
+
+price:data.price || "",
+
+bedrooms:data.bedrooms || "",
+
+area:data.area || "",
+
+contact:data.contact || "",
+
+description:data.description || "",
+
+roomType:data.roomType || "",
+
+sharingType:data.sharingType || "",
+
+gender:data.gender || "",
+
+food:data.food || "",
+
+rent:data.rent || "",
+
+image:data.image || ""
+
+});
+
+
+
+setLocationData({
+
+latitude:data.latitude || "",
+
+longitude:data.longitude || ""
+
+});
+
+
+
+}
+
+
+loadProperty();
+
+
+
+},[params.id,router]);
+
+
+
+
+
+function handleChange(
+e:React.ChangeEvent<
+HTMLInputElement |
+HTMLTextAreaElement |
+HTMLSelectElement
+>
+){
+
+setForm({
+
+...form,
+
+[e.target.name]:e.target.value
+
+});
+
+}
+
+
+
+
+
+async function handleSubmit(
+e:React.FormEvent
+){
+
+e.preventDefault();
+
+setLoading(true);
+
+
+try{
+
+
+let imageUrl=form.image;
+
+
+
+if(image){
+
+imageUrl=await uploadToCloudinary(image);
+
+}
+
+
+
+await updateDoc(
+
+doc(
+db,
+"properties",
+params.id as string
+),
+
+{
+
+...form,
+
+image:imageUrl,
+
+latitude:locationData.latitude,
+
+longitude:locationData.longitude
+
+}
+
+);
+
+
+
+alert("✅ Property Updated");
+
+
+router.push("/owner/my-properties");
+
+
+}
+
+catch(error:any){
+
+alert(error.message);
+
+}
+
+
+
+setLoading(false);
+
+
+}
+
+
+
 
 return (
 
 <div className="min-h-screen bg-zinc-950 text-white p-10">
 
-<div className="max-w-3xl mx-auto bg-zinc-900 p-8 rounded-2xl">
+
+<div className="mx-auto max-w-3xl bg-zinc-900 rounded-2xl p-8">
+
 
 <h1 className="text-3xl font-bold mb-6">
-
 ✏️ Edit Property
-
 </h1>
 
-<form onSubmit={handleSubmit} className="space-y-4">
 
-<input
-name="title"
-value={form.title}
-onChange={handleChange}
-placeholder="Property Title"
-className="w-full p-3 rounded text-black"
-required
-/>
 
-<select
-name="type"
-value={form.type}
-onChange={handleChange}
-className="w-full p-3 rounded text-black"
+<form
+onSubmit={handleSubmit}
+className="space-y-4"
 >
 
-<option value="property_sale">New Property Sale</option>
-<option value="property_rent">Property Rent</option>
-<option value="resale">Resale Property</option>
-<option value="hostel">Hostel</option>
-<option value="pg_boys">Boys PG</option>
-<option value="pg_girls">Girls PG</option>
-<option value="room_rent">Room Rent</option>
+
+
+<input
+
+name="title"
+
+value={form.title}
+
+onChange={handleChange}
+
+placeholder="Property Title"
+
+className="w-full rounded p-3 text-black"
+
+/>
+
+
+
+
+<select
+
+name="purpose"
+
+value={form.purpose}
+
+onChange={handleChange}
+
+className="w-full rounded p-3 text-black"
+
+>
+
+<option value="buy">
+Buy
+</option>
+
+<option value="rent">
+Rent
+</option>
+
+<option value="resale">
+Resale
+</option>
+
 
 </select>
 
-<input
-name="location"
-value={form.location}
+
+
+
+
+<select
+
+name="propertyType"
+
+value={form.propertyType}
+
 onChange={handleChange}
+
+className="w-full rounded p-3 text-black"
+
+>
+
+
+<option value="flat">
+Flat / Apartment
+</option>
+
+
+<option value="villa">
+Villa / House
+</option>
+
+
+<option value="plot">
+Plot
+</option>
+
+
+<option value="room">
+Room
+</option>
+
+
+<option value="pg">
+PG
+</option>
+
+
+<option value="hostel">
+Hostel
+</option>
+
+
+</select>
+
+
+
+
+
+<input
+
+name="location"
+
+value={form.location}
+
+onChange={handleChange}
+
 placeholder="Location"
-className="w-full p-3 rounded text-black"
+
+className="w-full rounded p-3 text-black"
+
 />
+
+
+
+
 
 <LocationPicker
-onLocationSelect={(data)=>setLocationData(data)}
+
+onLocationSelect={(data)=>{
+
+setLocationData(data);
+
+}}
+
 />
 
-<input
-name="price"
-value={form.price}
-onChange={handleChange}
-placeholder="Price"
-className="w-full p-3 rounded text-black"
-/>
+
+
+
+
+{
+(
+form.propertyType==="flat" ||
+form.propertyType==="villa"
+)
+
+&&
+
+<>
+
 
 <input
+
 name="bedrooms"
+
 value={form.bedrooms}
+
 onChange={handleChange}
-placeholder="Bedrooms"
-className="w-full p-3 rounded text-black"
+
+placeholder="Bedrooms / BHK"
+
+className="w-full rounded p-3 text-black"
+
 />
 
+
+
 <input
+
+name="price"
+
+value={form.price}
+
+onChange={handleChange}
+
+placeholder="Price"
+
+className="w-full rounded p-3 text-black"
+
+/>
+
+
+</>
+
+}
+
+
+
+
+
+{
+form.propertyType==="plot"
+
+&&
+
+<>
+
+<input
+
 name="area"
+
 value={form.area}
+
 onChange={handleChange}
-placeholder="Area"
-className="w-full p-3 rounded text-black"
+
+placeholder="Plot Area"
+
+className="w-full rounded p-3 text-black"
+
 />
 
+
+
 <input
-name="contact"
-value={form.contact}
+
+name="price"
+
+value={form.price}
+
 onChange={handleChange}
-placeholder="Contact"
-className="w-full p-3 rounded text-black"
+
+placeholder="Plot Price"
+
+className="w-full rounded p-3 text-black"
+
 />
+
+
+</>
+
+}
+
+
+
+
+
+{
+(
+form.propertyType==="pg" ||
+form.propertyType==="room" ||
+form.propertyType==="hostel"
+)
+
+&&
+
+<>
+
+<input
+
+name="roomType"
+
+value={form.roomType}
+
+onChange={handleChange}
+
+placeholder="Single / Shared Room"
+
+className="w-full rounded p-3 text-black"
+
+/>
+
+
+
+
+<input
+
+name="sharingType"
+
+value={form.sharingType}
+
+onChange={handleChange}
+
+placeholder="Sharing"
+
+className="w-full rounded p-3 text-black"
+
+/>
+
+
+
+
+<input
+
+name="gender"
+
+value={form.gender}
+
+onChange={handleChange}
+
+placeholder="Boys / Girls"
+
+className="w-full rounded p-3 text-black"
+
+/>
+
+
+
+
+<input
+
+name="food"
+
+value={form.food}
+
+onChange={handleChange}
+
+placeholder="Food Available"
+
+className="w-full rounded p-3 text-black"
+
+/>
+
+
+
+
+<input
+
+name="rent"
+
+value={form.rent}
+
+onChange={handleChange}
+
+placeholder="Monthly Rent"
+
+className="w-full rounded p-3 text-black"
+
+/>
+
+
+</>
+
+}
+
+
+
+
+<input
+
+name="contact"
+
+value={form.contact}
+
+onChange={handleChange}
+
+placeholder="Contact"
+
+className="w-full rounded p-3 text-black"
+
+/>
+
+
+
+
 
 <textarea
+
 name="description"
+
 value={form.description}
+
 onChange={handleChange}
+
 placeholder="Description"
-className="w-full p-3 rounded text-black"
+
+className="w-full rounded p-3 text-black"
+
 />
 
+
+
+
+
 <input
+
 type="file"
+
 accept="image/*"
-className="w-full p-3 rounded text-black bg-white"
+
+className="w-full rounded bg-white p-3 text-black"
+
 onChange={(e)=>{
-if(e.target.files){
-setImage(e.target.files[0]);
-}
+
+setImage(
+e.target.files?.[0] || null
+)
+
 }}
+
 />
+
+
 
 
 <button
+
 disabled={loading}
-className="w-full bg-blue-600 hover:bg-blue-700 p-3 rounded-xl"
+
+className="w-full rounded-xl bg-blue-600 p-3 font-bold"
+
 >
-{loading ? "Updating..." : "Update Property"}
+
+{
+
+loading
+
+?
+
+"Updating..."
+
+:
+
+"Update Property"
+
+}
+
+
 </button>
+
+
 
 </form>
 
-</div>
 
 </div>
+
+
+</div>
+
 
 );
+
 
 }

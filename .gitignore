@@ -39,3 +39,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Firebase Admin
+serviceAccountKey.json
+
+# Backup files
+*.backup*
+*.save*
+*.old*
+*.before*
+*.error*
+
+# Local scripts
+test-firestore.js

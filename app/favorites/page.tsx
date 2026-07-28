@@ -1,79 +1,121 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { properties } from "../../data/properties";
-import PropertyCard from "../../components/PropertyCard";
-
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function FavoritesPage() {
+  const { user, loading } = useAuth();
 
-  const [favorites, setFavorites] = useState<number[]>([]);
-
+  const [favorites, setFavorites] = useState<any[]>([]);
+  const [pageLoading, setPageLoading] = useState(true);
 
   useEffect(() => {
+    async function load() {
+      if (!user) {
+        setPageLoading(false);
+        return;
+      }
 
-    const saved =
-      JSON.parse(
-        localStorage.getItem("favorites") || "[]"
-      );
+      try {
+        const favSnap = await getDocs(
+          collection(db, "users", user.uid, "favorites")
+        );
 
-    setFavorites(saved);
+        const list = [];
 
-  }, []);
+        for (const fav of favSnap.docs) {
+          const propertySnap = await getDoc(
+            doc(db, "properties", fav.id)
+          );
 
-
-  const favoriteProperties =
-    properties.filter((property) =>
-      favorites.includes(property.id)
-    );
-
-
-  return (
-    <main className="min-h-screen bg-gray-50 px-6 py-16">
-
-      <div className="mx-auto max-w-7xl">
-
-        <h1 className="mb-10 text-4xl font-bold">
-          ❤️ My Favorite Properties
-        </h1>
-
-
-        {
-          favoriteProperties.length === 0 ? (
-
-            <div className="rounded-2xl bg-zinc-900 p-10 text-center shadow">
-
-              <h2 className="text-2xl font-bold">
-                No Favorites Yet
-              </h2>
-
-              <p className="mt-3 text-gray-300">
-                Save properties to see them here.
-              </p>
-
-            </div>
-
-          ) : (
-
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-
-              {favoriteProperties.map((property)=>(
-
-                <PropertyCard
-                  key={property.id}
-                  property={property}
-                />
-
-              ))}
-
-            </div>
-
-          )
+          if (propertySnap.exists()) {
+            list.push({
+              id: propertySnap.id,
+              ...propertySnap.data(),
+            });
+          }
         }
 
+        setFavorites(list);
+      } catch (e) {
+        console.error(e);
+      }
 
+      setPageLoading(false);
+    }
+
+    load();
+  }, [user]);
+
+  if (loading || pageLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
       </div>
+    );
+  }
 
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <h1 className="text-3xl font-bold">Please Login</h1>
+
+        <Link
+          href="/login"
+          className="bg-blue-600 text-white px-6 py-3 rounded-xl"
+        >
+          Login
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-zinc-950 text-white p-10">
+      <h1 className="text-4xl font-bold mb-8">
+        ❤️ My Favorite Properties
+      </h1>
+
+      {favorites.length === 0 ? (
+        <p>No favorite properties.</p>
+      ) : (
+        <div className="grid md:grid-cols-3 gap-6">
+          {favorites.map((property) => (
+            <div
+              key={property.id}
+              className="bg-zinc-900 rounded-xl overflow-hidden"
+            >
+              <img
+                src={property.image}
+                alt={property.title}
+                className="h-56 w-full object-cover"
+              />
+
+              <div className="p-5">
+                <h2 className="text-xl font-bold">
+                  {property.title}
+                </h2>
+
+                <p>{property.location}</p>
+
+                <p className="text-blue-400 font-bold">
+                  {property.price}
+                </p>
+
+                <Link
+                  href={`/properties/${property.id}`}
+                  className="inline-block mt-4 bg-blue-600 px-5 py-2 rounded-lg"
+                >
+                  View Property
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </main>
   );
 }

@@ -3,19 +3,24 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./AuthProvider";
-import { addFavorite, removeFavorite } from "@/lib/favorites";
+import {
+  addWishlist,
+  removeWishlist,
+} from "@/lib/wishlist";
 
 type Props = {
   propertyId: string;
 };
 
-export default function FavoriteButton({ propertyId }: Props) {
-  const [saved, setSaved] = useState(false);
-
+export default function WishlistButton({
+  propertyId,
+}: Props) {
   const { user } = useAuth();
   const router = useRouter();
 
-  async function toggleFavorite() {
+  const [saved, setSaved] = useState(false);
+
+  async function toggleWishlist() {
     if (!user) {
       router.push("/login");
       return;
@@ -23,10 +28,10 @@ export default function FavoriteButton({ propertyId }: Props) {
 
     try {
       if (saved) {
-        await removeFavorite(user.uid, propertyId);
+        await removeWishlist(user.uid, propertyId);
         setSaved(false);
       } else {
-        await addFavorite(user.uid, propertyId);
+        await addWishlist(user.uid, propertyId);
         setSaved(true);
       }
     } catch (error) {
@@ -37,14 +42,14 @@ export default function FavoriteButton({ propertyId }: Props) {
 
   return (
     <button
-      onClick={toggleFavorite}
+      onClick={toggleWishlist}
       className={`rounded-xl px-8 py-4 font-bold transition ${
         saved
-          ? "bg-red-500 text-white"
-          : "border-2 border-red-500 text-red-500"
+          ? "bg-pink-600 text-white"
+          : "border-2 border-pink-600 text-pink-600"
       }`}
     >
-      {saved ? "❤️ Saved" : "♡ Add to Favorites"}
+      {saved ? "💖 Wishlisted" : "🤍 Add to Wishlist"}
     </button>
   );
 }

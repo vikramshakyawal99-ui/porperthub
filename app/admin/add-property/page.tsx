@@ -11,19 +11,32 @@ export default function AddPropertyPage() {
   const [title,setTitle]=useState("");
   const [location,setLocation]=useState("");
   const [price,setPrice]=useState("");
+
   const [images,setImages]=useState<File[]>([]);
   const [loading,setLoading]=useState(false);
 
   const [builder,setBuilder]=useState("");
   const [builderContact,setBuilderContact]=useState("");
+
   const [bedrooms,setBedrooms]=useState(0);
   const [bathrooms,setBathrooms]=useState(0);
+
   const [area,setArea]=useState("");
   const [rating,setRating]=useState(0);
+
   const [description,setDescription]=useState("");
+
   const [projectName,setProjectName]=useState("");
   const [reraNumber,setReraNumber]=useState("");
-  const [propertyType,setPropertyType]=useState("");
+
+
+  // CATEGORY SYSTEM
+  const [purpose,setPurpose]=useState("buy");
+
+  const [propertyCondition,setPropertyCondition]=useState("new");
+
+  const [propertyType,setPropertyType]=useState("flat");
+
 
 
 async function handleSubmit(e:React.FormEvent){
@@ -34,16 +47,11 @@ try{
 
 setLoading(true);
 
-console.log("START SUBMIT");
-
 
 const imageUrls:string[]=[];
 
 
 for(const image of images){
-
-console.log("Uploading:",image.name);
-
 
 const imageRef=ref(
 storage,
@@ -54,13 +62,7 @@ storage,
 await uploadBytes(imageRef,image);
 
 
-console.log("Upload Done");
-
-
 const url=await getDownloadURL(imageRef);
-
-
-console.log("Image URL:",url);
 
 
 imageUrls.push(url);
@@ -68,29 +70,54 @@ imageUrls.push(url);
 }
 
 
-console.log("FIRESTORE START");
-
 
 const docRef=await addDoc(
 collection(db,"properties"),
 {
 
 title,
+
 location,
+
 price,
+
+
 builder,
+
 builderContact,
+
+
 bedrooms,
+
 bathrooms,
+
+
 area,
+
 rating,
+
+
 description,
+
+
 projectName,
+
 reraNumber,
+
+
+// CATEGORY DATA
+
+purpose,
+
+propertyCondition,
+
 propertyType,
 
+
 image:imageUrls[0] || "",
+
 images:imageUrls,
+
 
 createdAt:new Date()
 
@@ -103,18 +130,33 @@ console.log("SUCCESS ID:",docRef.id);
 alert("Property Added Successfully");
 
 
+// RESET
+
 setTitle("");
+
 setLocation("");
+
 setPrice("");
+
 setImages([]);
+
 setBuilder("");
+
 setBuilderContact("");
+
 setProjectName("");
+
 setReraNumber("");
-setPropertyType("");
+
+setPurpose("buy");
+
+setPropertyCondition("new");
+
+setPropertyType("flat");
 
 
 }
+
 catch(error){
 
 console.error("ADD PROPERTY ERROR:",error);
@@ -122,9 +164,8 @@ console.error("ADD PROPERTY ERROR:",error);
 alert("Error adding property");
 
 }
-finally{
 
-console.log("FINISHED");
+finally{
 
 setLoading(false);
 
@@ -139,6 +180,7 @@ return(
 
 <main className="min-h-screen bg-zinc-950 p-10">
 
+
 <div className="mx-auto max-w-2xl rounded-3xl bg-zinc-900 p-8">
 
 
@@ -147,60 +189,108 @@ Add Property
 </h1>
 
 
-<form onSubmit={handleSubmit} className="space-y-5">
+
+<form 
+onSubmit={handleSubmit}
+className="space-y-5"
+>
 
 
 <PropertyForm
 
+
 title={title}
 setTitle={setTitle}
+
+
 
 location={location}
 setLocation={setLocation}
 
+
+
 price={price}
 setPrice={setPrice}
+
+
 
 builder={builder}
 setBuilder={setBuilder}
 
+
+
 builderContact={builderContact}
 setBuilderContact={setBuilderContact}
+
+
 
 bedrooms={bedrooms}
 setBedrooms={setBedrooms}
 
+
+
 bathrooms={bathrooms}
 setBathrooms={setBathrooms}
+
+
 
 area={area}
 setArea={setArea}
 
+
+
 rating={rating}
 setRating={setRating}
+
+
 
 description={description}
 setDescription={setDescription}
 
+
+
 images={images}
 setImages={setImages}
+
+
 
 projectName={projectName}
 setProjectName={setProjectName}
 
+
+
 reraNumber={reraNumber}
 setReraNumber={setReraNumber}
+
+
+
+
+purpose={purpose}
+setPurpose={setPurpose}
+
+
+
+propertyCondition={propertyCondition}
+setPropertyCondition={setPropertyCondition}
+
+
 
 propertyType={propertyType}
 setPropertyType={setPropertyType}
 
+
 />
 
 
+
 <button
+
 type="submit"
+
 disabled={loading}
+
 className="w-full rounded-xl bg-blue-600 p-3 text-white"
+
 >
 
 {loading ? "Adding..." : "Add Property"}
@@ -208,10 +298,12 @@ className="w-full rounded-xl bg-blue-600 p-3 text-white"
 </button>
 
 
+
 </form>
 
 
 </div>
+
 
 </main>
 

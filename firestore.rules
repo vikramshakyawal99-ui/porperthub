@@ -5,22 +5,14 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
 
-    // Check user login
     function isLoggedIn() {
       return request.auth != null;
     }
 
 
-    // Admin check
     function isAdmin() {
       return isLoggedIn()
         && request.auth.token.email == "vikramshakyawal99@gmail.com";
-    }
-
-
-    // Owner check
-    function isOwner() {
-      return isLoggedIn();
     }
 
 
@@ -32,30 +24,32 @@ service cloud.firestore {
     match /properties/{propertyId} {
 
 
-      // Anyone can view properties
+      // Public property listing
       allow read: if true;
 
 
-      // Logged users can add property
-      allow create: if isLoggedIn();
+      // Owner can create only own property
+      allow create: if isLoggedIn()
+        && request.resource.data.ownerId == request.auth.uid;
 
 
-      // Owner or admin can update
+      // Owner or Admin update
       allow update: if isAdmin()
         || (
-          isOwner()
+          isLoggedIn()
           && resource.data.ownerId == request.auth.uid
         );
 
 
-      // Owner or admin can delete
+      // Owner or Admin delete
       allow delete: if isAdmin()
         || (
-          isOwner()
+          isLoggedIn()
           && resource.data.ownerId == request.auth.uid
         );
 
     }
+
 
 
 
@@ -67,19 +61,30 @@ service cloud.firestore {
     match /leads/{leadId} {
 
 
-      // Customer enquiry submit
+      // Customer enquiry
       allow create: if true;
 
 
-      // Admin and owner can view leads
-      allow read: if isLoggedIn();
+      // Admin or own owner leads
+      allow read: if isAdmin()
+        || (
+          isLoggedIn()
+          && resource.data.ownerId == request.auth.uid
+        );
 
 
-      // Only admin can manage lead status
-      allow update, delete: if isAdmin();
+      // Admin or owner update
+      allow update: if isAdmin()
+        || (
+          isLoggedIn()
+          && resource.data.ownerId == request.auth.uid
+        );
 
+
+      allow delete: if isAdmin();
 
     }
+
 
 
 
@@ -91,17 +96,30 @@ service cloud.firestore {
     match /siteVisits/{visitId} {
 
 
-      // Customer can book visit
+      // Customer booking
       allow create: if true;
 
 
-      // Logged users can view
-      allow read: if isLoggedIn();
+      // Admin or owner own visits
+      allow read: if isAdmin()
+        || (
+          isLoggedIn()
+          && resource.data.ownerId == request.auth.uid
+        );
 
 
-      allow update, delete: if isAdmin();
+      // Admin or owner update status
+      allow update: if isAdmin()
+        || (
+          isLoggedIn()
+          && resource.data.ownerId == request.auth.uid
+        );
+
+
+      allow delete: if isAdmin();
 
     }
+
 
 
 
@@ -121,6 +139,7 @@ service cloud.firestore {
 
 
 
+
     // =========================
     // USERS
     // =========================
@@ -134,13 +153,53 @@ service cloud.firestore {
       allow create: if isLoggedIn();
 
 
-      allow update: if request.auth.uid == userId
-        || isAdmin();
+      allow update: if isAdmin()
+        || (
+          isLoggedIn()
+          && request.auth.uid == userId
+        );
 
 
       allow delete: if isAdmin();
 
     }
+
+
+
+
+
+    // =========================
+    // NOTIFICATIONS
+    // =========================
+
+    match /notifications/{notificationId} {
+
+
+      // Owner reads own notification
+      allow read: if isAdmin()
+        || (
+          isLoggedIn()
+          && resource.data.ownerId == request.auth.uid
+        );
+
+
+      // Admin or logged user create
+      allow create: if isLoggedIn();
+
+
+      // Owner mark read
+      allow update: if isAdmin()
+        || (
+          isLoggedIn()
+          && resource.data.ownerId == request.auth.uid
+        );
+
+
+      allow delete: if isAdmin();
+
+    }
+
+
 
 
 

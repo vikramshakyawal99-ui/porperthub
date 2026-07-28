@@ -1,196 +1,713 @@
 "use client";
 
-type Props = {
-  onFilterChange: (filters: {
-    search: string;
-    location: string;
-    bhk: string;
-    price: string;
-    sort: string;
-  }) => void;
-};
-
 import { useState } from "react";
 
+
+type Props = {
+
+type?: string;
+
+onFilterChange:(filters:any)=>void;
+
+};
+
+
 export default function PropertyFilters({
-  onFilterChange,
-}: Props) {
 
-  const [search, setSearch] = useState("");
-  const [location, setLocation] = useState("");
-  const [bhk, setBhk] = useState("");
-  const [price, setPrice] = useState("");
-  const [sort, setSort] = useState("");
+type="",
 
+onFilterChange
 
-  function update(
-    newSearch: string,
-    newLocation: string,
-    newBhk: string,
-    newPrice: string,
-    newSort: string
-  ) {
-
-    onFilterChange({
-      search: newSearch,
-      location: newLocation,
-      bhk: newBhk,
-      price: newPrice,
-      sort: newSort,
-    });
-
-  }
-
-
-  return (
-    <div className="mb-8 rounded-2xl bg-zinc-900 p-6 shadow-lg">
-
-      <h2 className="mb-6 text-2xl font-bold">
-        🔍 Search & Filters
-      </h2>
-
-
-      <div className="grid gap-4 md:grid-cols-5">
-
-
-        <input
-          placeholder="Search Property..."
-          value={search}
-          onChange={(e)=>{
-            setSearch(e.target.value);
-            update(
-              e.target.value,
-              location,
-              bhk,
-              price,
-              sort
-            );
-          }}
-          className="rounded-xl border p-3"
-        />
-
-
-        <input
-          placeholder="Location..."
-          value={location}
-          onChange={(e)=>{
-            setLocation(e.target.value);
-            update(
-              search,
-              e.target.value,
-              bhk,
-              price,
-              sort
-            );
-          }}
-          className="rounded-xl border p-3"
-        />
-
-
-        <select
-          value={bhk}
-          onChange={(e)=>{
-            setBhk(e.target.value);
-            update(
-              search,
-              location,
-              e.target.value,
-              price,
-              sort
-            );
-          }}
-          className="rounded-xl border p-3"
-        >
-          <option value="">All BHK</option>
-          <option value="2">2 BHK</option>
-          <option value="3">3 BHK</option>
-          <option value="4">4 BHK</option>
-        </select>
+}:Props){
 
 
 
-        <select
-          value={price}
-          onChange={(e)=>{
-            setPrice(e.target.value);
-            update(
-              search,
-              location,
-              bhk,
-              e.target.value,
-              sort
-            );
-          }}
-          className="rounded-xl border p-3"
-        >
-
-          <option value="">All Price</option>
-          <option value="50">Below 50 Lakh</option>
-          <option value="100">50 Lakh - 1 Cr</option>
-          <option value="200">Above 1 Cr</option>
-
-        </select>
+const category = type.toLowerCase();
 
 
 
-        <select
-          value={sort}
-          onChange={(e)=>{
-            setSort(e.target.value);
-            update(
-              search,
-              location,
-              bhk,
-              price,
-              e.target.value
-            );
-          }}
-          className="rounded-xl border p-3"
-        >
-
-          <option value="">
-            Sort By
-          </option>
-
-          <option value="low">
-            Price Low to High
-          </option>
-
-          <option value="high">
-            Price High to Low
-          </option>
-
-        </select>
-
-
-      </div>
+const isRental =
+[
+"pg",
+"hostel",
+"room",
+"room_rent"
+]
+.includes(category);
 
 
 
-      <button
-        onClick={()=>{
-
-          setSearch("");
-          setLocation("");
-          setBhk("");
-          setPrice("");
-          setSort("");
-
-          onFilterChange({
-            search:"",
-            location:"",
-            bhk:"",
-            price:"",
-            sort:"",
-          });
-
-        }}
-        className="mt-6 rounded-xl bg-red-500 px-5 py-3 font-semibold text-white"
-      >
-        Clear Filters
-      </button>
+const isPG =
+category==="pg";
 
 
-    </div>
-  );
+
+const isHostel =
+category==="hostel";
+
+
+
+const isRoom =
+category==="room" ||
+category==="room_rent";
+
+
+
+const isPlot =
+category==="plot";
+
+
+
+const [search,setSearch]=useState("");
+
+const [location,setLocation]=useState("");
+
+const [bhk,setBhk]=useState("");
+
+const [price,setPrice]=useState("");
+
+const [rent,setRent]=useState("");
+
+const [sharingType,setSharingType]=useState("");
+
+const [roomType,setRoomType]=useState("");
+
+const [ac,setAc]=useState("");
+
+const [food,setFood]=useState("");
+
+const [suitableFor,setSuitableFor]=useState("");
+
+const [society,setSociety]=useState("");
+
+const [plotSize,setPlotSize]=useState("");
+
+const [sort,setSort]=useState("");
+
+
+
+
+function update(values:any){
+
+
+onFilterChange({
+
+search,
+
+location,
+
+bhk,
+
+price,
+
+rent,
+
+sharingType,
+
+roomType,
+
+ac,
+
+food,
+
+suitableFor,
+
+society,
+
+plotSize,
+
+sort,
+
+...values
+
+});
+
+
+}
+
+
+
+return (
+
+<div className="mb-8 rounded-2xl bg-zinc-900 p-6">
+
+
+<h2 className="mb-6 text-2xl font-bold text-white">
+
+🔍 Search & Filters
+
+</h2>
+
+
+
+<div className="grid gap-4 md:grid-cols-5">
+
+
+
+<input
+
+placeholder="Search Property..."
+
+value={search}
+
+onChange={(e)=>{
+
+setSearch(e.target.value);
+
+update({
+search:e.target.value
+});
+
+}}
+
+className="rounded-xl border p-3 text-black"
+
+/>
+
+
+
+
+<input
+
+placeholder="Location..."
+
+value={location}
+
+onChange={(e)=>{
+
+setLocation(e.target.value);
+
+update({
+location:e.target.value
+});
+
+}}
+
+className="rounded-xl border p-3 text-black"
+
+/>
+
+
+
+
+
+{!isRental && !isPlot && (
+
+<select
+
+value={bhk}
+
+onChange={(e)=>{
+
+setBhk(e.target.value);
+
+update({
+bhk:e.target.value
+});
+
+}}
+
+className="rounded-xl border p-3 text-black"
+
+>
+
+
+<option value="">
+All BHK
+</option>
+
+
+<option value="1">
+1 BHK
+</option>
+
+<option value="2">
+2 BHK
+</option>
+
+<option value="3">
+3 BHK
+</option>
+
+<option value="4">
+4 BHK
+</option>
+
+
+</select>
+
+)}
+
+
+
+
+
+{isPlot && (
+
+<>
+
+
+<input
+
+placeholder="Society / JDA"
+
+value={society}
+
+onChange={(e)=>{
+
+setSociety(e.target.value);
+
+update({
+society:e.target.value
+});
+
+}}
+
+className="rounded-xl border p-3 text-black"
+
+/>
+
+
+
+<input
+
+placeholder="Plot Size"
+
+value={plotSize}
+
+onChange={(e)=>{
+
+setPlotSize(e.target.value);
+
+update({
+plotSize:e.target.value
+});
+
+}}
+
+className="rounded-xl border p-3 text-black"
+
+/>
+
+
+</>
+
+)}
+
+
+
+
+
+
+{isRental && (
+
+<>
+
+
+<select
+
+value={roomType}
+
+onChange={(e)=>{
+
+setRoomType(e.target.value);
+
+update({
+roomType:e.target.value
+});
+
+}}
+
+className="rounded-xl border p-3 text-black"
+
+>
+
+
+<option value="">
+Room Type
+</option>
+
+
+<option value="single">
+Single Room
+</option>
+
+
+<option value="shared">
+Shared Room
+</option>
+
+
+<option value="private">
+Private Room
+</option>
+
+
+</select>
+
+
+
+
+
+<select
+
+value={sharingType}
+
+onChange={(e)=>{
+
+setSharingType(e.target.value);
+
+update({
+sharingType:e.target.value
+});
+
+}}
+
+className="rounded-xl border p-3 text-black"
+
+>
+
+
+<option value="">
+Sharing
+</option>
+
+
+<option value="1">
+1 Sharing
+</option>
+
+
+<option value="2">
+2 Sharing
+</option>
+
+
+<option value="3">
+3 Sharing
+</option>
+
+
+<option value="4">
+4 Sharing
+</option>
+
+
+</select>
+
+
+
+
+
+<select
+
+value={ac}
+
+onChange={(e)=>{
+
+setAc(e.target.value);
+
+update({
+ac:e.target.value
+});
+
+}}
+
+className="rounded-xl border p-3 text-black"
+
+>
+
+
+<option value="">
+AC / Non AC
+</option>
+
+
+<option value="yes">
+AC
+</option>
+
+
+<option value="no">
+Non AC
+</option>
+
+
+</select>
+
+
+
+
+
+<select
+
+value={food}
+
+onChange={(e)=>{
+
+setFood(e.target.value);
+
+update({
+food:e.target.value
+});
+
+}}
+
+className="rounded-xl border p-3 text-black"
+
+>
+
+
+<option value="">
+Food
+</option>
+
+
+<option value="yes">
+Food Available
+</option>
+
+
+<option value="no">
+Non Food
+</option>
+
+
+</select>
+
+
+
+
+
+<select
+
+value={suitableFor}
+
+onChange={(e)=>{
+
+setSuitableFor(e.target.value);
+
+update({
+suitableFor:e.target.value
+});
+
+}}
+
+className="rounded-xl border p-3 text-black"
+
+>
+
+
+<option value="">
+Suitable For
+</option>
+
+
+<option value="boys">
+Boys
+</option>
+
+
+<option value="girls">
+Girls
+</option>
+
+
+<option value="family">
+Family
+</option>
+
+
+</select>
+
+
+</>
+
+)}
+
+
+
+
+
+
+<select
+
+value={isRental ? rent : price}
+
+onChange={(e)=>{
+
+
+if(isRental){
+
+setRent(e.target.value);
+
+update({
+rent:e.target.value
+});
+
+
+}else{
+
+
+setPrice(e.target.value);
+
+update({
+price:e.target.value
+});
+
+
+}
+
+
+}}
+
+className="rounded-xl border p-3 text-black"
+
+>
+
+
+<option value="">
+
+{
+isRental
+?
+"All Rent"
+:
+"All Price"
+}
+
+</option>
+
+
+<option value="5000">
+Below ₹5000
+</option>
+
+
+<option value="10000">
+₹5000 - ₹10000
+</option>
+
+
+<option value="20000">
+Above ₹10000
+</option>
+
+
+</select>
+
+
+
+
+
+
+<select
+
+value={sort}
+
+onChange={(e)=>{
+
+setSort(e.target.value);
+
+update({
+sort:e.target.value
+});
+
+}}
+
+className="rounded-xl border p-3 text-black"
+
+>
+
+
+<option value="">
+Sort By
+</option>
+
+
+<option value="low">
+Price Low To High
+</option>
+
+
+<option value="high">
+Price High To Low
+</option>
+
+
+</select>
+
+
+
+</div>
+
+
+
+
+
+
+<button
+
+onClick={()=>{
+
+
+setSearch("");
+
+setLocation("");
+
+setBhk("");
+
+setPrice("");
+
+setRent("");
+
+setSharingType("");
+
+setRoomType("");
+
+setAc("");
+
+setFood("");
+
+setSuitableFor("");
+
+setSort("");
+
+
+
+onFilterChange({
+
+search:"",
+location:"",
+bhk:"",
+price:"",
+rent:"",
+sharingType:"",
+roomType:"",
+ac:"",
+food:"",
+suitableFor:"",
+sort:""
+
+});
+
+
+}}
+
+className="mt-6 rounded-xl bg-red-500 px-5 py-3 text-white"
+
+>
+
+Clear Filters
+
+</button>
+
+
+
+</div>
+
+
+);
+
+
 }
