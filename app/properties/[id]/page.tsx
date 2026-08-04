@@ -1,25 +1,42 @@
 import { notFound } from "next/navigation";
+import dynamic from "next/dynamic";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 import EMICalculator from "../../../components/EMICalculator";
 import ImageGallery from "../../../components/ImageGallery";
 import Amenities from "../../../components/Amenities";
-import BuilderCard from "../../../components/BuilderCard";
-import PropertyScore from "../../../components/PropertyScore";
-import PriceTrend from "../../../components/PriceTrend";
-import AIPropertyAssistant from "../../../components/AIPropertyAssistant";
+
+
+
+
 import FavoriteButton from "../../../components/FavoriteButton";
 import WishlistButton from "../../../components/WishlistButton";
 import SiteVisitForm from "../../../components/SiteVisitForm";
-import GoogleMap from "../../../components/GoogleMap";
-import NearbyPlaces from "../../../components/NearbyPlaces";
+
+
 import PropertyActions from "../../../components/PropertyActions";
 import WhatsAppButton from "../../../components/WhatsAppButton";
 import ShareButton from "../../../components/ShareButton";
 import LeadForm from "../../../components/LeadForm";
 import PropertySchema from "../../../components/PropertySchema";
 
+
+
+
+const BuilderCard = dynamic(() => import("../../../components/BuilderCard"));
+const PropertyScore = dynamic(() => import("../../../components/PropertyScore"));
+const PriceTrend = dynamic(() => import("../../../components/PriceTrend"));
+const AIPropertyAssistant = dynamic(() => import("../../../components/AIPropertyAssistant"));
+const GoogleMap = dynamic(() => import("../../../components/GoogleMap"), {
+  loading: () => <div className="mt-8 h-96 animate-pulse rounded-xl bg-zinc-800" />
+});
+const NearbyPlaces = dynamic(() => import("../../../components/NearbyPlaces"), {
+  loading: () => <div className="mt-8 h-72 animate-pulse rounded-xl bg-zinc-800" />
+});
+const SimilarProperties = dynamic(() => import("../../../components/SimilarProperties"), {
+  loading: () => <div className="mt-8 h-96 animate-pulse rounded-xl bg-zinc-800" />
+});
 
 type Props = {
   params: Promise<{
@@ -125,33 +142,38 @@ export default async function PropertyDetails({ params }: Props) {
   const { id } = await params;
 
 
-  const docRef = doc(db,"properties",id);
+  let property:any = null;
 
+
+  const docRef = doc(db,"properties",id);
 
   const docSnap = await getDoc(docRef);
 
 
-  if(!docSnap.exists()){
+  if(docSnap.exists()){
+
+    property = {
+      id: docSnap.id,
+      ...docSnap.data(),
+    };
+
+  }
+
+
+
+
+
+  if(!property){
 
     notFound();
 
   }
 
 
-  const property = {
-
-    id:docSnap.id,
-
-    ...docSnap.data(),
-
-  } as any;
-
-
-
-  console.log(
-    "PROPERTY IMAGES:",
-    property.images
-  );
+  const isRental =
+    property.propertyType==="pg" ||
+    property.propertyType==="hostel" ||
+    property.propertyType==="room_rent";
 
 
   return (
@@ -176,7 +198,15 @@ export default async function PropertyDetails({ params }: Props) {
 
                 :
 
+                property.image
+
+                ?
+
                 [property.image]
+
+                :
+
+                []
 
               }
 
@@ -265,9 +295,33 @@ export default async function PropertyDetails({ params }: Props) {
                       )}
 
 
-                      {property.ac==="yes" && (
+                      {property.ac && (
                         <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-600">
-                          ❄ AC
+                          ❄ {property.ac==="yes" ? "AC" : "Non AC"}
+                        </span>
+                      )}
+
+
+                      {property.kitchen && (
+                        <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-600">
+                          🍳 {property.kitchen==="yes" ? "Kitchen Available" : "No Kitchen"}
+                        </span>
+                      )}
+
+
+                      {property.suitableFor && (
+                        <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-600">
+                          👤 {
+                            property.suitableFor==="family"
+                            ? "Family Allowed"
+                            : property.suitableFor==="boys"
+                            ? "Boys"
+                            : property.suitableFor==="girls"
+                            ? "Girls"
+                            : property.suitableFor==="co_living"
+                            ? "Co-Living"
+                            : "Anyone"
+                          }
                         </span>
                       )}
 
@@ -344,19 +398,23 @@ export default async function PropertyDetails({ params }: Props) {
               <Amenities />
 
 
-              <BuilderCard
-                builder={property.builder}
-                builderContact={property.builderContact}
-                projectName={property.projectName}
-                reraNumber={property.reraNumber}
-              />
+              {!isRental && (
+                <>
+                  <BuilderCard
+                    builder={property.builder}
+                    builderContact={property.builderContact}
+                    projectName={property.projectName}
+                    reraNumber={property.reraNumber}
+                  />
 
 
-              <PropertyScore rating={property.rating} />
+                  <PropertyScore rating={property.rating} />
 
-              <PriceTrend />
+                  <PriceTrend />
 
-              <AIPropertyAssistant />
+                  <AIPropertyAssistant />
+                </>
+              )}
 
 
               <hr className="my-10" />
@@ -372,8 +430,140 @@ export default async function PropertyDetails({ params }: Props) {
               </p>
 
 
-              <EMICalculator />
+              {!isRental && (
+                <EMICalculator />
+              )}
 
+
+
+
+{/* ROOM / PG / HOSTEL DETAILS */}
+
+{isRental && (
+
+<div className="mt-8 rounded-xl bg-gray-50 p-5">
+
+<h3 className="text-xl font-bold mb-4">
+🏠 Room Details
+</h3>
+
+
+<div className="grid grid-cols-2 gap-4 text-gray-700">
+
+
+{property.roomType && (
+<p>
+🛏 Room:
+<b>
+ {property.roomType==="single"
+ ? " Single Room"
+ : property.roomType==="shared"
+ ? " Shared Room"
+ : " Private Room"}
+</b>
+</p>
+)}
+
+
+
+{property.sharingType && (
+<p>
+👥 Sharing:
+<b>
+ {property.sharingType} Sharing
+</b>
+</p>
+)}
+
+
+
+{property.food && (
+<p>
+🍽 Food:
+<b>
+ {property.food==="yes"
+ ? " Available"
+ : " Non Food"}
+</b>
+</p>
+)}
+
+
+
+{property.ac && (
+<p>
+❄ AC:
+<b>
+ {property.ac==="yes"
+ ? " AC Room"
+ : " Non AC Room"}
+</b>
+</p>
+)}
+
+
+
+{property.kitchen && (
+<p>
+🍳 Kitchen:
+<b>
+ {property.kitchen==="yes"
+ ? " Available"
+ : " Not Available"}
+</b>
+</p>
+)}
+
+
+
+{property.suitableFor && (
+<p>
+👤 Suitable:
+<b>
+ {property.suitableFor}
+</b>
+</p>
+)}
+
+
+
+</div>
+
+</div>
+
+)}
+
+
+
+{/* PREMIUM AMENITIES */}
+
+{property.amenities && property.amenities.length > 0 && (
+
+<div className="mt-8 rounded-xl bg-gray-50 p-5">
+
+<h3 className="text-xl font-bold mb-4">
+⭐ Premium Amenities
+</h3>
+
+
+<div className="flex flex-wrap gap-3">
+
+{property.amenities.map((item:string)=>(
+
+<span
+key={item}
+className="bg-blue-50 px-3 py-2 rounded-lg text-blue-600"
+>
+✓ {item}
+</span>
+
+))}
+
+</div>
+
+</div>
+
+)}
 
               <div className="mt-10 flex flex-wrap gap-5">
 
@@ -418,17 +608,38 @@ export default async function PropertyDetails({ params }: Props) {
 
 
 
-              <GoogleMap location={property.location} />
+              <GoogleMap
+  location={property.location}
+  latitude={Number(property.latitude)}
+  longitude={Number(property.longitude)}
+/>
 
 
-              <NearbyPlaces location={property.location} />
+              <NearbyPlaces
+  location={property.location}
+  latitude={Number(property.latitude || 26.86480959301093)}
+  longitude={Number(property.longitude || 75.75673252344131)}
+/>
 
 
-              <SiteVisitForm
-                propertyId={property.id}
-                propertyTitle={property.title}
-                ownerId={property.ownerId}
+              <SimilarProperties
+                currentId={property.id}
+                location={property.location}
+                propertyType={property.propertyType}
               />
+
+
+              {(
+                property.propertyType !== "pg" &&
+                property.propertyType !== "hostel" &&
+                property.propertyType !== "room_rent"
+              ) && (
+                <SiteVisitForm
+                  propertyId={property.id}
+                  propertyTitle={property.title}
+                  ownerId={property.ownerId}
+                />
+              )}
 
               <LeadForm
                 propertyId={property.id}

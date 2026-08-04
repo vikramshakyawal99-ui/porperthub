@@ -1,49 +1,74 @@
+"use client";
+
+import {
+  GoogleMap as Map,
+  Marker,
+  useJsApiLoader
+} from "@react-google-maps/api";
+
 type Props = {
-  location: string;
+  location?: string;
+  latitude: number | string;
+  longitude: number | string;
 };
 
-export default function GoogleMap({ location }: Props) {
-  const mapUrl = `https://www.google.com/maps?q=${encodeURIComponent(
-    location
-  )}&output=embed`;
+const containerStyle = {
+  width: "100%",
+  height: "400px",
+};
 
-  const openMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    location
-  )}`;
+export default function GoogleMap({
+  location,
+  latitude,
+  longitude,
+}: Props) {
+
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey:
+      process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+  });
+
+  const center = {
+    lat: Number(latitude),
+    lng: Number(longitude),
+  };
+
+  if (
+    !Number.isFinite(center.lat) ||
+    !Number.isFinite(center.lng)
+  ) {
+    return (
+      <div className="rounded-xl bg-gray-100 p-5 text-center">
+        Invalid map location
+      </div>
+    );
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className="rounded-xl bg-gray-100 p-5 text-center">
+        Loading Map...
+      </div>
+    );
+  }
 
   return (
-    <div className="mt-10 rounded-3xl bg-zinc-900 p-8 shadow-lg">
-      <h2 className="mb-2 text-3xl font-bold text-gray-900">
-        🗺️ Property Location
-      </h2>
+    <div className="w-full overflow-hidden rounded-2xl">
 
-      <p className="mb-6 text-gray-300">
-        {location}
-      </p>
+      {location && (
+        <div className="mb-3 rounded-xl bg-gray-100 p-3 font-semibold">
+          📍 {location}
+        </div>
+      )}
 
-      <div className="overflow-hidden rounded-2xl border shadow">
-        <iframe
-          title="Property Location"
-          src={mapUrl}
-          width="100%"
-          height="450"
-          loading="lazy"
-          className="border-0"
-          allowFullScreen
-          referrerPolicy="no-referrer-when-downgrade"
-        />
-      </div>
+      <Map
+        mapContainerStyle={containerStyle}
+        center={center}
+        zoom={15}
+      >
+        <Marker position={center} />
+      </Map>
 
-      <div className="mt-6">
-        <a
-          href={openMapUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
-        >
-          📍 Open in Google Maps
-        </a>
-      </div>
     </div>
   );
 }

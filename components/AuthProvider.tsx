@@ -62,7 +62,8 @@ auth,
 async(firebaseUser)=>{
 
 
-console.log("FIREBASE USER:", firebaseUser?.uid);
+console.log("FIREBASE UID:", firebaseUser?.uid);
+console.log("FIREBASE EMAIL:", firebaseUser?.email);
 
 
 

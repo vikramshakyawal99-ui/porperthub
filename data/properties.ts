@@ -12,6 +12,7 @@ export const properties = [
     bathrooms: 2,
     area: "1650 sq.ft.",
     parking: "Yes",
+    furnished: "Fully Furnished",
     possession: "Ready to Move",
 
     description:
@@ -33,6 +34,7 @@ export const properties = [
     bathrooms: 4,
     area: "3200 sq.ft.",
     parking: "2 Cars",
+    furnished: "Fully Furnished",
     possession: "Under Construction",
 
     description:
@@ -54,6 +56,7 @@ export const properties = [
     bathrooms: 2,
     area: "1180 sq.ft.",
     parking: "Yes",
+    furnished: "Semi Furnished",
     possession: "Ready to Move",
 
     description:
@@ -75,6 +78,7 @@ export const properties = [
     bathrooms: 4,
     area: "4200 sq.ft.",
     parking: "3 Cars",
+    furnished: "Fully Furnished",
     possession: "Ready to Move",
 
     description:

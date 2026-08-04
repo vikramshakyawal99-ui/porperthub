@@ -12,7 +12,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("buyer");
+  const [role, setRole] = useState("property_owner");
   const [loading, setLoading] = useState(false);
 
 
@@ -45,7 +45,21 @@ export default function SignupPage() {
 
       alert("Account created successfully!");
 
-      window.location.href = "/profile";
+      if(role === "property_owner" ||
+         role === "hostel_owner" ||
+         role === "pg_owner" ||
+         role === "room_owner" ||
+         role === "resale_seller"
+      ){
+
+        window.location.href="/owner";
+
+      }
+      else{
+
+        window.location.href="/";
+
+      }
 
 
     } catch (error: any) {
@@ -121,10 +135,6 @@ export default function SignupPage() {
             value={role}
             onChange={(e)=>setRole(e.target.value)}
           >
-
-            <option value="buyer">
-              Buyer
-            </option>
 
             <option value="property_owner">
               Property Owner

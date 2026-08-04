@@ -9,6 +9,9 @@ import PropertyForm from "@/components/PropertyForm";
 
 export default function EditPropertyPage() {
 
+  const [parking,setParking] = useState("");
+  const [furnished,setFurnished] = useState("");
+
   const { id } = useParams();
   const router = useRouter();
 
@@ -301,6 +304,13 @@ className="w-full rounded-xl border p-3"
 
 
 <PropertyForm
+
+parking={parking}
+setParking={setParking}
+
+furnished={furnished}
+setFurnished={setFurnished}
+
 
 
 title={title}

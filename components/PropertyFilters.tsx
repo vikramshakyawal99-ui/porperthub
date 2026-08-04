@@ -82,6 +82,10 @@ const [society,setSociety]=useState("");
 
 const [plotSize,setPlotSize]=useState("");
 
+const [parking,setParking]=useState("");
+
+const [furnished,setFurnished]=useState("");
+
 const [sort,setSort]=useState("");
 
 
@@ -115,6 +119,10 @@ suitableFor,
 society,
 
 plotSize,
+
+parking,
+
+furnished,
 
 sort,
 
@@ -186,6 +194,37 @@ location:e.target.value
 className="rounded-xl border p-3 text-black"
 
 />
+
+<select
+
+value={sort}
+
+onChange={(e)=>{
+
+setSort(e.target.value);
+
+update({
+sort:e.target.value
+});
+
+}}
+
+className="rounded-xl border p-3 text-black"
+
+>
+
+<option value="">Sort</option>
+
+<option value="price_low">Price Low → High</option>
+
+<option value="price_high">Price High → Low</option>
+
+<option value="newest">Newest First</option>
+
+<option value="oldest">Oldest First</option>
+
+</select>
+
 
 
 
@@ -517,6 +556,14 @@ Girls
 Family
 </option>
 
+<option value="co_living">
+Co-Living
+</option>
+
+<option value="anyone">
+Anyone
+</option>
+
 
 </select>
 
@@ -529,6 +576,90 @@ Family
 
 
 
+
+
+{!isRental && !isPlot && (
+
+<>
+
+<select
+value={furnished}
+onChange={(e)=>{
+
+setFurnished(e.target.value);
+
+update({
+furnished:e.target.value
+});
+
+}}
+
+className="rounded-xl border p-3 text-black"
+>
+
+<option value="">
+Furnished Status
+</option>
+
+<option value="Fully Furnished">
+Fully Furnished
+</option>
+
+<option value="Semi Furnished">
+Semi Furnished
+</option>
+
+<option value="Unfurnished">
+Unfurnished
+</option>
+
+</select>
+
+
+<select
+value={parking}
+onChange={(e)=>{
+
+setParking(e.target.value);
+
+update({
+parking:e.target.value
+});
+
+}}
+
+className="rounded-xl border p-3 text-black"
+>
+
+<option value="">
+Parking
+</option>
+
+<option value="Yes">
+Yes
+</option>
+
+<option value="No">
+No
+</option>
+
+<option value="1 Car">
+1 Car
+</option>
+
+<option value="2 Cars">
+2 Cars
+</option>
+
+<option value="3 Cars">
+3 Cars
+</option>
+
+</select>
+
+</>
+
+)}
 
 <select
 
@@ -634,6 +765,13 @@ Price Low To High
 Price High To Low
 </option>
 
+<option value="newest">
+Newest First
+</option>
+
+<option value="oldest">
+Oldest First
+</option>
 
 </select>
 

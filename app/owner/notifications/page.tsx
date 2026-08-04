@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
 import {
-  collection,
-  onSnapshot,
-  query,
-  where,
-  orderBy,
-  updateDoc,
-  doc
+collection,
+onSnapshot,
+query,
+where,
+orderBy,
+updateDoc,
+doc,
+writeBatch
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
@@ -20,8 +23,21 @@ interface Notification {
 id:string;
 title:string;
 message:string;
+
 propertyTitle?:string;
+
+notificationKey?:string;
+
+type?:string;
+
+leadId?:string;
+
+propertyId?:string;
+
+priority?:string;
+
 read?:boolean;
+
 createdAt?:any;
 
 }
@@ -33,8 +49,14 @@ export default function OwnerNotifications(){
 
 const {user}=useAuth();
 
+const router=useRouter();
+
+
 const [notifications,setNotifications]=useState<Notification[]>([]);
+
 const [loading,setLoading]=useState(true);
+
+const [filter,setFilter]=useState("all");
 
 
 
@@ -62,10 +84,10 @@ const unsub=onSnapshot(q,(snapshot)=>{
 const data=snapshot.docs.map(item=>({
 
 id:item.id,
+
 ...item.data()
 
 })) as Notification[];
-
 
 
 setNotifications(data);
@@ -76,9 +98,7 @@ setLoading(false);
 });
 
 
-
 return ()=>unsub();
-
 
 
 },[user]);
@@ -108,20 +128,161 @@ read:true
 
 
 
+async function markAllRead(){
 
-const unread = notifications.filter(
-(item)=>!item.read
+
+const batch=writeBatch(db);
+
+
+notifications
+
+.filter(item=>!item.read)
+
+.forEach(item=>{
+
+
+batch.update(
+
+doc(db,"notifications",item.id),
+
+{
+
+read:true
+
+}
+
+);
+
+
+});
+
+
+await batch.commit();
+
+
+}
+
+
+
+
+
+function openNotification(item:Notification){
+
+
+markRead(item.id);
+
+
+if(item.leadId){
+
+router.push(
+`/owner/leads/${item.leadId}`
+);
+
+return;
+
+}
+
+
+if(item.propertyId){
+
+router.push(
+`/properties/${item.propertyId}`
+);
+
+return;
+
+}
+
+
+}
+
+
+
+
+
+function icon(
+type?:string,
+title?:string
+){
+
+
+if(
+type==="followup" ||
+title?.includes("Follow")
+)
+
+return "📅";
+
+
+if(type==="lead")
+
+return "🔥";
+
+
+if(type==="view")
+
+return "👀";
+
+
+return "🔔";
+
+
+}
+
+
+
+
+const unread =
+notifications.filter(
+item=>!item.read
 ).length;
+
+
+
+
+const filteredNotifications =
+
+notifications.filter(item=>{
+
+
+if(filter==="all")
+return true;
+
+
+if(filter==="followup")
+return (
+item.type==="followup" ||
+item.title.includes("Follow")
+);
+
+
+if(filter==="lead")
+return item.type==="lead";
+
+
+if(filter==="view")
+return item.type==="view";
+
+
+return true;
+
+
+});
+
+
 
 
 
 
 if(loading){
 
+
 return(
 
 <div className="p-8">
+
 Loading Notifications...
+
 </div>
 
 );
@@ -134,7 +295,6 @@ Loading Notifications...
 
 return(
 
-
 <div className="min-h-screen bg-zinc-950 text-white p-8">
 
 
@@ -145,27 +305,101 @@ return(
 
 
 <h1 className="text-3xl font-bold">
-🔔 Notifications
+
+🔔 Owner Notifications
+
 </h1>
 
 
+<div className="flex gap-3">
+
+
 <div className="bg-red-600 px-4 py-2 rounded-xl">
-Unread: {unread}
+
+Unread {unread}
+
+</div>
+
+
+
+<button
+
+onClick={markAllRead}
+
+className="bg-blue-600 px-4 py-2 rounded-xl"
+
+>
+
+Mark All Read
+
+</button>
+
+
 </div>
 
 
 </div>
+
+
+
+
+
+<div className="flex gap-3 mb-6">
+
+
+{
+[
+["all","All"],
+["followup","📅 Follow-up"],
+["lead","🔥 Leads"],
+["view","👀 Views"]
+
+].map(item=>(
+
+
+<button
+
+key={item[0]}
+
+onClick={()=>setFilter(item[0])}
+
+className={`px-4 py-2 rounded-xl ${
+filter===item[0]
+?
+"bg-blue-600"
+:
+"bg-zinc-800"
+}`}
+
+>
+
+{item[1]}
+
+</button>
+
+
+))
+
+}
+
+
+</div>
+
 
 
 
 
 
 {
-notifications.length===0 ?
+filteredNotifications.length===0 ?
+
 
 <div className="bg-zinc-900 p-6 rounded-xl">
+
 No notifications yet
+
 </div>
+
 
 
 :
@@ -175,34 +409,73 @@ No notifications yet
 
 
 {
-notifications.map((item)=>(
+
+filteredNotifications.map(item=>(
 
 
 <div
 
 key={item.id}
 
-onClick={()=>markRead(item.id)}
+onClick={()=>openNotification(item)}
 
-className={`p-6 rounded-2xl cursor-pointer ${
+className={`p-6 rounded-2xl cursor-pointer border ${
 item.read
 ?
-"bg-zinc-900"
+"bg-zinc-900 border-zinc-800"
 :
-"bg-blue-900"
+"bg-blue-900 border-blue-500"
 }`}
+
 
 >
 
 
+<div className="flex gap-4">
+
+
+<div className="text-3xl">
+
+{icon(item.type,item.title)}
+
+</div>
+
+
+<div className="flex-1">
+
+
+<div className="flex justify-between">
+
+
 <h2 className="text-xl font-bold">
+
 {item.title}
+
 </h2>
 
 
-<p className="mt-2">
+{
+item.priority &&
+
+<span className="text-sm bg-red-600 px-3 py-1 rounded-full">
+
+{item.priority}
+
+</span>
+
+}
+
+
+</div>
+
+
+
+<p className="mt-2 text-gray-200">
+
 {item.message}
+
 </p>
+
 
 
 
@@ -210,7 +483,9 @@ item.read
 item.propertyTitle &&
 
 <p className="mt-3 text-sm text-gray-300">
-🏠 Property: {item.propertyTitle}
+
+🏠 {item.propertyTitle}
+
 </p>
 
 }
@@ -224,10 +499,17 @@ item.read
 ?
 "✅ Read"
 :
-"🔵 New"
+"🆕 New"
 }
 
 </p>
+
+
+
+</div>
+
+
+</div>
 
 
 </div>
@@ -240,7 +522,9 @@ item.read
 
 </div>
 
+
 }
+
 
 
 </div>

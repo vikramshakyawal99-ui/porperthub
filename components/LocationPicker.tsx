@@ -8,8 +8,13 @@ type Props = {
 };
 
 const center = {
-  lat: 26.9124,
-  lng: 75.7873,
+  lat:26.9124,
+  lng:75.7873,
+};
+
+const containerStyle = {
+  width:"100%",
+  height:"400px",
 };
 
 
@@ -17,95 +22,82 @@ export default function LocationPicker({
   onLocationSelect
 }:Props){
 
-  const {isLoaded} = useJsApiLoader({
 
-    googleMapsApiKey:
-      process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""
+const {isLoaded}=useJsApiLoader({
 
-  });
+googleMapsApiKey:
+process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""
 
-
-  const [position,setPosition] = useState(center);
+});
 
 
-  function handleMapClick(e:any){
-
-    const lat =
-      e.latLng.lat();
-
-    const lng =
-      e.latLng.lng();
-
-
-    setPosition({
-      lat,
-      lng
-    });
-
-
-    onLocationSelect({
-
-      latitude:lat,
-      longitude:lng
-
-    });
-
-  }
+const [position,setPosition]=useState(center);
 
 
 
-  if(!isLoaded){
-
-    return (
-      <p>
-        Loading Map...
-      </p>
-    );
-
-  }
+const handleClick=(e:google.maps.MapMouseEvent)=>{
 
 
-
-  return (
-
-    <div className="mt-5">
-
-      <h3 className="mb-3 text-xl font-bold">
-        📍 Select Property Location
-      </h3>
+if(!e.latLng) return;
 
 
-      <GoogleMap
+const lat=e.latLng.lat();
 
-        mapContainerStyle={{
-          width:"100%",
-          height:"400px",
-          borderRadius:"20px"
-        }}
-
-        center={position}
-
-        zoom={13}
-
-        onClick={handleMapClick}
-
-      >
-
-        <Marker position={position}/>
+const lng=e.latLng.lng();
 
 
-      </GoogleMap>
+console.log("MAP CLICK LOCATION:",{
+latitude:lat,
+longitude:lng
+});
 
 
-      <p className="mt-3 text-sm">
-        Latitude: {position.lat}
-        <br/>
-        Longitude: {position.lng}
-      </p>
+setPosition({
+lat,
+lng
+});
 
 
-    </div>
+onLocationSelect({
 
-  );
+latitude:lat,
+
+longitude:lng
+
+});
+
+
+};
+
+
+
+if(!isLoaded){
+
+return <div>Loading Map...</div>;
+
+}
+
+
+
+return (
+
+<GoogleMap
+
+mapContainerStyle={containerStyle}
+
+center={position}
+
+zoom={13}
+
+onClick={handleClick}
+
+>
+
+<Marker position={position}/>
+
+</GoogleMap>
+
+);
+
 
 }

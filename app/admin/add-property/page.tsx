@@ -37,6 +37,10 @@ export default function AddPropertyPage() {
 
   const [propertyType,setPropertyType]=useState("flat");
 
+  const [parking,setParking]=useState("");
+
+  const [furnished,setFurnished]=useState("");
+
 
 
 async function handleSubmit(e:React.FormEvent){
@@ -113,6 +117,10 @@ propertyCondition,
 
 propertyType,
 
+parking,
+
+furnished,
+
 
 image:imageUrls[0] || "",
 
@@ -153,6 +161,10 @@ setPurpose("buy");
 setPropertyCondition("new");
 
 setPropertyType("flat");
+
+setParking("");
+
+setFurnished("");
 
 
 }
@@ -277,6 +289,14 @@ setPropertyCondition={setPropertyCondition}
 
 propertyType={propertyType}
 setPropertyType={setPropertyType}
+
+
+parking={parking}
+setParking={setParking}
+
+
+furnished={furnished}
+setFurnished={setFurnished}
 
 
 />

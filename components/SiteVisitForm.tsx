@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { useAuth } from "@/components/AuthProvider";
 
 interface Props {
   propertyId: string;
@@ -15,6 +16,8 @@ export default function SiteVisitForm({
   propertyTitle,
   ownerId,
 }: Props) {
+
+  const {user}=useAuth();
 
   const [name,setName] = useState("");
   const [phone,setPhone] = useState("");
@@ -47,6 +50,8 @@ export default function SiteVisitForm({
         propertyTitle,
         ownerId,
 
+        buyerId:user?.uid || "",
+
         status:"Pending",
 
         createdAt:serverTimestamp()
@@ -60,6 +65,8 @@ export default function SiteVisitForm({
       await addDoc(collection(db,"notifications"),{
 
         ownerId,
+
+        buyerId:user?.uid || "",
 
         title:"New Site Visit Request",
 

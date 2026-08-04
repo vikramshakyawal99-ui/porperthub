@@ -41,7 +41,7 @@ export default function MyRoomsPage() {
       const q = query(
         collection(db, "properties"),
         where("ownerId", "==", user.uid),
-        where("propertyType", "==", "room")
+        where("propertyType", "==", "room_rent")
       );
 
       const snap = await getDocs(q);

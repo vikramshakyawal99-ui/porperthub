@@ -54,6 +54,12 @@ interface PropertyFormProps {
   propertyType:string;
   setPropertyType:(value:string)=>void;
 
+  parking:string;
+  setParking:(value:string)=>void;
+
+  furnished:string;
+  setFurnished:(value:string)=>void;
+
 }
 
 
@@ -107,6 +113,12 @@ setPropertyCondition,
 
 propertyType,
 setPropertyType,
+
+parking,
+setParking,
+
+furnished,
+setFurnished,
 
 
 }:PropertyFormProps){
@@ -187,6 +199,32 @@ options={[
 "room",
 "pg",
 "hostel"
+]}
+/>
+
+
+<SearchableSelect
+label="Parking"
+value={parking}
+onChange={setParking}
+options={[
+"Yes",
+"No",
+"1 Car",
+"2 Cars",
+"3 Cars"
+]}
+/>
+
+
+<SearchableSelect
+label="Furnished Status"
+value={furnished}
+onChange={setFurnished}
+options={[
+"Fully Furnished",
+"Semi Furnished",
+"Unfurnished"
 ]}
 />
 

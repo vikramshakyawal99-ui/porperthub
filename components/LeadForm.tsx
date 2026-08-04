@@ -1,18 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   addDoc,
   collection,
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { useAuth } from "@/components/AuthProvider";
 
 type Props = {
   propertyId: string;
   propertyTitle: string;
   ownerId: string;
   ownerEmail?: string;
+  propertyType?: string;
 };
 
 export default function LeadForm({
@@ -20,7 +23,21 @@ export default function LeadForm({
   propertyTitle,
   ownerId,
   ownerEmail,
+  propertyType,
 }: Props) {
+
+  const {user}=useAuth();
+
+  const router = useRouter();
+
+  const enquiryTitle =
+    propertyType === "pg"
+      ? "Book Your Bed"
+      : propertyType === "hostel"
+      ? "Apply Now"
+      : propertyType === "room_rent"
+      ? "Contact Owner"
+      : "Enquire Now";
 
   const [name,setName] = useState("");
   const [phone,setPhone] = useState("");
@@ -31,6 +48,16 @@ export default function LeadForm({
   async function submitLead(e: React.FormEvent){
 
     e.preventDefault();
+
+
+    if(!user){
+
+      router.push(`/buyer-login?redirect=/properties/${propertyId}`);
+
+      return;
+
+    }
+
 
     try{
 
@@ -44,13 +71,22 @@ export default function LeadForm({
           ownerId,
           ownerEmail: ownerEmail || "",
 
+          buyerId:user?.uid || "",
+          buyerEmail:user?.email || "",
+
           customerName:name,
           customerPhone:phone,
           customerEmail:email,
 
+          // CRM compatible fields
+          name,
+          phone,
+          email,
+
           message,
 
-          status:"new",
+          status:"New",
+          priority:"Hot",
 
           createdAt:serverTimestamp()
         }
@@ -60,7 +96,10 @@ export default function LeadForm({
         collection(db,"notifications"),
         {
           ownerId,
-          title:"📞 New Lead",
+
+          buyerId:user?.uid || "",
+
+          title:`📞 ${enquiryTitle}`,
           message:`${name} submitted an enquiry`,
           propertyTitle,
           read:false,
@@ -93,7 +132,7 @@ export default function LeadForm({
     <div className="mt-10 rounded-2xl bg-white p-6 shadow">
 
       <h2 className="mb-6 text-2xl font-bold">
-        Enquire Now
+        {enquiryTitle}
       </h2>
 
       <form
@@ -132,7 +171,15 @@ export default function LeadForm({
           disabled={loading}
           className="w-full rounded-lg bg-blue-600 px-6 py-3 font-bold text-white disabled:opacity-50"
         >
-          {loading ? "Submitting..." : "Submit Enquiry"}
+          {
+            loading
+              ? "Submitting..."
+              : propertyType === "pg"
+              ? "Book Bed"
+              : propertyType === "hostel"
+              ? "Apply Now"
+              : "Submit Enquiry"
+          }
         </button>
 
       </form>

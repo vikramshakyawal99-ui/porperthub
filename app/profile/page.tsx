@@ -226,6 +226,21 @@ export default function ProfilePage() {
 
             <Link
 
+              href="/buyer/dashboard"
+
+              className="bg-purple-600 p-5 rounded-xl text-center"
+
+            >
+
+              👤 Buyer Dashboard
+
+            </Link>
+
+
+
+
+            <Link
+
               href="/properties"
 
               className="bg-blue-600 p-5 rounded-xl text-center"

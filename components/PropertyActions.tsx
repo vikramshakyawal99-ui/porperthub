@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, query, where, getDocs, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { useAuth } from "@/components/AuthProvider";
 
 type Props = {
   propertyId: string;
@@ -15,6 +16,8 @@ export default function PropertyActions({
   propertyTitle,
   ownerId,
 }: Props) {
+
+  const {user}=useAuth();
 
   const [favorite,setFavorite] = useState(false);
   const [compare,setCompare] = useState(false);
@@ -31,74 +34,95 @@ export default function PropertyActions({
 
   useEffect(()=>{
 
-    const wishlist =
-      JSON.parse(
-        localStorage.getItem("wishlist") || "[]"
-      ) as string[];
+    async function checkWishlist(){
 
+      if(user){
 
-    const compareList =
-      JSON.parse(
-        localStorage.getItem("compareProperties") || "[]"
-      ) as string[];
-
-
-    setFavorite(
-      wishlist.includes(propertyId)
-    );
-
-
-    setCompare(
-      compareList.includes(propertyId)
-    );
-
-
-  },[propertyId]);
-
-
-
-  function toggleWishlist(){
-
-    const wishlist =
-      JSON.parse(
-        localStorage.getItem("wishlist") || "[]"
-      ) as string[];
-
-
-    if(wishlist.includes(propertyId)){
-
-      const updated =
-        wishlist.filter(
-          (id)=>id !== propertyId
+        const wishlistQuery=query(
+          collection(db,"wishlist"),
+          where("buyerId","==",user.uid),
+          where("propertyId","==",propertyId)
         );
 
 
-      localStorage.setItem(
-        "wishlist",
-        JSON.stringify(updated)
+        const wishlistSnap=await getDocs(wishlistQuery);
+
+
+        setFavorite(!wishlistSnap.empty);
+
+      }
+
+
+      const compareList =
+        JSON.parse(
+          localStorage.getItem("compareProperties") || "[]"
+        ) as string[];
+
+
+      setCompare(
+        compareList.includes(propertyId)
       );
 
+    }
+
+
+    checkWishlist();
+
+
+  },[propertyId,user]);
+
+
+  async function toggleWishlist(){
+
+    if(!user){
+
+      alert("Please login first");
+      return;
+
+    }
+
+
+    const wishlistQuery=query(
+      collection(db,"wishlist"),
+      where("buyerId","==",user.uid),
+      where("propertyId","==",propertyId)
+    );
+
+
+    const snap=await getDocs(wishlistQuery);
+
+
+
+    if(!snap.empty){
+
+      await deleteDoc(
+        snap.docs[0].ref
+      );
 
       setFavorite(false);
 
-    }
-    else{
-
-      wishlist.push(propertyId);
-
-
-      localStorage.setItem(
-        "wishlist",
-        JSON.stringify(wishlist)
-      );
-
-
-      setFavorite(true);
+      return;
 
     }
+
+
+
+    await addDoc(
+      collection(db,"wishlist"),
+      {
+        buyerId:user.uid,
+        buyerEmail:user.email || "",
+        propertyId,
+        propertyTitle,
+        ownerId,
+        createdAt:new Date()
+      }
+    );
+
+
+    setFavorite(true);
 
   }
-
 
 
   function toggleCompare(){
@@ -200,6 +224,9 @@ export default function PropertyActions({
           propertyTitle,
 
           ownerId,
+
+          buyerId:user?.uid || "",
+          buyerEmail:user?.email || "",
 
           status:"New",
 

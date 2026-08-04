@@ -22,7 +22,9 @@ const params = useParams();
 
 const [loading,setLoading]=useState(false);
 
-const [image,setImage]=useState<File|null>(null);
+const [images,setImages]=useState<File[]>([]);
+
+const [existingImages,setExistingImages]=useState<string[]>([]);
 
 
 const [locationData,setLocationData]=useState({
@@ -60,11 +62,21 @@ sharingType:"",
 
 gender:"",
 
+suitableFor:"",
+
 food:"",
+
+ac:"",
+
+kitchen:"",
+
+amenities:[] as string[],
 
 rent:"",
 
-image:""
+image:"",
+
+images:[] as string[]
 
 });
 
@@ -131,13 +143,27 @@ sharingType:data.sharingType || "",
 
 gender:data.gender || "",
 
+suitableFor:data.suitableFor || "",
+
 food:data.food || "",
+
+ac:data.ac || "",
+
+kitchen:data.kitchen || "",
+
+amenities:data.amenities || [],
 
 rent:data.rent || "",
 
-image:data.image || ""
+image:data.image || "",
+
+images:data.images || (data.image ? [data.image] : [])
 
 });
+
+setExistingImages(
+data.images || (data.image ? [data.image] : [])
+);
 
 
 
@@ -202,9 +228,15 @@ let imageUrl=form.image;
 
 
 
-if(image){
+let uploadedImages:string[]=[];
 
-imageUrl=await uploadToCloudinary(image);
+if(images.length){
+
+uploadedImages = await Promise.all(
+images.map(file=>uploadToCloudinary(file))
+);
+
+imageUrl = uploadedImages[0];
 
 }
 
@@ -222,7 +254,12 @@ params.id as string
 
 ...form,
 
-image:imageUrl,
+image:imageUrl || form.image,
+
+images:[
+...existingImages,
+...uploadedImages
+],
 
 latitude:locationData.latitude,
 
@@ -346,7 +383,11 @@ Flat / Apartment
 
 
 <option value="villa">
-Villa / House
+Villa
+</option>
+
+<option value="house">
+House
 </option>
 
 
@@ -411,7 +452,8 @@ setLocationData(data);
 {
 (
 form.propertyType==="flat" ||
-form.propertyType==="villa"
+form.propertyType==="villa" ||
+form.propertyType==="house"
 )
 
 &&
@@ -549,21 +591,72 @@ className="w-full rounded p-3 text-black"
 
 
 
-<input
+<select
 
-name="gender"
+name="suitableFor"
 
-value={form.gender}
+value={form.suitableFor}
 
 onChange={handleChange}
 
-placeholder="Boys / Girls"
+className="w-full rounded p-3 text-black"
+
+>
+
+<option value="">
+Suitable For
+</option>
+
+<option value="boys">
+Boys
+</option>
+
+<option value="girls">
+Girls
+</option>
+
+<option value="family">
+Family
+</option>
+
+<option value="co_living">
+Co-Living
+</option>
+
+<option value="anyone">
+Anyone
+</option>
+
+</select>
+
+
+
+
+<select
+
+name="kitchen"
+
+value={form.kitchen}
+
+onChange={handleChange}
 
 className="w-full rounded p-3 text-black"
 
-/>
+>
 
+<option value="">
+Kitchen Facility
+</option>
 
+<option value="yes">
+Kitchen Available
+</option>
+
+<option value="no">
+No Kitchen
+</option>
+
+</select>
 
 
 <input
@@ -641,19 +734,88 @@ className="w-full rounded p-3 text-black"
 
 
 
+
+{existingImages.length>0 && (
+
+<div className="rounded-xl border border-zinc-700 p-4">
+
+<h3 className="mb-4 text-lg font-bold">
+Existing Images
+</h3>
+
+<div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+
+{existingImages.map((img,index)=>(
+
+<div key={index} className="relative">
+
+<img
+src={img}
+alt=""
+className="h-32 w-full rounded-lg object-cover"
+/>
+
+{index===0 && (
+<span className="absolute left-2 top-2 rounded bg-blue-600 px-2 py-1 text-xs text-white">
+Cover
+</span>
+)}
+
+<button
+type="button"
+onClick={()=>
+setExistingImages(
+existingImages.filter((_,i)=>i!==index)
+)
+}
+className="absolute right-2 top-2 rounded-full bg-red-600 px-2 py-1 text-xs text-white"
+>
+✕
+</button>
+
+{index !== 0 && (
+
+<button
+type="button"
+onClick={()=>{
+const updated=[...existingImages];
+const selected=updated.splice(index,1)[0];
+updated.unshift(selected);
+setExistingImages(updated);
+}}
+className="absolute bottom-2 left-2 rounded bg-blue-600 px-2 py-1 text-xs text-white"
+>
+⭐ Make Cover
+</button>
+
+)}
+
+</div>
+
+))}
+
+</div>
+
+</div>
+
+)}
+
+
 <input
 
 type="file"
 
 accept="image/*"
 
+multiple
+
 className="w-full rounded bg-white p-3 text-black"
 
 onChange={(e)=>{
 
-setImage(
-e.target.files?.[0] || null
-)
+if(e.target.files){
+setImages(Array.from(e.target.files));
+}
 
 }}
 
@@ -661,6 +823,71 @@ e.target.files?.[0] || null
 
 
 
+
+
+
+<div className="mt-5">
+
+<h3 className="font-bold mb-3">
+⭐ Premium Amenities
+</h3>
+
+
+<div className="grid grid-cols-2 gap-3">
+
+{[
+"Food",
+"AC",
+"WiFi",
+"CCTV",
+"Washing Machine",
+"Parking",
+"Garden",
+"Terrace",
+"Modular Kitchen",
+"Lift",
+"Power Backup"
+].map((item)=>(
+
+<label key={item} className="flex gap-2">
+
+<input
+
+type="checkbox"
+
+checked={form.amenities?.includes(item)}
+
+onChange={(e)=>{
+
+setForm({
+
+...form,
+
+amenities:e.target.checked
+
+?
+
+[...(form.amenities || []),item]
+
+:
+
+form.amenities.filter((x:string)=>x!==item)
+
+})
+
+}}
+
+/>
+
+{item}
+
+</label>
+
+))}
+
+</div>
+
+</div>
 
 <button
 

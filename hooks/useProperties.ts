@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, getDocs, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export type Property = {
@@ -36,29 +36,55 @@ export type Property = {
   [key: string]: any;
 };
 
+// Memory cache (shared in browser session)
+let cachedProperties: Property[] | null = null;
+
 export default function useProperties() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(
-      collection(db, "properties"),
-      (snapshot) => {
-        const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Property[];
-        console.log("SNAPSHOT SIZE:", snapshot.size);
-        console.log("FIREBASE DATA:", data);
+    let mounted = true;
 
-        setProperties(data);
-        setLoading(false);
-      },
-      (error) => {
-        console.error("🔥 FIRESTORE ERROR:", error);
-alert(JSON.stringify(error));
-        setLoading(false);
+    async function loadProperties() {
+      try {
+        // Use cache if already loaded
+        if (cachedProperties) {
+          if (mounted) {
+            setProperties(cachedProperties);
+            setLoading(false);
+          }
+          return;
+        }
+
+        const snapshot = await getDocs(
+          query(collection(db, "properties"))
+        );
+
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Property[];
+
+        cachedProperties = data;
+
+        if (mounted) {
+          setProperties(data);
+        }
+      } catch (error) {
+        console.error("Failed to load properties:", error);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
-    );
+    }
 
-    return () => unsubscribe();
+    loadProperties();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return {

@@ -98,7 +98,20 @@ export default function MyPropertiesPage() {
 
               <p>📍 {property.location}</p>
 
-              <p>💰 ₹ {property.price}</p>
+              <p>
+💰 ₹ {
+(
+property.propertyType==="rent" ||
+property.propertyType==="room_rent" ||
+property.propertyType==="pg" ||
+property.propertyType==="hostel"
+)
+?
+(property as any).rent
+:
+property.price
+}
+</p>
 
               <p>🏠 Type: {property.propertyType}</p>
 

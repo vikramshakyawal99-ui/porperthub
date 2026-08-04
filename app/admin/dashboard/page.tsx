@@ -43,19 +43,24 @@ export default function AdminDashboard() {
 
       const viewsSnap = await getDocs(collection(db, "propertyViews"));
 
-      setViewCount(viewsSnap.docs.length);
+      let totalViews = 0;
 
       const viewMap: Record<string, number> = {};
 
       viewsSnap.docs.forEach((doc) => {
-        const data = doc.data();
-        const title = data.propertyTitle || "Unknown";
+        const data:any = doc.data();
 
-        viewMap[title] = (viewMap[title] || 0) + 1;
+        const title = data.propertyTitle || "Unknown";
+        const views = Number(data.views || 0);
+
+        totalViews += views;
+        viewMap[title] = views;
       });
 
+      setViewCount(totalViews);
+
       const mostViewed = Object.entries(viewMap).sort(
-        (a, b) => b[1] - a[1]
+        (a,b)=>b[1]-a[1]
       );
 
       if (mostViewed.length > 0) {

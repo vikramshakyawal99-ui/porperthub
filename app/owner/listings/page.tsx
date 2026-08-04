@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   collection,
   getDocs,
@@ -17,6 +18,7 @@ import { useAuth } from "@/components/AuthProvider";
 export default function OwnerListingsPage(){
 
 const {user}=useAuth();
+const router = useRouter();
 
 const [properties,setProperties]=useState<any[]>([]);
 const [filter,setFilter]=useState("all");
@@ -203,13 +205,57 @@ className="w-full h-48 object-cover"
 
 
 <p>
-💰 ₹ {property.price}
+💰 ₹ {
+(
+property.propertyType==="rent" ||
+property.propertyType==="room_rent" ||
+property.propertyType==="pg" ||
+property.propertyType==="hostel"
+)
+?
+property.rent
+:
+property.price
+}
 </p>
 
 
 <p>
-🏠 Type: {property.type}
+🏠 Type: {property.propertyType}
 </p>
+
+
+{
+(property.suitableFor || property.gender) && (
+
+<p className="mt-2">
+👤 {
+property.suitableFor==="family"
+?
+"Family Allowed"
+:
+property.suitableFor==="boys"
+?
+"Boys"
+:
+property.suitableFor==="girls"
+?
+"Girls"
+:
+property.suitableFor==="co_living"
+?
+"Co-Living"
+:
+property.suitableFor==="anyone"
+?
+"Anyone"
+:
+property.suitableFor || property.gender
+}
+</p>
+
+)
+}
 
 
 
@@ -246,6 +292,19 @@ property.status==="rejected" ?
 </div>
 
 
+
+
+<button
+
+onClick={()=>router.push(`/owner/edit-property/${property.id}`)}
+
+className="mt-5 mr-3 bg-blue-600 px-5 py-2 rounded-xl"
+
+>
+
+Edit
+
+</button>
 
 
 <button

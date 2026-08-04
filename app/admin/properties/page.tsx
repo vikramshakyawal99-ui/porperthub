@@ -20,8 +20,11 @@ type Property = {
   image?: string;
   location?: string;
   price?: string;
+  rent?: string;
   builder?: string;
   propertyType?: string;
+  suitableFor?: string;
+  gender?: string;
   projectName?: string;
   reraNumber?: string;
   status?: "pending" | "approved" | "rejected";
@@ -31,14 +34,23 @@ export default function ManageProperties() {
   const [properties, setProperties] = useState<Property[]>([]);
 
   async function loadProperties() {
-    const snapshot = await getDocs(collection(db, "properties"));
+    try {
+      console.log("🚀 Loading properties...");
 
-    const data = snapshot.docs.map((docItem) => ({
-      id: docItem.id,
-      ...(docItem.data() as Omit<Property, "id">),
-    }));
+      const snapshot = await getDocs(collection(db, "properties"));
 
-    setProperties(data);
+      console.log("✅ Snapshot size:", snapshot.size);
+
+      const data = snapshot.docs.map((docItem) => ({
+        id: docItem.id,
+        ...(docItem.data() as Omit<Property, "id">),
+      }));
+
+      setProperties(data);
+
+    } catch (error) {
+      console.error("❌ LOAD PROPERTIES ERROR:", error);
+    }
   }
 
   async function removeProperty(id: string) {
@@ -52,59 +64,85 @@ export default function ManageProperties() {
     id: string,
     status: "approved" | "rejected"
   ) {
+    try {
 
-    const property = properties.find(
-      (item)=>item.id===id
-    );
+      console.log("🚀 Updating status", id, status);
 
-    if(!property) return;
+      const property = properties.find(
+        (item) => item.id === id
+      );
 
-
-    await updateDoc(
-      doc(db,"properties",id),
-      {
-        status,
+      if (!property) {
+        console.log("❌ Property not found");
+        return;
       }
-    );
 
 
-    if(property.ownerId){
+      // ⚡ Instant UI update
+      setProperties((prev) =>
+        prev.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                status,
+              }
+            : item
+        )
+      );
 
-      await addDoc(
-        collection(db,"notifications"),
+
+      // Firestore update
+      await updateDoc(
+        doc(db, "properties", id),
         {
-          ownerId: property.ownerId,
-
-          title:
-            status==="approved"
-            ?
-            "Property Approved ✅"
-            :
-            "Property Rejected ❌",
-
-          message:
-            status==="approved"
-            ?
-            "Your property has been approved by admin."
-            :
-            "Your property has been rejected by admin.",
-
-          propertyTitle:
-            property.title || "",
-
-          read:false,
-
-          createdAt:
-            serverTimestamp()
-
+          status,
         }
       );
 
+
+      // Create notification
+      if (property.ownerId) {
+
+        await addDoc(
+          collection(db, "notifications"),
+          {
+            ownerId: property.ownerId,
+
+            title:
+              status === "approved"
+                ? "Property Approved ✅"
+                : "Property Rejected ❌",
+
+            message:
+              status === "approved"
+                ? "Your property has been approved by admin."
+                : "Your property has been rejected by admin.",
+
+            propertyTitle: property.title || "",
+
+            read: false,
+
+            createdAt: serverTimestamp(),
+          }
+        );
+
+      }
+
+
+      console.log("✅ Status updated");
+
+    } catch(error) {
+
+      console.error(
+        "❌ UPDATE STATUS ERROR:",
+        error
+      );
+
+      loadProperties();
+
     }
-
-
-    loadProperties();
   }
+
 
   useEffect(() => {
     loadProperties();
@@ -149,7 +187,18 @@ export default function ManageProperties() {
                     </p>
 
                     <p className="mt-1 font-semibold text-blue-400">
-                      ₹ {property.price}
+                      ₹ {
+                        (
+                          property.propertyType==="rent" ||
+                          property.propertyType==="room_rent" ||
+                          property.propertyType==="pg" ||
+                          property.propertyType==="hostel"
+                        )
+                        ?
+                        property.rent
+                        :
+                        property.price
+                      }
                     </p>
 
                     <p className="text-gray-300">
@@ -159,6 +208,39 @@ export default function ManageProperties() {
                     <p className="text-gray-300">
                       Type: {property.propertyType}
                     </p>
+
+
+                    {
+                    (property.suitableFor || property.gender) && (
+
+                    <p className="text-gray-300">
+                      👤 {
+                      property.suitableFor==="family"
+                      ?
+                      "Family Allowed"
+                      :
+                      property.suitableFor==="boys"
+                      ?
+                      "Boys"
+                      :
+                      property.suitableFor==="girls"
+                      ?
+                      "Girls"
+                      :
+                      property.suitableFor==="co_living"
+                      ?
+                      "Co-Living"
+                      :
+                      property.suitableFor==="anyone"
+                      ?
+                      "Anyone"
+                      :
+                      property.suitableFor || property.gender
+                      }
+                    </p>
+
+                    )
+                    }
 
                     <p className="text-gray-300">
                       Project: {property.projectName}

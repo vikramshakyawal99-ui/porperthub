@@ -1,4 +1,4 @@
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 
@@ -57,5 +57,27 @@ export async function getUserProfile(uid:string){
 
 
   return null;
+
+}
+
+
+export async function updateUserRole(
+  uid:string,
+  role:string
+){
+
+  const userRef = doc(
+    db,
+    "users",
+    uid
+  );
+
+
+  await updateDoc(
+    userRef,
+    {
+      role
+    }
+  );
 
 }

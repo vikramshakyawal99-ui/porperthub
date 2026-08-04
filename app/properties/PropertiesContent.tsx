@@ -26,8 +26,13 @@ price:"",
 rent:"",
 sharingType:"",
 roomType:"",
+ac:"",
+food:"",
+suitableFor:"",
 society:"",
 plotSize:"",
+parking:"",
+furnished:"",
 sort:""
 
 });
@@ -35,6 +40,8 @@ sort:""
 
 
 const [categoryProperties,setCategoryProperties]=useState<any[]>([]);
+
+const [visible,setVisible]=useState(12);
 
 
 
@@ -121,7 +128,10 @@ propertyType.includes("room")
 
 
 (urlType==="resale" &&
-propertyType.includes("resale")
+(
+propertyType.includes("resale") ||
+propertyType.includes("house")
+)
 )
 
 
@@ -135,6 +145,8 @@ propertyType.includes("resale")
 
 setCategoryProperties(data);
 
+setVisible(12);
+
 
 
 },[properties,searchParams]);
@@ -143,10 +155,9 @@ setCategoryProperties(data);
 
 
 
-const filteredProperties=
 
-categoryProperties.filter((property:any)=>{
 
+const filteredProperties = categoryProperties.filter((property:any)=>{
 
 const searchMatch=
 
@@ -270,6 +281,63 @@ filters.roomType.toLowerCase()
 
 
 
+const acMatch=
+
+filters.ac===""
+
+?
+
+true
+
+:
+
+(property.ac||"")
+.toLowerCase()
+.includes(
+filters.ac.toLowerCase()
+);
+
+
+
+
+const foodMatch=
+
+filters.food===""
+
+?
+
+true
+
+:
+
+(property.food||"")
+.toLowerCase()
+.includes(
+filters.food.toLowerCase()
+);
+
+
+
+
+const suitableMatch=
+
+filters.suitableFor===""
+
+?
+
+true
+
+:
+
+(property.suitableFor||"")
+.toLowerCase()
+.includes(
+filters.suitableFor.toLowerCase()
+);
+
+
+
+
 const societyMatch=
 
 filters.society===""
@@ -286,6 +354,43 @@ true
 filters.society.toLowerCase()
 );
 
+
+
+
+
+
+const furnishedMatch=
+
+filters.furnished===""
+
+?
+
+true
+
+:
+
+(property.furnished||"")
+.toLowerCase()
+===filters.furnished.toLowerCase();
+
+
+
+
+const parkingMatch=
+
+filters.parking===""
+
+?
+
+true
+
+:
+
+(property.parking||"")
+.toLowerCase()
+.includes(
+filters.parking.toLowerCase()
+);
 
 
 
@@ -324,7 +429,17 @@ rentMatch &&
 
 sharingMatch &&
 
+furnishedMatch &&
+
+parkingMatch &&
+
 roomMatch &&
+
+acMatch &&
+
+foodMatch &&
+
+suitableMatch &&
 
 societyMatch &&
 
@@ -337,6 +452,42 @@ plotSizeMatch
 });
 
 
+
+
+
+let finalProperties=[...filteredProperties];
+
+switch(filters.sort){
+
+case "price_low":
+
+finalProperties.sort(
+(a:any,b:any)=>
+Number(a.price||0)-Number(b.price||0)
+);
+
+break;
+
+case "price_high":
+
+finalProperties.sort(
+(a:any,b:any)=>
+Number(b.price||0)-Number(a.price||0)
+);
+
+break;
+
+case "newest":
+
+finalProperties.reverse();
+
+break;
+
+case "oldest":
+
+break;
+
+}
 
 
 
@@ -392,7 +543,7 @@ onFilterChange={setFilters}
 
 <p className="text-lg font-bold text-white">
 
-🏠 {filteredProperties.length} Properties Found
+🏠 {finalProperties.length} Properties Found
 
 </p>
 
@@ -404,7 +555,7 @@ onFilterChange={setFilters}
 
 
 {
-filteredProperties.map((property:any)=>(
+finalProperties.slice(0,visible).map((property:any)=>(
 
 <PropertyCard
 
@@ -418,7 +569,32 @@ property={property}
 }
 
 
+
 </div>
+
+{
+
+visible<finalProperties.length && (
+
+<div className="mt-10 flex justify-center">
+
+<button
+
+onClick={()=>setVisible(v=>v+12)}
+
+className="rounded-xl bg-blue-600 px-8 py-3 text-white hover:bg-blue-700"
+
+>
+
+Load More
+
+</button>
+
+</div>
+
+)
+
+}
 
 
 </div>

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { optimizeImage } from "@/lib/image";
 
 interface Property {
 
@@ -14,6 +15,7 @@ interface Property {
   rent?:string | number;
 
   image?:string;
+  images?:string[];
 
   bedrooms?:string | number;
   bathrooms?:string | number;
@@ -44,11 +46,15 @@ export default function PropertyCard({
 }:PropertyCardProps){
 
 
-const image =
-property.image || "/placeholder.jpg";
+const image = optimizeImage(
+property.images?.[0] ||
+property.image ||
+"/placeholder.jpg"
+);
 
 
 const isRental =
+property.propertyType==="rent" ||
 property.propertyType==="pg" ||
 property.propertyType==="hostel" ||
 property.propertyType==="room_rent";
@@ -183,7 +189,25 @@ className="object-cover"
 
 <span className="rounded bg-gray-200 px-3 py-1">
 
-👤 {property.suitableFor || property.gender}
+{
+(property.suitableFor || property.gender)==="family"
+?
+"👨‍👩‍👧 Family Allowed"
+:
+(property.suitableFor || property.gender)==="boys"
+?
+"👦 Boys"
+:
+(property.suitableFor || property.gender)==="girls"
+?
+"👧 Girls"
+:
+(property.suitableFor || property.gender)==="co_living"
+?
+"🤝 Co-Living"
+:
+"👤 Anyone"
+}
 
 </span>
 

@@ -18,7 +18,9 @@ const router=useRouter();
 
 const [loading,setLoading]=useState(false);
 
-const [image,setImage]=useState<File|null>(null);
+const [images,setImages]=useState<File[]>([]);
+
+const [previewImages,setPreviewImages]=useState<string[]>([]);
 
 
 const [locationData,setLocationData]=useState({
@@ -61,11 +63,19 @@ food:"",
 
 ac:"",
 
+kitchen:"",
+
+amenities:[] as string[],
+
 suitableFor:"",
 
 society:"",
 
-plotSize:""
+plotSize:"",
+
+parking:"",
+
+furnished:""
 
 });
 
@@ -113,9 +123,15 @@ try{
 let imageUrl="";
 
 
-if(image){
+let uploadedImages:string[]=[];
 
-imageUrl=await uploadToCloudinary(image);
+if(images.length){
+
+uploadedImages = await Promise.all(
+images.map(file=>uploadToCloudinary(file))
+);
+
+imageUrl = uploadedImages[0];
 
 }
 
@@ -131,6 +147,9 @@ collection(db,"properties"),
 
 image:imageUrl,
 
+images:uploadedImages,
+
+
 latitude:locationData.latitude,
 
 longitude:locationData.longitude,
@@ -139,7 +158,7 @@ ownerId:user.uid,
 
 ownerEmail:user.email,
 
-status:"pending",
+status:"approved",
 
 createdAt:serverTimestamp()
 
@@ -236,6 +255,10 @@ Flat
 Villa
 </option>
 
+<option value="house">
+House
+</option>
+
 <option value="plot">
 Plot
 </option>
@@ -256,6 +279,68 @@ Hostel
 </select>
 
 
+<select
+name="parking"
+value={form.parking}
+onChange={handleChange}
+className="w-full p-3 rounded text-black"
+>
+
+<option value="">
+Parking
+</option>
+
+<option value="Yes">
+Yes
+</option>
+
+<option value="No">
+No
+</option>
+
+<option value="1 Car">
+1 Car
+</option>
+
+<option value="2 Cars">
+2 Cars
+</option>
+
+<option value="3 Cars">
+3 Cars
+</option>
+
+</select>
+
+
+<select
+name="furnished"
+value={form.furnished}
+onChange={handleChange}
+className="w-full p-3 rounded text-black"
+>
+
+<option value="">
+Furnished Status
+</option>
+
+<option value="Fully Furnished">
+Fully Furnished
+</option>
+
+<option value="Semi Furnished">
+Semi Furnished
+</option>
+
+<option value="Unfurnished">
+Unfurnished
+</option>
+
+</select>
+
+
+
+
 
 <input
 name="location"
@@ -265,17 +350,41 @@ onChange={handleChange}
 className="w-full p-3 rounded text-black"
 />
 
+<LocationPicker
+onLocationSelect={(data)=>{
+setLocationData({
+latitude:String(data.latitude),
+longitude:String(data.longitude)
+});
+}}
+/>
 
+<div className="grid grid-cols-2 gap-4">
 
 <input
-name="price"
-placeholder="Price"
-value={form.price}
-onChange={handleChange}
+readOnly
+value={locationData.latitude}
+placeholder="Latitude"
 className="w-full p-3 rounded text-black"
 />
 
+<input
+readOnly
+value={locationData.longitude}
+placeholder="Longitude"
+className="w-full p-3 rounded text-black"
+/>
 
+</div>
+
+
+
+
+{
+(form.propertyType==="rent" ||
+form.propertyType==="room_rent" ||
+form.propertyType==="pg" ||
+form.propertyType==="hostel") ? (
 
 <input
 name="rent"
@@ -285,12 +394,26 @@ onChange={handleChange}
 className="w-full p-3 rounded text-black"
 />
 
+) : (
+
+<input
+name="price"
+placeholder="Price"
+value={form.price}
+onChange={handleChange}
+className="w-full p-3 rounded text-black"
+/>
+
+)
+}
+
 
 
 
 {
 (form.propertyType==="flat" ||
-form.propertyType==="villa") &&
+form.propertyType==="villa" ||
+form.propertyType==="house") &&
 
 <input
 name="bedrooms"
@@ -308,6 +431,7 @@ className="w-full p-3 rounded text-black"
 {
 (form.propertyType==="flat" ||
 form.propertyType==="villa" ||
+form.propertyType==="house" ||
 form.propertyType==="plot") &&
 
 <input
@@ -444,6 +568,27 @@ Non AC
 
 </select>
 
+<select
+name="kitchen"
+value={form.kitchen}
+onChange={handleChange}
+className="w-full p-3 rounded text-black"
+>
+
+<option value="">
+Kitchen Facility
+</option>
+
+<option value="yes">
+Kitchen Available
+</option>
+
+<option value="no">
+No Kitchen
+</option>
+
+</select>
+
 
 
 
@@ -490,15 +635,57 @@ Boys
 Girls
 </option>
 
-<option value="family">
-Family
+<option value="co_living">
+Co-Living
 </option>
 
+<option value="anyone">
+Anyone
+</option>
 
 </select>
 
 
 </>
+
+}
+
+
+
+
+
+{
+form.propertyType==="flat" &&
+form.purpose==="rent" &&
+
+<select
+name="suitableFor"
+value={form.suitableFor}
+onChange={handleChange}
+className="w-full p-3 rounded text-black"
+>
+
+<option value="">
+Rent For
+</option>
+
+<option value="family">
+Family
+</option>
+
+<option value="boys">
+Boys
+</option>
+
+<option value="girls">
+Girls
+</option>
+
+<option value="anyone">
+Anyone
+</option>
+
+</select>
 
 }
 
@@ -529,36 +716,126 @@ className="w-full p-3 rounded text-black"
 <input
 type="file"
 accept="image/*"
+multiple
 onChange={(e)=>{
 
-if(e.target.files)
-setImage(e.target.files[0]);
+if(e.target.files){
+
+const files = Array.from(e.target.files);
+
+setImages(files);
+
+setPreviewImages(
+files.map(file => URL.createObjectURL(file))
+);
+
+}
 
 }}
 className="w-full p-3 bg-white text-black rounded"
 />
 
+{previewImages.length > 0 && (
+
+<div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+
+{previewImages.map((img,index)=>(
+
+<div key={index} className="relative">
+
+<img
+src={img}
+alt=""
+className="h-32 w-full rounded-xl object-cover"
+/>
+
+{index===0 && (
+<span className="absolute left-2 top-2 rounded bg-blue-600 px-2 py-1 text-xs text-white">
+Cover
+</span>
+)}
+
+</div>
+
+))}
+
+</div>
+
+)}
 
 
-<LocationPicker onLocationSelect={setLocationData}/>
 
 
+
+<div className="mt-5">
+
+<h3 className="font-bold mb-3">
+⭐ Premium Amenities
+</h3>
+
+
+<div className="grid grid-cols-2 gap-3">
+
+{[
+"Food",
+"AC",
+"WiFi",
+"CCTV",
+"Washing Machine",
+"Parking",
+"Garden",
+"Terrace",
+"Modular Kitchen",
+"Lift",
+"Power Backup"
+].map((item)=>(
+
+<label key={item} className="flex gap-2">
+
+<input
+
+type="checkbox"
+
+checked={form.amenities.includes(item)}
+
+onChange={(e)=>{
+
+setForm({
+
+...form,
+
+amenities:e.target.checked
+
+?
+
+[...form.amenities,item]
+
+:
+
+form.amenities.filter((x:string)=>x!==item)
+
+})
+
+}}
+
+/>
+
+{item}
+
+</label>
+
+))}
+
+</div>
+
+</div>
 
 <button
 disabled={loading}
 className="w-full bg-blue-600 p-3 rounded font-bold"
 >
-
-{
-loading
-?
-"Adding..."
-:
-"Add Listing"
-}
-
+{loading ? "Adding..." : "Add Listing"}
 </button>
-
 
 </form>
 
