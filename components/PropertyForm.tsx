@@ -96,7 +96,7 @@ description,
 setDescription,
 
 images: _images,
-setImages:
+setImages,
 
 projectName,
 setProjectName,

@@ -11,6 +11,7 @@ import { db } from "@/lib/firebase";
 export default function Navbar() {
   const { user, role } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   
   useEffect(()=>{
