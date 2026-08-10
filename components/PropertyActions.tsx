@@ -285,12 +285,13 @@ export default function PropertyActions({
 
   return (
 
-    <div className="flex flex-wrap gap-4">
+    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+<div className="flex flex-wrap gap-4">
 
 
       <button
         onClick={()=>setShowForm(!showForm)}
-        className="rounded-xl bg-green-600 px-6 py-3 text-white"
+        className="rounded-xl bg-emerald-600 px-6 py-3 font-semibold text-white shadow-md transition hover:bg-emerald-700"
       >
         Contact Owner
       </button>
@@ -300,14 +301,14 @@ export default function PropertyActions({
       {
         showForm && (
 
-          <div className="w-full rounded-xl border p-5 space-y-3">
+          <div className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-5 space-y-3 shadow-sm">
 
 
             <input
               placeholder="Your Name"
               value={name}
               onChange={(e)=>setName(e.target.value)}
-              className="w-full rounded border p-3"
+              className="w-full rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
             />
 
 
@@ -315,7 +316,7 @@ export default function PropertyActions({
               placeholder="Mobile Number"
               value={phone}
               onChange={(e)=>setPhone(e.target.value)}
-              className="w-full rounded border p-3"
+              className="w-full rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
             />
 
 
@@ -323,14 +324,14 @@ export default function PropertyActions({
               placeholder="Email (optional)"
               value={email}
               onChange={(e)=>setEmail(e.target.value)}
-              className="w-full rounded border p-3"
+              className="w-full rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
             />
 
 
             <button
               onClick={submitLead}
               disabled={loading}
-              className="rounded-xl bg-blue-600 px-6 py-3 text-white"
+              className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white shadow-md transition hover:bg-blue-700"
             >
 
               {
@@ -351,7 +352,7 @@ export default function PropertyActions({
 
       <button
         onClick={toggleWishlist}
-        className={`rounded-xl px-6 py-3 ${
+        className={`rounded-xl px-6 py-3 font-semibold transition shadow-sm ${
           favorite
           ? "bg-red-600 text-white"
           : "border border-red-600 text-red-600"
@@ -368,7 +369,7 @@ export default function PropertyActions({
 
       <button
         onClick={toggleCompare}
-        className="rounded-xl bg-purple-600 px-6 py-3 text-white"
+        className="rounded-xl bg-purple-600 px-6 py-3 font-semibold text-white shadow-md transition hover:bg-purple-700"
       >
         {
           compare
@@ -381,13 +382,14 @@ export default function PropertyActions({
 
       <button
         onClick={shareProperty}
-        className="rounded-xl bg-gray-800 px-6 py-3 text-white"
+        className="rounded-xl bg-slate-900 px-6 py-3 font-semibold text-white shadow-md transition hover:bg-black"
       >
         📤 Share
       </button>
 
 
-    </div>
+</div>
+</div>
 
   );
 

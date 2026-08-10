@@ -418,9 +418,9 @@ for(const lead of todayLeads){
 }
 
 
-let todayReminderLeads:any[]=[];
-let overdueReminderLeads:any[]=[];
-let newHotLeads:any[]=[];
+const todayReminderLeads:any[]=[];
+const overdueReminderLeads:any[]=[];
+const newHotLeads:any[]=[];
 
 
 leadsSnap.docs.forEach((doc)=>{

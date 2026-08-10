@@ -137,10 +137,10 @@ sort,
 
 return (
 
-<div className="mb-8 rounded-2xl bg-zinc-900 p-6">
+<div className="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
 
 
-<h2 className="mb-6 text-2xl font-bold text-white">
+<h2 className="mb-6 text-2xl font-bold text-slate-900">
 
 🔍 Search & Filters
 
@@ -168,7 +168,7 @@ search:e.target.value
 
 }}
 
-className="rounded-xl border p-3 text-black"
+className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
 
 />
 
@@ -191,7 +191,7 @@ location:e.target.value
 
 }}
 
-className="rounded-xl border p-3 text-black"
+className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
 
 />
 
@@ -209,7 +209,7 @@ sort:e.target.value
 
 }}
 
-className="rounded-xl border p-3 text-black"
+className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
 
 >
 
@@ -246,7 +246,7 @@ bhk:e.target.value
 
 }}
 
-className="rounded-xl border p-3 text-black"
+className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
 
 >
 
@@ -302,7 +302,7 @@ society:e.target.value
 
 }}
 
-className="rounded-xl border p-3 text-black"
+className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
 
 />
 
@@ -324,7 +324,7 @@ plotSize:e.target.value
 
 }}
 
-className="rounded-xl border p-3 text-black"
+className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
 
 />
 
@@ -357,7 +357,7 @@ roomType:e.target.value
 
 }}
 
-className="rounded-xl border p-3 text-black"
+className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
 
 >
 
@@ -402,7 +402,7 @@ sharingType:e.target.value
 
 }}
 
-className="rounded-xl border p-3 text-black"
+className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
 
 >
 
@@ -452,7 +452,7 @@ ac:e.target.value
 
 }}
 
-className="rounded-xl border p-3 text-black"
+className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
 
 >
 
@@ -492,7 +492,7 @@ food:e.target.value
 
 }}
 
-className="rounded-xl border p-3 text-black"
+className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
 
 >
 
@@ -532,25 +532,69 @@ suitableFor:e.target.value
 
 }}
 
-className="rounded-xl border p-3 text-black"
+className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
 
 >
 
 
 <option value="">
-Suitable For
+{
+isHostel
+?
+"Hostel Type"
+:
+isPG
+?
+"PG For"
+:
+"Suitable For"
+}
 </option>
 
 
+{isHostel && (
+<>
+<option value="boys">
+Boys Hostel
+</option>
+
+<option value="girls">
+Girls Hostel
+</option>
+</>
+)}
+
+
+{isPG && (
+<>
+<option value="boys">
+Boys PG
+</option>
+
+<option value="girls">
+Girls PG
+</option>
+
+<option value="family">
+Family PG
+</option>
+
+<option value="co_living">
+Co-Living PG
+</option>
+</>
+)}
+
+
+{!isHostel && !isPG && (
+<>
 <option value="boys">
 Boys
 </option>
 
-
 <option value="girls">
 Girls
 </option>
-
 
 <option value="family">
 Family
@@ -563,6 +607,8 @@ Co-Living
 <option value="anyone">
 Anyone
 </option>
+</>
+)}
 
 
 </select>
@@ -594,7 +640,7 @@ furnished:e.target.value
 
 }}
 
-className="rounded-xl border p-3 text-black"
+className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
 >
 
 <option value="">
@@ -628,7 +674,7 @@ parking:e.target.value
 
 }}
 
-className="rounded-xl border p-3 text-black"
+className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
 >
 
 <option value="">
@@ -692,7 +738,7 @@ price:e.target.value
 
 }}
 
-className="rounded-xl border p-3 text-black"
+className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
 
 >
 
@@ -746,7 +792,7 @@ sort:e.target.value
 
 }}
 
-className="rounded-xl border p-3 text-black"
+className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
 
 >
 
@@ -832,7 +878,7 @@ sort:""
 
 }}
 
-className="mt-6 rounded-xl bg-red-500 px-5 py-3 text-white"
+className="mt-6 rounded-xl bg-red-500 px-5 py-3 font-semibold text-white transition hover:bg-red-600"
 
 >
 

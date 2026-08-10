@@ -5,6 +5,7 @@ import { useEffect,useMemo,useState } from "react";
 
 type Place={
 name:string;
+address?:string;
 lat:number;
 lng:number;
 distance:number;
@@ -41,9 +42,26 @@ async function load(){
 
 try{
 
+
+setLoading(true);
+
+
+const controller = new AbortController();
+
+const timer = setTimeout(()=>{
+controller.abort();
+},15000);
+
+
 const res=await fetch(
-`/api/nearby?lat=${latitude}&lng=${longitude}`
+`/api/nearby?lat=${latitude}&lng=${longitude}`,
+{
+signal: controller.signal
+}
 );
+
+
+clearTimeout(timer);
 
 
 const data=await res.json();
@@ -57,7 +75,6 @@ const all:Place[]=[
 ...p,
 category:"🏥 Hospital"
 })),
-
 
 
 ...(data.school||[]).map((p:any)=>({
@@ -100,21 +117,47 @@ category:"🚌 Bus Stand"
 ];
 
 
-
 all.sort(
-(a,b)=>a.distance-b.distance
+(a,b)=>{
+
+return a.distance - b.distance;
+
+}
 );
 
+
+console.log("NEARBY FRONTEND ALL", all);
 
 setPlaces(all);
 
 
+const firstCategory =
+all.some(p=>p.category==="🏥 Hospital")
+? "🏥 Hospital"
+: all.length > 0
+? all[0].category
+: "";
+
+setActive(firstCategory);
+
+setFiltered([]);
+setActive("");
+
+
+
 }
 catch(e){
-console.log(e);
+
+console.log("Nearby Error:",e);
+
+setPlaces([]);
+setFiltered([]);
+
 }
 finally{
+
 setLoading(false);
+
 }
 
 
@@ -136,6 +179,7 @@ function filter(cat:string){
 if(active===cat){
 
 setActive("");
+
 setFiltered([]);
 
 return;
@@ -145,10 +189,13 @@ return;
 
 setActive(cat);
 
+
 setFiltered(
-places.filter(
-(p)=>p.category===cat
+places
+.filter(
+p=>p.category===cat
 )
+.slice(0,5)
 );
 
 
@@ -171,12 +218,14 @@ const buttons=[
 
 const counts=useMemo(()=>{
 
-let obj:any={};
+const obj:any={};
 
 buttons.forEach(b=>{
+
 obj[b]=places.filter(
 p=>p.category===b
 ).length;
+
 });
 
 
@@ -190,29 +239,30 @@ return obj;
 
 return (
 
-<section className="mt-10 rounded-3xl bg-zinc-900 p-6">
+<section className="mt-12 rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
 
 
-<h2 className="text-3xl font-bold text-white">
+<h2 className="text-3xl font-black tracking-tight text-slate-900">
 📍 Nearby Places
 </h2>
 
 
-<p className="text-gray-400 mt-2">
+<p className="mt-2 text-slate-500">
 {location}
 </p>
 
 
 
 {
-loading?
+loading ?
 
-<p className="text-white mt-5">
+<p className="mt-5 text-slate-700 font-semibold">
 Loading...
 </p>
 
 
 :
+
 
 <>
 
@@ -225,9 +275,13 @@ buttons.map(btn=>(
 
 
 <button
+
 key={btn}
+
 onClick={()=>filter(btn)}
-className="bg-zinc-800 text-white rounded-xl p-4"
+
+className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-slate-800 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-blue-500 hover:bg-white hover:shadow-xl"
+
 >
 
 
@@ -236,7 +290,7 @@ className="bg-zinc-800 text-white rounded-xl p-4"
 </div>
 
 
-<div className="text-green-400 text-sm mt-2">
+<div className="mt-3 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">
 {counts[btn]} Nearby
 </div>
 
@@ -254,34 +308,39 @@ className="bg-zinc-800 text-white rounded-xl p-4"
 
 
 
-{
-active &&
+
 
 
 <div className="grid md:grid-cols-3 gap-5 mt-8">
 
 
-{
-filtered.map((p,i)=>(
+{filtered
+.slice(0,15)
+.map((p,i)=>( 
 
 
 <div
-key={i}
-className="bg-zinc-800 rounded-xl p-5 text-white"
+key={`${p.name}-${p.lat}-${p.lng}`}
+className="group rounded-3xl border border-slate-200 bg-white p-6 text-slate-800 shadow-md transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
 >
 
 
-<div className="text-blue-400">
+<div className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-sm font-bold text-blue-700">
 {p.category}
 </div>
 
 
-<h3 className="font-bold text-lg mt-2">
+<h3 className="mt-3 text-xl font-extrabold text-slate-900">
 {p.name}
 </h3>
 
 
-<p className="text-green-400 mt-2">
+<p className="mt-2 text-sm text-slate-500">
+{p.address}
+</p>
+
+
+<p className="mt-3 inline-flex rounded-full bg-emerald-50 px-4 py-2 font-bold text-emerald-700">
 📍 {p.distance} km
 </p>
 
@@ -293,7 +352,7 @@ onClick={()=>window.open(
 "_blank"
 )}
 
-className="mt-4 bg-blue-600 rounded-lg px-4 py-2 w-full"
+className="mt-5 w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 font-bold text-white shadow-lg transition hover:scale-[1.02]"
 
 >
 
@@ -305,21 +364,20 @@ className="mt-4 bg-blue-600 rounded-lg px-4 py-2 w-full"
 </div>
 
 
-))
-}
-
+))}
 
 
 </div>
 
 
-}
 
 
 
 </>
 
+
 }
+
 
 
 </section>

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
@@ -169,9 +170,11 @@ export default function ManageProperties() {
                 <div className="flex gap-5">
 
                   {property.image && (
-                    <img
+                    <Image
                       src={property.image}
-                      alt={property.title}
+                      alt={property.title || "Property"}
+                      width={160}
+                      height={112}
                       className="h-28 w-40 rounded-xl object-cover"
                     />
                   )}

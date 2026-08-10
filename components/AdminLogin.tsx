@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -14,7 +15,25 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const credential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      const snap = await getDoc(
+        doc(db, "users", credential.user.uid)
+      );
+
+      if (!snap.exists() || snap.data().role !== "admin") {
+        alert("Only admin can login.");
+
+        await auth.signOut();
+
+        setLoading(false);
+        return;
+      }
+
       window.location.href = "/admin/dashboard";
     } catch (err: any) {
       alert(err.message);

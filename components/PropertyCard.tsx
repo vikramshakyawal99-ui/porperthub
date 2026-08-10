@@ -5,243 +5,240 @@ import Link from "next/link";
 import { optimizeImage } from "@/lib/image";
 
 interface Property {
+  id: string | number;
 
-  id:string | number;
+  title?: string;
+  location?: string;
 
-  title?:string;
-  location?:string;
+  price?: string | number;
+  rent?: string | number;
 
-  price?:string | number;
-  rent?:string | number;
+  image?: string;
+  images?: string[];
 
-  image?:string;
-  images?:string[];
+  bedrooms?: string | number;
+  bathrooms?: string | number;
 
-  bedrooms?:string | number;
-  bathrooms?:string | number;
+  area?: string;
 
-  area?:string;
+  propertyType?: string;
 
-  propertyType?:string;
+  ac?: string;
+  food?: string;
 
-  ac?:string;
-  food?:string;
+  suitableFor?: string;
+  gender?: string;
 
-  suitableFor?:string;
-  gender?:string;
-
-  sharingType?:string;
-  roomType?:string;
-
+  sharingType?: string;
+  roomType?: string;
 }
-
 
 interface PropertyCardProps {
-  property:Property;
+  property: Property;
 }
-
 
 export default function PropertyCard({
-  property
-}:PropertyCardProps){
+  property,
+}: PropertyCardProps) {
 
+  const image = optimizeImage(
+    property.images?.[0] ||
+    property.image ||
+    "/placeholder.jpg"
+  );
 
-const image = optimizeImage(
-property.images?.[0] ||
-property.image ||
-"/placeholder.jpg"
-);
 
+  const isRental =
+    property.propertyType === "rent" ||
+    property.propertyType === "pg" ||
+    property.propertyType === "hostel" ||
+    property.propertyType === "room_rent";
+
+
+  return (
+
+    <div className="
+      group overflow-hidden rounded-3xl
+      bg-white shadow-xl
+      border border-slate-200
+      transition-all duration-300
+      hover:-translate-y-2
+      hover:shadow-2xl
+    ">
 
-const isRental =
-property.propertyType==="rent" ||
-property.propertyType==="pg" ||
-property.propertyType==="hostel" ||
-property.propertyType==="room_rent";
 
+      {/* Image */}
 
-return (
+      <div className="relative h-64 overflow-hidden">
 
-<div className="overflow-hidden rounded-xl bg-white shadow-md transition hover:shadow-xl">
+        <Image
+          src={image}
+          alt={property.title || "Property"}
+          fill
+          sizes="(max-width:768px) 100vw, 33vw"
+          className="
+            object-cover
+            transition duration-500
+            group-hover:scale-110
+          "
+        />
 
 
-<div className="relative h-64">
+        <div className="
+          absolute left-4 top-4
+          rounded-full
+          bg-gradient-to-r from-emerald-500 to-green-600
+          px-4 py-1.5
+          text-xs font-black
+          text-white shadow-lg
+        ">
+          ✓ Verified
+        </div>
 
-<Image
 
-src={image}
+        <button
+          className="
+            absolute right-4 top-4
+            h-10 w-10
+            rounded-full
+            bg-white/95
+            text-xl
+            shadow-xl backdrop-blur
+          "
+        >
+          ♡
+        </button>
 
-alt={property.title || "Property"}
 
-fill
+      </div>
 
-sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
 
-className="object-cover"
 
-/>
+      {/* Content */}
 
-</div>
+      <div className="p-5">
 
 
+        <h3 className="
+          text-2xl font-black
+          tracking-tight
+          text-slate-900
+          line-clamp-1
+        ">
+          {property.title || "Premium Property"}
+        </h3>
 
-<div className="p-5">
 
 
-<h3 className="text-xl font-bold text-gray-900">
+        <p className="
+          mt-2
+          text-sm
+          text-slate-600
+        ">
+          📍 {property.location || "Location unavailable"}
+        </p>
 
-{property.title || "Untitled Property"}
 
-</h3>
 
+        <p className="
+          mt-4
+          text-3xl
+          font-black
+          text-transparent
+          bg-clip-text
+          bg-gradient-to-r
+          from-blue-600
+          to-indigo-600
+        ">
+          ₹ {isRental
+            ? property.rent || "N/A"
+            : property.price || "N/A"
+          }
+        </p>
 
 
-<p className="mt-2 text-gray-600">
 
-📍 {property.location || "Location not available"}
+        <div className="
+          mt-4 flex flex-wrap gap-2
+          text-sm text-slate-700
+        ">
 
-</p>
 
+          {property.bedrooms && (
+            <span className="rounded-full bg-slate-50 border border-slate-200 px-4 py-1.5 font-semibold">
+              🛏 {property.bedrooms} Beds
+            </span>
+          )}
 
 
-<p className="mt-3 text-2xl font-bold text-blue-600">
+          {property.bathrooms && (
+            <span className="rounded-full bg-slate-50 border border-slate-200 px-4 py-1.5 font-semibold">
+              🚿 {property.bathrooms} Baths
+            </span>
+          )}
 
-₹ {isRental ? property.rent || "N/A" : property.price || "N/A"}
 
-</p>
+          {property.area && (
+            <span className="rounded-full bg-slate-50 border border-slate-200 px-4 py-1.5 font-semibold">
+              📐 {property.area}
+            </span>
+          )}
 
 
+        </div>
 
 
-<div className="mt-4 flex flex-wrap gap-3 text-sm text-gray-700">
 
+        {isRental && (
 
-{property.bedrooms && (
-<span>
-🛏 {property.bedrooms} Beds
-</span>
-)}
+          <div className="mt-4 flex flex-wrap gap-2">
 
 
-{property.bathrooms && (
-<span>
-🚿 {property.bathrooms} Baths
-</span>
-)}
+            {property.food && (
+              <span className="rounded-full bg-orange-50 border border-orange-200 px-4 py-1.5 text-sm font-semibold text-orange-700">
+                🍛 Food
+              </span>
+            )}
 
 
-{property.area && (
-<span>
-📐 {property.area}
-</span>
-)}
+            {property.sharingType && (
+              <span className="rounded-full bg-blue-50 border border-blue-200 px-4 py-1.5 text-sm font-semibold text-blue-700">
+                👥 {property.sharingType}
+              </span>
+            )}
 
 
-{property.roomType && (
-<span>
-🛌 {property.roomType}
-</span>
-)}
+          </div>
 
+        )}
 
-{property.sharingType && (
-<span>
-👥 {property.sharingType} Sharing
-</span>
-)}
 
 
-</div>
+        <Link
+          href={`/properties/${property.id}`}
+          className="
+            mt-6 block
+            rounded-xl
+            bg-gradient-to-r
+            from-blue-600
+            to-indigo-600
+            py-3
+            text-center
+            font-black
+            text-white
+            shadow-lg
+            transition
+            hover:scale-[1.02]
+          "
+        >
+          View Details →
+        </Link>
 
 
+      </div>
 
 
-{isRental && (
+    </div>
 
-<div className="mt-4 flex flex-wrap gap-2 text-sm">
-
-
-{property.ac && (
-
-<span className="rounded bg-gray-200 px-3 py-1">
-
-❄ {property.ac==="yes" ? "AC" : "Non AC"}
-
-</span>
-
-)}
-
-
-
-{property.food && (
-
-<span className="rounded bg-gray-200 px-3 py-1">
-
-🍛 {property.food==="yes" ? "Food Available" : "Non Food"}
-
-</span>
-
-)}
-
-
-
-{(property.suitableFor || property.gender) && (
-
-<span className="rounded bg-gray-200 px-3 py-1">
-
-{
-(property.suitableFor || property.gender)==="family"
-?
-"👨‍👩‍👧 Family Allowed"
-:
-(property.suitableFor || property.gender)==="boys"
-?
-"👦 Boys"
-:
-(property.suitableFor || property.gender)==="girls"
-?
-"👧 Girls"
-:
-(property.suitableFor || property.gender)==="co_living"
-?
-"🤝 Co-Living"
-:
-"👤 Anyone"
-}
-
-</span>
-
-)}
-
-
-
-</div>
-
-)}
-
-
-
-
-<Link
-
-href={`/properties/${property.id}`}
-
-className="mt-5 block rounded-lg bg-blue-600 py-3 text-center font-semibold text-white"
-
->
-
-View Details
-
-</Link>
-
-
-</div>
-
-
-</div>
-
-
-);
-
-
+  );
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -260,9 +262,11 @@ images.map((img,index)=>(
 
 <div key={index}>
 
-<img
+<Image
 src={img}
 alt="property"
+width={96}
+height={96}
 className="h-24 w-full rounded-lg object-cover"
 />
 

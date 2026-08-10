@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
@@ -88,11 +90,13 @@ export default function FavoritesPage() {
               key={property.id}
               className="bg-zinc-900 rounded-xl overflow-hidden"
             >
-              <img
-                src={property.image}
-                alt={property.title}
-                className="h-56 w-full object-cover"
-              />
+              <Image
+src={property.image}
+alt={property.title}
+width={600}
+height={400}
+className="h-56 w-full object-cover"
+/>
 
               <div className="p-5">
                 <h2 className="text-xl font-bold">

@@ -12,7 +12,7 @@ service cloud.firestore {
 
     function isAdmin() {
       return isLoggedIn()
-        && request.auth.token.email == "vikramshakyawal99@gmail.com";
+        && request.auth.token.role == "admin";
     }
 
 
@@ -64,7 +64,7 @@ service cloud.firestore {
 
     match /leads/{leadId} {
 
-      allow create: if true;
+      allow create: if isLoggedIn();
 
 
       allow read, update: if isAdmin()
@@ -93,7 +93,7 @@ service cloud.firestore {
 
     match /siteVisits/{visitId} {
 
-      allow create: if true;
+      allow create: if isLoggedIn();
 
 
       allow read, update: if isAdmin()
@@ -125,7 +125,7 @@ service cloud.firestore {
       allow read: if true;
 
 
-      allow create: if true;
+      allow create: if isLoggedIn();
 
 
       allow update, delete: if false;

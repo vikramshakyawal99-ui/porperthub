@@ -3,6 +3,8 @@ export const properties = [
     id: 1,
     title: "Luxury 3 BHK Apartment",
     location: "Vaishali Nagar, Jaipur",
+    latitude: 26.9124,
+    longitude: 75.7398,
     price: "₹85 Lakh",
     image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200",
 
@@ -25,6 +27,8 @@ export const properties = [
     id: 2,
     title: "Premium Villa",
     location: "Jagatpura, Jaipur",
+    latitude: 26.8543,
+    longitude: 75.8295,
     price: "₹1.45 Cr",
     image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200",
 
@@ -47,6 +51,8 @@ export const properties = [
     id: 3,
     title: "Modern 2 BHK Flat",
     location: "Mansarovar, Jaipur",
+    latitude: 26.8855,
+    longitude: 75.7515,
     price: "₹58 Lakh",
     image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1200",
 
@@ -69,6 +75,8 @@ export const properties = [
     id: 4,
     title: "Luxury Penthouse",
     location: "C-Scheme, Jaipur",
+    latitude: 26.9120,
+    longitude: 75.7920,
     price: "₹2.10 Cr",
     image: "https://images.unsplash.com/photo-1494526585095-c41746248156?w=1200",
 

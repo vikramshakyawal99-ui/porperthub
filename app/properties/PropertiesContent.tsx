@@ -73,67 +73,66 @@ data=data.filter((p:any)=>
 
 if(type){
 
-const urlType=type.toLowerCase();
+const urlType = type.toLowerCase();
 
 
-data=data.filter((p:any)=>{
+data = data.filter((p:any)=>{
+
+const propertyType =
+(p.propertyType || "").toLowerCase();
+
+const propertyCategory =
+(p.type || "").toLowerCase();
 
 
-const propertyType=
-(p.propertyType||"").toLowerCase();
+const text = `
+${propertyType}
+${propertyCategory}
+${p.gender || ""}
+${p.suitableFor || ""}
+${p.roomType || ""}
+${p.sharingType || ""}
+`
+.toLowerCase();
 
 
-const propertyCategory=
-(p.type||"").toLowerCase();
 
+return (
 
+text.includes(urlType)
 
-return(
-
-propertyType===urlType ||
-
-propertyCategory===urlType ||
-
+||
 
 (urlType==="flat" &&
 (
 propertyType==="flat" ||
 propertyType==="apartment"
-)) ||
+))
 
+||
 
+(urlType.includes("boys") &&
+text.includes("boys"))
 
-(urlType==="plot" &&
-propertyType.includes("plot")
-) ||
+||
 
+(urlType.includes("girls") &&
+text.includes("girls"))
 
+||
 
-(urlType==="pg" &&
-propertyType.includes("pg")
-) ||
+(urlType.includes("pg") &&
+text.includes("pg"))
 
+||
 
+(urlType.includes("hostel") &&
+text.includes("hostel"))
 
-(urlType==="hostel" &&
-propertyType.includes("hostel")
-) ||
+||
 
-
-
-(urlType==="room" &&
-propertyType.includes("room")
-) ||
-
-
-
-(urlType==="resale" &&
-(
-propertyType.includes("resale") ||
-propertyType.includes("house")
-)
-)
-
+(urlType.includes("plot") &&
+text.includes("plot"))
 
 );
 
@@ -455,7 +454,7 @@ plotSizeMatch
 
 
 
-let finalProperties=[...filteredProperties];
+const finalProperties=[...filteredProperties];
 
 switch(filters.sort){
 
@@ -515,13 +514,13 @@ return(
 <Navbar/>
 
 
-<main className="min-h-screen bg-zinc-950 py-10">
+<main className="min-h-screen bg-slate-50 py-10">
 
 
 <div className="mx-auto max-w-7xl px-6">
 
 
-<h1 className="mb-8 text-4xl font-bold text-white">
+<h1 className="mb-8 text-4xl font-bold text-slate-900">
 
 🏠 Explore Properties
 
@@ -539,9 +538,9 @@ onFilterChange={setFilters}
 
 
 
-<div className="mb-8 rounded-xl bg-zinc-900 p-5">
+<div className="mb-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
 
-<p className="text-lg font-bold text-white">
+<p className="text-lg font-bold text-slate-900">
 
 🏠 {finalProperties.length} Properties Found
 

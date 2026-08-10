@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, getDocs, query } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export type Property = {
@@ -58,7 +58,10 @@ export default function useProperties() {
         }
 
         const snapshot = await getDocs(
-          query(collection(db, "properties"))
+          query(
+            collection(db, "properties"),
+            where("status", "==", "approved")
+          )
         );
 
         const data = snapshot.docs.map((doc) => ({

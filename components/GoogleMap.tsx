@@ -38,37 +38,47 @@ export default function GoogleMap({
     !Number.isFinite(center.lng)
   ) {
     return (
-      <div className="rounded-xl bg-gray-100 p-5 text-center">
-        Invalid map location
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-xl">
+        <p className="font-semibold text-slate-700">
+          📍 Map location not available
+        </p>
       </div>
     );
   }
 
   if (!isLoaded) {
     return (
-      <div className="rounded-xl bg-gray-100 p-5 text-center">
-        Loading Map...
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-xl">
+        <p className="font-semibold text-slate-700">
+          🗺️ Loading Map...
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="w-full overflow-hidden rounded-2xl">
+    <section className="mt-12 rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
+
+      <h2 className="mb-5 text-3xl font-extrabold text-slate-900">
+        📍 Property Location
+      </h2>
 
       {location && (
-        <div className="mb-3 rounded-xl bg-gray-100 p-3 font-semibold">
-          📍 {location}
+        <div className="mb-5 rounded-2xl bg-slate-50 px-5 py-3 font-semibold text-slate-700">
+          {location}
         </div>
       )}
 
-      <Map
-        mapContainerStyle={containerStyle}
-        center={center}
-        zoom={15}
-      >
-        <Marker position={center} />
-      </Map>
+      <div className="overflow-hidden rounded-3xl shadow-lg">
+        <Map
+          mapContainerStyle={containerStyle}
+          center={center}
+          zoom={15}
+        >
+          <Marker position={center} />
+        </Map>
+      </div>
 
-    </div>
+    </section>
   );
 }

@@ -1,4 +1,5 @@
 const { initializeApp, cert } = require("firebase-admin/app");
+const { getAuth } = require("firebase-admin/auth");
 const { getFirestore } = require("firebase-admin/firestore");
 
 const serviceAccount = require("./serviceAccountKey.json");
@@ -7,23 +8,28 @@ initializeApp({
   credential: cert(serviceAccount),
 });
 
-const db = getFirestore();
+const uid = "8N7SlofTSjee7hbWfbzVznvNvSb2";
 
-async function makeAdmin() {
-  const uid = "IEV1aMcJmlc9aKsHb0y6fThNF8B3";
+async function makeAdmin(){
+
+  const auth = getAuth();
+  const db = getFirestore();
+
+  await auth.setCustomUserClaims(uid,{
+    role:"admin"
+  });
 
   await db.collection("users").doc(uid).set(
     {
-      role: "admin",
+      role:"admin"
     },
-    { merge: true }
+    {
+      merge:true
+    }
   );
 
-  console.log("✅ ADMIN DONE");
-  process.exit(0);
+  console.log("✅ REAL USER ADMIN DONE");
+
 }
 
-makeAdmin().catch((err) => {
-  console.error("❌ ERROR:", err);
-  process.exit(1);
-});
+makeAdmin().catch(console.error);

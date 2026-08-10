@@ -1,18 +1,24 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { signOut } from "firebase/auth";
 import {
   collection,
   deleteDoc,
   doc,
   getDocs,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db, auth } from "@/lib/firebase";
 import useProperties from "@/hooks/useProperties";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function AdminDashboard() {
   const { properties, loading } = useProperties();
+  const { user, role } = useAuth();
+  const router = useRouter();
 
   const [leadCount, setLeadCount] = useState(0);
   const [visitCount, setVisitCount] = useState(0);
@@ -26,6 +32,17 @@ export default function AdminDashboard() {
   const [recentVisits, setRecentVisits] = useState<any[]>([]);
 
   useEffect(() => {
+
+    if (user === null) {
+      router.replace("/control-x9p-admin-8472");
+      return;
+    }
+
+    if (role && role !== "admin") {
+      router.replace("/control-x9p-admin-8472");
+      return;
+    }
+
     async function loadStats() {
 
       const leadsSnap = await getDocs(collection(db, "leads"));
@@ -106,7 +123,7 @@ export default function AdminDashboard() {
     }
 
     loadStats();
-  }, []);
+  }, [user, role, router]);
 
   async function handleDelete(id: string) {
     const ok = confirm("Delete this property?");
@@ -122,6 +139,19 @@ export default function AdminDashboard() {
   }
 
   return (
+  <>
+
+<div className="flex justify-end bg-zinc-950 p-4">
+  <button
+    onClick={async()=>{
+      await signOut(auth);
+      window.location.href="/control-x9p-admin-8472";
+    }}
+    className="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+  >
+    Logout
+  </button>
+</div>
     <main className="min-h-screen bg-zinc-950 p-8">
       <div className="mx-auto max-w-7xl">
 
@@ -253,17 +283,18 @@ export default function AdminDashboard() {
             <h2 className="mb-5 text-2xl font-bold">
               🏠 Recent Added Properties
             </h2>
-
-            <div className="grid gap-4 md:grid-cols-5">
+<div className="grid gap-4 md:grid-cols-5">
               {properties.slice(0, 5).map((property) => (
                 <div
                   key={property.id}
                   className="rounded-xl border p-3"
                 >
                   {property.image && (
-                    <img
+                    <Image
                       src={property.image}
-                      alt={property.title}
+                      alt={property.title || "Property"}
+                      width={300}
+                      height={128}
                       className="h-32 w-full rounded-lg object-cover"
                     />
                   )}
@@ -363,5 +394,6 @@ export default function AdminDashboard() {
 
       </div>
     </main>
-  );
+  </>
+);
 }

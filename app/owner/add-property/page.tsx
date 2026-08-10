@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { useState } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -158,7 +160,7 @@ ownerId:user.uid,
 
 ownerEmail:user.email,
 
-status:"approved",
+status:"pending",
 
 createdAt:serverTimestamp()
 
@@ -743,9 +745,11 @@ className="w-full p-3 bg-white text-black rounded"
 
 <div key={index} className="relative">
 
-<img
+<Image
 src={img}
-alt=""
+alt={""}
+width={600}
+height={400}
 className="h-32 w-full rounded-xl object-cover"
 />
 

@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { useEffect, useState } from "react";
 import {
   doc,
@@ -749,9 +751,11 @@ Existing Images
 
 <div key={index} className="relative">
 
-<img
+<Image
 src={img}
-alt=""
+alt={""}
+width={600}
+height={400}
 className="h-32 w-full rounded-lg object-cover"
 />
 

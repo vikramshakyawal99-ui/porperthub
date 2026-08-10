@@ -1,10 +1,11 @@
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
-import PropertySearch from "../components/PropertySearch";
+import CityBar from "../components/CityBar";
+import PropertyCategories from "../components/PropertyCategories";
 import PopularCities from "../components/PopularCities";
 import FeaturedProjects from "../components/FeaturedProjects";
 import TopBuilders from "../components/TopBuilders";
-import PropertyCategories from "../components/PropertyCategories";
+import PropertyDealers from "../components/PropertyDealers";
 import PropertyComparison from "../components/PropertyComparison";
 import FeaturedProperties from "../components/FeaturedProperties";
 import WhyChooseUs from "../components/WhyChooseUs";
@@ -14,13 +15,14 @@ import HomeLoan from "../components/HomeLoan";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-slate-950">
       <Navbar />
       <Hero />
+      <CityBar />
       <PropertyCategories />
-      <PropertySearch />
       <FeaturedProjects />
       <TopBuilders />
+      <PropertyDealers />
       <PopularCities />
       <FeaturedProperties />
       <PropertyComparison />

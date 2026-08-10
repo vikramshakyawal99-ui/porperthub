@@ -12,7 +12,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("property_owner");
+  const [role, setRole] = useState("buyer");
   const [loading, setLoading] = useState(false);
 
 
@@ -52,7 +52,7 @@ export default function SignupPage() {
          role === "resale_seller"
       ){
 
-        window.location.href="/owner";
+        window.location.href="/owner/dashboard";
 
       }
       else{
@@ -135,6 +135,10 @@ export default function SignupPage() {
             value={role}
             onChange={(e)=>setRole(e.target.value)}
           >
+
+            <option value="buyer">
+              Buyer
+            </option>
 
             <option value="property_owner">
               Property Owner

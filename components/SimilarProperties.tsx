@@ -73,10 +73,10 @@ export default function SimilarProperties({
 
   return (
 
-    <section className="mt-16">
+    <section className="mt-16 rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
 
-      <h2 className="mb-6 text-3xl font-bold text-white">
-        Similar Properties
+      <h2 className="mb-8 text-4xl font-black tracking-tight text-slate-900">
+        🏡 Similar Premium Properties
       </h2>
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">

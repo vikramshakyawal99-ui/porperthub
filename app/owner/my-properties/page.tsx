@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -85,11 +87,13 @@ export default function MyPropertiesPage() {
               className="rounded-xl border p-5 shadow"
             >
               {property.image && (
-                <img
-                  src={property.image}
-                  alt={property.title}
-                  className="mb-4 h-48 w-full rounded-xl object-cover"
-                />
+                <Image
+src={property.image}
+alt={property.title || "Property"}
+width={600}
+height={400}
+className="mb-4 h-48 w-full rounded-xl object-cover"
+/>
               )}
 
               <h2 className="text-xl font-bold">

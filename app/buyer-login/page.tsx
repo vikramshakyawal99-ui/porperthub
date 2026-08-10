@@ -31,7 +31,10 @@ const [name,setName]=useState("");
 const [email,setEmail]=useState("");
 const [password,setPassword]=useState("");
 
-const [isSignup,setIsSignup]=useState(false);
+const [isSignup,setIsSignup]=useState(
+typeof window !== "undefined" &&
+new URLSearchParams(window.location.search).get("signup")==="true"
+);
 
 const [loading,setLoading]=useState(false);
 
@@ -96,7 +99,6 @@ await getDoc(
 doc(db,"users",user.uid)
 );
 
-
 if(!snap.exists()){
 
 await setDoc(
@@ -107,6 +109,22 @@ role:"buyer",
 createdAt:new Date()
 }
 );
+
+}
+else{
+
+const role = snap.data().role;
+
+if(role !== "buyer"){
+
+alert("Please use the correct login page.");
+
+await auth.signOut();
+
+setLoading(false);
+return;
+
+}
 
 }
 
@@ -175,8 +193,8 @@ required
 
 <input
 className="w-full p-3 rounded text-black"
-placeholder="Email"
-type="email"
+placeholder="Email / Phone Number"
+type="text"
 value={email}
 onChange={(e)=>setEmail(e.target.value)}
 required

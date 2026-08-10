@@ -129,9 +129,9 @@ export default function LeadForm({
 
   return(
 
-    <div className="mt-10 rounded-2xl bg-white p-6 shadow">
+    <div className="mt-12 rounded-3xl border border-slate-200 bg-white p-10 shadow-2xl">
 
-      <h2 className="mb-6 text-2xl font-bold">
+      <h2 className="mb-6 text-4xl font-black tracking-tight text-slate-900">
         {enquiryTitle}
       </h2>
 
@@ -139,7 +139,7 @@ export default function LeadForm({
         onSubmit={submitLead}
         className="space-y-4"
       >        <input
-          className="w-full rounded-lg border p-3"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white"
           placeholder="Name"
           value={name}
           onChange={(e)=>setName(e.target.value)}
@@ -147,7 +147,7 @@ export default function LeadForm({
         />
 
         <input
-          className="w-full rounded-lg border p-3"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white"
           placeholder="Phone"
           value={phone}
           onChange={(e)=>setPhone(e.target.value)}
@@ -155,21 +155,21 @@ export default function LeadForm({
         />
 
         <input
-          className="w-full rounded-lg border p-3"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white"
           placeholder="Email"
           value={email}
           onChange={(e)=>setEmail(e.target.value)}
         />
 
         <textarea
-          className="w-full rounded-lg border p-3"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white"
           placeholder="Message"
           value={message}
           onChange={(e)=>setMessage(e.target.value)}
           rows={4}
         />        <button
           disabled={loading}
-          className="w-full rounded-lg bg-blue-600 px-6 py-3 font-bold text-white disabled:opacity-50"
+          className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 font-black text-white shadow-xl transition hover:scale-[1.02] disabled:opacity-50"
         >
           {
             loading

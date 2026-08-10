@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -93,11 +95,13 @@ export default function MyHostelsPage() {
 
               {item.image && (
 
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="mb-4 h-52 w-full rounded-xl object-cover"
-                />
+                <Image
+src={item.image}
+alt={item.title || "Property"}
+width={600}
+height={400}
+className="mb-4 h-52 w-full rounded-xl object-cover"
+/>
 
               )}
 

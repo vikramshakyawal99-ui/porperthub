@@ -170,7 +170,14 @@ export default async function PropertyDetails({ params }: Props) {
   }
 
 
-  const isRental =
+  console.log("PROPERTY DEBUG", {
+  id: property.id,
+  latitude: property.latitude,
+  longitude: property.longitude,
+  property: property
+});
+
+const isRental =
     property.propertyType==="pg" ||
     property.propertyType==="hostel" ||
     property.propertyType==="room_rent";
@@ -180,11 +187,11 @@ export default async function PropertyDetails({ params }: Props) {
     <>
       <PropertySchema property={property} />
 
-      <main className="min-h-screen bg-zinc-950 py-10">
+      <main className="min-h-screen bg-slate-50 py-10">
 
         <div className="mx-auto max-w-7xl px-6">
 
-          <div className="overflow-hidden rounded-3xl bg-zinc-900 shadow-2xl">
+          <div className="overflow-hidden rounded-3xl bg-white shadow-xl border border-slate-100">
 
             <ImageGallery
 
@@ -213,34 +220,38 @@ export default async function PropertyDetails({ params }: Props) {
             />
 
 
-            <div className="p-8">
+            <div className="p-8 md:p-10">
 
               <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
 
                 <div>
 
-                  <h1 className="text-4xl font-extrabold text-gray-900">
+                  <div className="mb-4 inline-flex items-center rounded-full bg-green-50 px-4 py-2 text-sm font-semibold text-green-700">
+✓ Verified Property
+</div>
+
+<h1 className="text-4xl font-extrabold tracking-tight text-slate-900 md:text-5xl">
 
                     {property.title}
 
                   </h1>
 
 
-                  <p className="mt-3 text-lg text-gray-700">
+                  <p className="mt-3 text-lg text-slate-600">
 
                     📍 {property.location}
 
                   </p>
 
 
-                  <div className="mt-3 flex items-center gap-2">
+                  <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-yellow-50 px-4 py-2">
 
-                    ⭐⭐⭐⭐⭐
+                    <span>
+                      ⭐⭐⭐⭐⭐
+                    </span>
 
-                    <span className="font-semibold text-gray-700">
-
-                      {property.rating}/5
-
+                    <span className="font-semibold text-slate-700">
+                      {property.rating}/5 Rating
                     </span>
 
                   </div>
@@ -249,16 +260,16 @@ export default async function PropertyDetails({ params }: Props) {
                 </div>
 
 
-                <div className="rounded-2xl bg-blue-600 px-8 py-5 text-center text-white shadow-lg">
+                <div className="rounded-3xl bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 px-8 py-7 text-center text-white shadow-2xl ring-1 ring-white/10 backdrop-blur-xl">
 
-                  <p className="text-sm uppercase tracking-wide">
+                  <p className="text-xs uppercase tracking-[0.35em] text-blue-200">
 
                     Price
 
                   </p>
 
 
-                  <h2 className="text-4xl font-bold">
+                  <h2 className="mt-3 text-5xl font-black tracking-tight">
 
                     {property.price}
 
@@ -272,7 +283,7 @@ export default async function PropertyDetails({ params }: Props) {
                     <div className="mt-4 flex flex-wrap justify-center gap-2">
 
 
-                      <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-600">
+                      <span className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg">
                         {property.propertyType==="pg"
                           ? "PG"
                           : property.propertyType==="hostel"
@@ -282,35 +293,35 @@ export default async function PropertyDetails({ params }: Props) {
 
 
                       {property.gender && (
-                        <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-600">
+                        <span className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg">
                           {property.gender}
                         </span>
                       )}
 
 
                       {property.food==="yes" && (
-                        <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-600">
+                        <span className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg">
                           🍽 Food
                         </span>
                       )}
 
 
                       {property.ac && (
-                        <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-600">
+                        <span className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg">
                           ❄ {property.ac==="yes" ? "AC" : "Non AC"}
                         </span>
                       )}
 
 
                       {property.kitchen && (
-                        <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-600">
+                        <span className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg">
                           🍳 {property.kitchen==="yes" ? "Kitchen Available" : "No Kitchen"}
                         </span>
                       )}
 
 
                       {property.suitableFor && (
-                        <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-600">
+                        <span className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg">
                           👤 {
                             property.suitableFor==="family"
                             ? "Family Allowed"
@@ -336,7 +347,7 @@ export default async function PropertyDetails({ params }: Props) {
               </div>              <hr className="my-10" />
 
 
-              <h2 className="mb-6 text-3xl font-bold text-gray-900">
+              <h2 className="mb-6 text-3xl font-bold text-slate-900">
                 Property Highlights
               </h2>
 
@@ -344,49 +355,49 @@ export default async function PropertyDetails({ params }: Props) {
               <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
 
 
-                <div className="rounded-2xl bg-blue-50 p-5 shadow">
-                  <h3 className="text-gray-400">Builder</h3>
-                  <p className="mt-2 text-xl font-bold">
+                <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl">
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Builder</h3>
+                  <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900">
                     {property.builder}
                   </p>
                 </div>
 
 
-                <div className="rounded-2xl bg-blue-50 p-5 shadow">
-                  <h3 className="text-gray-400">Bedrooms</h3>
-                  <p className="mt-2 text-xl font-bold">
+                <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl">
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Bedrooms</h3>
+                  <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900">
                     🛏 {property.bedrooms}
                   </p>
                 </div>
 
 
-                <div className="rounded-2xl bg-blue-50 p-5 shadow">
-                  <h3 className="text-gray-400">Bathrooms</h3>
-                  <p className="mt-2 text-xl font-bold">
+                <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl">
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Bathrooms</h3>
+                  <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900">
                     🛁 {property.bathrooms}
                   </p>
                 </div>
 
 
-                <div className="rounded-2xl bg-blue-50 p-5 shadow">
-                  <h3 className="text-gray-400">Area</h3>
-                  <p className="mt-2 text-xl font-bold">
+                <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl">
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Area</h3>
+                  <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900">
                     📐 {property.area}
                   </p>
                 </div>
 
 
-                <div className="rounded-2xl bg-blue-50 p-5 shadow">
-                  <h3 className="text-gray-400">Project</h3>
-                  <p className="mt-2 text-xl font-bold">
+                <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl">
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Project</h3>
+                  <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900">
                     🏗 {property.projectName || "-"}
                   </p>
                 </div>
 
 
-                <div className="rounded-2xl bg-blue-50 p-5 shadow">
-                  <h3 className="text-gray-400">Property Type</h3>
-                  <p className="mt-2 text-xl font-bold">
+                <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl">
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Property Type</h3>
+                  <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900">
                     🏢 {property.propertyType || "-"}
                   </p>
                 </div>
@@ -420,14 +431,18 @@ export default async function PropertyDetails({ params }: Props) {
               <hr className="my-10" />
 
 
-              <h2 className="mb-5 text-3xl font-bold text-gray-900">
+              <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-8 shadow-xl backdrop-blur-xl">
+
+              <h2 className="mb-5 text-3xl font-extrabold text-slate-900">
                 Description
               </h2>
 
 
-              <p className="text-lg leading-9 text-gray-700">
+              <p className="text-lg leading-9 text-slate-600">
                 {property.description}
               </p>
+
+              </div>
 
 
               {!isRental && (
@@ -441,20 +456,20 @@ export default async function PropertyDetails({ params }: Props) {
 
 {isRental && (
 
-<div className="mt-8 rounded-xl bg-gray-50 p-5">
+<div className="mt-8 rounded-3xl border border-slate-200/80 bg-white/80 p-8 shadow-xl backdrop-blur-xl">
 
-<h3 className="text-xl font-bold mb-4">
+<h3 className="mb-6 text-2xl font-extrabold text-slate-900">
 🏠 Room Details
 </h3>
 
 
-<div className="grid grid-cols-2 gap-4 text-gray-700">
+<div className="grid grid-cols-2 gap-5 text-slate-700">
 
 
 {property.roomType && (
 <p>
 🛏 Room:
-<b>
+<b className="text-slate-900">
  {property.roomType==="single"
  ? " Single Room"
  : property.roomType==="shared"
@@ -469,7 +484,7 @@ export default async function PropertyDetails({ params }: Props) {
 {property.sharingType && (
 <p>
 👥 Sharing:
-<b>
+<b className="text-slate-900">
  {property.sharingType} Sharing
 </b>
 </p>
@@ -480,7 +495,7 @@ export default async function PropertyDetails({ params }: Props) {
 {property.food && (
 <p>
 🍽 Food:
-<b>
+<b className="text-slate-900">
  {property.food==="yes"
  ? " Available"
  : " Non Food"}
@@ -493,7 +508,7 @@ export default async function PropertyDetails({ params }: Props) {
 {property.ac && (
 <p>
 ❄ AC:
-<b>
+<b className="text-slate-900">
  {property.ac==="yes"
  ? " AC Room"
  : " Non AC Room"}
@@ -506,7 +521,7 @@ export default async function PropertyDetails({ params }: Props) {
 {property.kitchen && (
 <p>
 🍳 Kitchen:
-<b>
+<b className="text-slate-900">
  {property.kitchen==="yes"
  ? " Available"
  : " Not Available"}
@@ -519,7 +534,7 @@ export default async function PropertyDetails({ params }: Props) {
 {property.suitableFor && (
 <p>
 👤 Suitable:
-<b>
+<b className="text-slate-900">
  {property.suitableFor}
 </b>
 </p>
@@ -586,7 +601,13 @@ className="bg-blue-50 px-3 py-2 rounded-lg text-blue-600"
 
 
 
-              <div className="flex flex-wrap gap-4 mt-5">
+              <div className="mt-8 rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-xl backdrop-blur-xl">
+
+              <div className="mb-4 text-xl font-extrabold text-slate-900">
+                Contact Property Owner
+              </div>
+
+              <div className="flex flex-wrap gap-4">
 
 
                 <PropertyActions
@@ -606,6 +627,8 @@ className="bg-blue-50 px-3 py-2 rounded-lg text-blue-600"
 
               </div>
 
+              </div>
+
 
 
               <GoogleMap
@@ -617,8 +640,8 @@ className="bg-blue-50 px-3 py-2 rounded-lg text-blue-600"
 
               <NearbyPlaces
   location={property.location}
-  latitude={Number(property.latitude || 26.86480959301093)}
-  longitude={Number(property.longitude || 75.75673252344131)}
+  latitude={Number(property.latitude)}
+  longitude={Number(property.longitude)}
 />
 
 

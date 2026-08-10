@@ -16,19 +16,21 @@ export default function Amenities() {
 
   return (
     <section className="mt-12">
-      <h2 className="mb-6 text-3xl font-bold text-gray-900">
-        Premium Amenities
+      <h2 className="mb-6 text-3xl font-extrabold text-slate-900">
+        ⭐ Premium Amenities
       </h2>
 
       <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">
         {amenities.map((item) => (
           <div
             key={item.name}
-            className="rounded-2xl border border-gray-200 bg-zinc-900 p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-blue-500 hover:shadow-xl"
+            className="group rounded-3xl border border-slate-200/80 bg-white/80 p-6 text-center shadow-lg backdrop-blur-xl transition-all duration-300 hover:-translate-y-2 hover:border-blue-500 hover:shadow-2xl"
           >
-            <div className="mb-3 text-5xl">{item.icon}</div>
+            <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-slate-50 text-5xl shadow-inner transition duration-300 group-hover:scale-110">
+              {item.icon}
+            </div>
 
-            <h3 className="font-semibold text-gray-800">
+            <h3 className="font-bold text-slate-900">
               {item.name}
             </h3>
           </div>

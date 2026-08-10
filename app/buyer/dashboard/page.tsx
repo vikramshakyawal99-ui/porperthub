@@ -1,7 +1,11 @@
 "use client";
 
+import Image from "next/image";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
+
+import { signOut } from "firebase/auth";
 
 import {
   collection,
@@ -10,14 +14,14 @@ import {
   where
 } from "firebase/firestore";
 
-import { db } from "@/lib/firebase";
+import { db, auth } from "@/lib/firebase";
 import { useAuth } from "@/components/AuthProvider";
 import { properties } from "../../../data/properties";
 
 
 export default function BuyerDashboard(){
 
-const {user}=useAuth();
+const {user,role}=useAuth();
 
 const [enquiries,setEnquiries]=useState<any[]>([]);
 const [notifications,setNotifications]=useState<any[]>([]);
@@ -35,7 +39,15 @@ useEffect(()=>{
 
 async function loadDashboard(){
 
-if(!user) return;
+if(!user){
+window.location.href="/buyer-login";
+return;
+}
+
+if(role && role!=="buyer"){
+window.location.href="/buyer-login";
+return;
+}
 
 
 // enquiries
@@ -150,6 +162,10 @@ return(
 
 <div className="bg-zinc-900 rounded-3xl p-8 mb-8">
 
+<div className="flex items-start justify-between">
+
+<div>
+
 <h1 className="text-4xl font-bold">
 👋 Welcome {user?.displayName || "Buyer"}
 </h1>
@@ -163,6 +179,23 @@ Manage your properties, enquiries and visits.
 <p className="text-sm text-gray-500 mt-2">
 📧 {user?.email}
 </p>
+
+</div>
+
+<button
+onClick={async()=>{
+
+await signOut(auth);
+
+window.location.href="/buyer-login";
+
+}}
+className="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+>
+Logout
+</button>
+
+</div>
 
 </div>
 
@@ -321,9 +354,11 @@ key={property.id}
 className="bg-zinc-900 rounded-2xl overflow-hidden"
 >
 
-<img
+<Image
 src={property.image}
 alt={property.title}
+width={600}
+height={400}
 className="h-48 w-full object-cover"
 />
 
@@ -394,9 +429,11 @@ key={property.id}
 className="bg-zinc-900 rounded-2xl overflow-hidden"
 >
 
-<img
+<Image
 src={property.image}
 alt={property.title}
+width={600}
+height={400}
 className="h-48 w-full object-cover"
 />
 

@@ -1,6 +1,5 @@
 export const popularPlaces:any = {
 
-
 mansarovar: {
 
 hospitals:[
@@ -34,6 +33,7 @@ priority:9
 }
 ],
 
+
 schools:[
 {
 name:"Neerja Modi School",
@@ -58,6 +58,7 @@ priority:9
 }
 ],
 
+
 colleges:[
 {
 name:"MNIT Jaipur",
@@ -65,8 +66,16 @@ address:"Jaipur",
 lat:26.8625,
 lng:75.8069,
 priority:10
+},
+{
+name:"University of Rajasthan",
+address:"Jaipur",
+lat:26.8887,
+lng:75.8150,
+priority:9
 }
 ],
+
 
 malls:[
 {
@@ -89,24 +98,25 @@ priority:9
 
 
 
-agraRoad: {
+pratapNagar: {
 
 hospitals:[
 {
-name:"Mahatma Gandhi Hospital Jaipur",
-address:"Agra Road Jaipur",
-lat:26.7835,
-lng:75.8235,
-priority:10
-},
-{
-name:"RUHS Hospital Jaipur",
+name:"RUHS Hospital",
 address:"Pratap Nagar Jaipur",
 lat:26.7975,
 lng:75.8125,
 priority:10
+},
+{
+name:"Mahatma Gandhi Hospital Jaipur",
+address:"Jaipur",
+lat:26.7835,
+lng:75.8235,
+priority:9
 }
 ],
+
 
 schools:[
 {
@@ -115,32 +125,20 @@ address:"Jaipur",
 lat:26.7805,
 lng:75.8230,
 priority:10
-},
-{
-name:"St. Xavier School Jaipur",
-address:"Jaipur",
-lat:26.8000,
-lng:75.8200,
-priority:8
 }
 ],
 
+
 colleges:[
 {
-name:"JECRC University",
+name:"Rajasthan University of Health Sciences",
 address:"Jaipur",
-lat:26.7820,
-lng:75.8390,
+lat:26.7975,
+lng:75.8120,
 priority:10
-},
-{
-name:"Poornima University",
-address:"Jaipur",
-lat:26.7840,
-lng:75.8250,
-priority:9
 }
 ],
+
 
 malls:[
 {
@@ -148,53 +146,7 @@ name:"World Trade Park Jaipur",
 address:"Jaipur",
 lat:26.8507,
 lng:75.8048,
-priority:10
-}
-]
-
-},
-
-
-
-vatika: {
-
-hospitals:[
-{
-name:"RUHS Hospital Jaipur",
-address:"Jaipur",
-lat:26.7975,
-lng:75.8125,
-priority:10
-}
-],
-
-schools:[
-{
-name:"Delhi Public School Jaipur",
-address:"Jaipur",
-lat:26.7805,
-lng:75.8230,
-priority:10
-}
-],
-
-colleges:[
-{
-name:"JECRC University",
-address:"Jaipur",
-lat:26.7820,
-lng:75.8390,
-priority:10
-}
-],
-
-malls:[
-{
-name:"Vatika Shopping Area",
-address:"Vatika Jaipur",
-lat:26.8000,
-lng:75.8200,
-priority:7
+priority:8
 }
 ]
 
@@ -214,6 +166,7 @@ priority:10
 }
 ],
 
+
 schools:[
 {
 name:"Kanota Public School",
@@ -224,73 +177,28 @@ priority:9
 }
 ],
 
+
 colleges:[
 {
 name:"Nearby Jaipur Colleges",
 address:"Jaipur",
 lat:26.7800,
 lng:75.8800,
-priority:6
+priority:5
 }
 ],
+
 
 malls:[
 {
-name:"Kanota Market",
-address:"Kanota Jaipur",
-lat:26.7500,
-lng:75.9000,
-priority:7
-}
-]
-
-},
-
-
-
-diggiRoad: {
-
-hospitals:[
-{
-name:"RUHS Hospital Jaipur",
+name:"Nearby Shopping Area",
 address:"Jaipur",
-lat:26.7975,
-lng:75.8125,
-priority:10
-}
-],
-
-schools:[
-{
-name:"DPS Jaipur",
-address:"Jaipur",
-lat:26.7805,
-lng:75.8230,
-priority:9
-}
-],
-
-colleges:[
-{
-name:"Poornima University",
-address:"Jaipur",
-lat:26.7840,
-lng:75.8250,
-priority:9
-}
-],
-
-malls:[
-{
-name:"World Trade Park Jaipur",
-address:"Jaipur",
-lat:26.8507,
-lng:75.8048,
-priority:8
+lat:26.7800,
+lng:75.8800,
+priority:5
 }
 ]
 
 }
-
 
 };

@@ -2,15 +2,19 @@ import { defineConfig } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 
-
 export default defineConfig([
-  ...nextVitals,
-  ...nextTs,
 
   {
     ignores: [
       "node_modules/**",
       ".next/**",
+
+      // backup folders
+      "backup_old/**",
+      "create-og.js",
+      "make-admin.js",
+      "test-firestore.js",
+      "backup/**",
 
       // backup files
       "**/*.backup.*",
@@ -18,22 +22,26 @@ export default defineConfig([
       "**/*.backup.tsx",
       "**/*-backup.ts",
       "**/*-backup.tsx",
-      "backup*",
 
-      // old temporary files
+      // temporary files
       "**/*.old.*",
       "**/*.tmp.*",
+      "**/*.step1.*",
+      "**/*.before-*.*",
     ],
+  },
 
+  ...nextVitals,
+  ...nextTs,
+
+  {
     rules: {
 
-      // TypeScript practical rules
+      // allow practical TS usage
       "@typescript-eslint/no-explicit-any": "off",
 
-      // React 19 strict effect rule
+      // React rules
       "react-hooks/set-state-in-effect": "off",
-
-      // JSX apostrophe rule
       "react/no-unescaped-entities": "off",
 
       // warnings only
@@ -47,9 +55,10 @@ export default defineConfig([
         }
       ],
 
-      // Image optimization later
+      // image optimization later
       "@next/next/no-img-element": "warn",
 
     },
   },
+
 ]);

@@ -1,3 +1,4 @@
+import Image from "next/image";
 const projects = [
   {
     id: 1,
@@ -30,30 +31,44 @@ const projects = [
 
 export default function LatestProjects() {
   return (
-    <section className="bg-gray-50 py-16">
+    <section className="bg-gradient-to-b from-white via-blue-50 to-slate-50 py-24">
       <div className="mx-auto max-w-7xl px-6">
-        <h2 className="mb-10 text-3xl font-bold text-gray-900">
-          Latest Projects
-        </h2>
+        <div className="mb-12 text-center">
+
+          <p className="inline-block rounded-full bg-blue-100 px-5 py-2 text-sm font-black text-blue-700">
+            New Launches
+          </p>
+
+          <h2 className="mt-4 text-5xl font-black tracking-tight text-slate-900">
+            Latest Projects
+          </h2>
+
+          <p className="mt-4 text-slate-600">
+            Discover upcoming premium residential projects.
+          </p>
+
+        </div>
 
         <div className="grid gap-8 md:grid-cols-3">
           {projects.map((project) => (
             <div
               key={project.id}
-              className="overflow-hidden rounded-2xl bg-zinc-900 shadow-md transition hover:-translate-y-2 hover:shadow-xl"
+              className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl transition-all duration-300 hover:-translate-y-3 hover:shadow-2xl"
             >
-              <img
-                src={project.image}
-                alt={project.name}
-                className="h-56 w-full object-cover"
-              />
+              <Image
+src={project.image}
+alt={project.name}
+width={600}
+height={400}
+className="h-60 w-full object-cover transition duration-500 group-hover:scale-110"
+/>
 
-              <div className="p-6">
+              <div className="p-7">
                 <h3 className="text-xl font-bold">
                   {project.name}
                 </h3>
 
-                <p className="mt-2 text-white">
+                <p className="mt-3 text-slate-600">
                   📍 {project.location}
                 </p>
 
@@ -61,11 +76,11 @@ export default function LatestProjects() {
                   {project.price}
                 </p>
 
-                <p className="mt-2 text-sm text-white">
+                <p className="mt-3 text-sm text-slate-600">
                   Builder: {project.builder}
                 </p>
 
-                <button className="mt-5 w-full rounded-lg bg-blue-600 py-3 font-semibold text-white">
+                <button className="mt-6 w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3 font-black text-white shadow-lg transition hover:scale-[1.02]">
                   View Details
                 </button>
               </div>

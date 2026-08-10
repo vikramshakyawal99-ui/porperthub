@@ -114,15 +114,15 @@ export default function SiteVisitForm({
 
 return (
 
-<div className="mt-10 rounded-3xl bg-zinc-900 p-8 shadow-xl border">
+<div className="mt-12 rounded-3xl border border-slate-200 bg-white p-10 shadow-2xl">
 
 
-<h2 className="mb-2 text-3xl font-bold">
+<h2 className="mb-3 text-4xl font-black tracking-tight text-slate-900">
 📅 Book a Site Visit
 </h2>
 
 
-<p className="mb-8 text-gray-300">
+<p className="mb-8 text-lg text-slate-500">
 Fill the form and our property expert will contact you.
 </p>
 
@@ -138,7 +138,7 @@ placeholder="Your Name"
 value={name}
 onChange={(e)=>setName(e.target.value)}
 required
-className="w-full rounded-xl border p-4"
+className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white"
 />
 
 
@@ -148,7 +148,7 @@ placeholder="Mobile Number"
 value={phone}
 onChange={(e)=>setPhone(e.target.value)}
 required
-className="w-full rounded-xl border p-4"
+className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white"
 />
 
 
@@ -157,7 +157,7 @@ type="date"
 value={date}
 onChange={(e)=>setDate(e.target.value)}
 required
-className="w-full rounded-xl border p-4"
+className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white"
 />
 
 
@@ -165,7 +165,7 @@ className="w-full rounded-xl border p-4"
 value={time}
 onChange={(e)=>setTime(e.target.value)}
 required
-className="w-full rounded-xl border p-4"
+className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white"
 >
 
 <option value="">
@@ -192,14 +192,14 @@ Evening (4 PM - 7 PM)
 placeholder="Message (Optional)"
 value={message}
 onChange={(e)=>setMessage(e.target.value)}
-className="w-full rounded-xl border p-4"
+className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white"
 />
 
 
 
 <button
 disabled={loading}
-className="w-full rounded-xl bg-blue-600 py-4 font-bold text-white"
+className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-4 font-black text-white shadow-xl transition hover:scale-[1.02]"
 >
 
 {

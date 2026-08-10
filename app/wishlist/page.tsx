@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { properties } from "../../data/properties";
@@ -72,11 +74,13 @@ export default function WishlistPage() {
                   className="overflow-hidden rounded-3xl bg-zinc-900 shadow-lg"
                 >
 
-                  <img
-                    src={property.image}
-                    alt={property.title}
-                    className="h-60 w-full object-cover"
-                  />
+                  <Image
+src={property.image}
+alt={property.title}
+width={600}
+height={400}
+className="h-60 w-full object-cover"
+/>
 
                   <div className="p-6">
 

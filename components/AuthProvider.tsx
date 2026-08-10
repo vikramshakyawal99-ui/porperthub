@@ -87,36 +87,48 @@ firebaseUser.uid
 );
 
 
-const snap = await getDoc(userRef);
+const token = await firebaseUser.getIdTokenResult(true);
 
-
-
-if(snap.exists()){
-
-
-const userRole = snap.data().role;
-
+const claimRole = token.claims.role;
 
 console.log(
-"USER ROLE:",
-userRole
+"CLAIM ROLE:",
+claimRole
 );
 
 
+if(claimRole){
+
 setRole(
-userRole || "user"
+claimRole as string
 );
 
 
 }else{
 
 
-console.log(
-"USER DOCUMENT NOT FOUND"
+const userRef = doc(
+db,
+"users",
+firebaseUser.uid
 );
 
 
-setRole("user");
+const snap = await getDoc(userRef);
+
+
+if(snap.exists()){
+
+setRole(
+snap.data().role || null
+);
+
+
+}else{
+
+setRole(null);
+
+}
 
 
 }
@@ -133,7 +145,7 @@ error
 );
 
 
-setRole("user");
+setRole(null);
 
 
 }
@@ -165,7 +177,7 @@ error
 );
 
 
-setRole("user");
+setRole(null);
 
 
 }

@@ -1,141 +1,69 @@
-import { NextRequest, NextResponse } from "next/server";
-import { popularPlaces } from "@/data/popularPlaces";
+import { NextResponse } from "next/server";
+
+import { hospitals } from "@/data/hospitals";
+import { schools } from "@/data/schools";
+import { colleges } from "@/data/colleges";
+import { malls } from "@/data/malls";
+import { metro } from "@/data/metro";
+import { railway } from "@/data/railway";
+import { busStations } from "@/data/busStations";
 
 
 function distanceKm(
-  lat1:number,
-  lon1:number,
-  lat2:number,
-  lon2:number
+ lat1:number,
+ lng1:number,
+ lat2:number,
+ lng2:number
 ){
 
-const R = 6371;
+const R=6371;
 
 const dLat=(lat2-lat1)*Math.PI/180;
-const dLon=(lon2-lon1)*Math.PI/180;
+const dLng=(lng2-lng1)*Math.PI/180;
 
-const a =
-Math.sin(dLat/2)**2 +
-Math.cos(lat1*Math.PI/180) *
-Math.cos(lat2*Math.PI/180) *
-Math.sin(dLon/2)**2;
+const a=
+Math.sin(dLat/2)**2+
+Math.cos(lat1*Math.PI/180)*
+Math.cos(lat2*Math.PI/180)*
+Math.sin(dLng/2)**2;
 
-return Number((R * 2 * Math.atan2(Math.sqrt(a),Math.sqrt(1-a))).toFixed(2));
+return Number(
+(R*2*Math.atan2(
+Math.sqrt(a),
+Math.sqrt(1-a)
+)).toFixed(2)
+);
 
 }
 
 
 
-const transport = {
-
-
-railway:[
-
-{
-name:"Durgapura Railway Station",
-address:"Jaipur",
-lat:26.8508,
-lng:75.7869,
-priority:10
-},
-
-{
-name:"Gandhinagar Jaipur Railway Station",
-address:"Jaipur",
-lat:26.8648,
-lng:75.7875,
-priority:9
-},
-
-{
-name:"Jaipur Junction Railway Station",
-address:"Jaipur",
-lat:26.9196,
-lng:75.7878,
-priority:10
-}
-
-],
-
-
-metro:[
-
-{
-name:"Mansarovar Metro Station",
-address:"Jaipur Metro",
-lat:26.8855,
-lng:75.7515,
-priority:10
-},
-
-{
-name:"New Aatish Market Metro Station",
-address:"Jaipur Metro",
-lat:26.8787,
-lng:75.7527,
-priority:9
-},
-
-{
-name:"Civil Lines Metro Station",
-address:"Jaipur Metro",
-lat:26.9115,
-lng:75.7875,
-priority:8
-}
-
-],
-
-
-bus:[
-
-{
-name:"Sindhi Camp Bus Stand",
-address:"Jaipur",
-lat:26.9239,
-lng:75.7998,
-priority:10
-},
-
-{
-name:"Durgapura Bus Stand",
-address:"Jaipur",
-lat:26.8510,
-lng:75.7860,
-priority:9
-}
-
-]
-
-};
-
-
-
-function prepare(
-arr:any[],
+function nearest(
+list:any[],
 lat:number,
 lng:number
 ){
 
-return arr
-.map((p)=>({
-
-...p,
-distance:distanceKm(
-lat,
-lng,
-p.lat,
-p.lng
-)
-
+return list
+.map((p:any)=>({
+ ...p,
+ distance:distanceKm(
+  lat,
+  lng,
+  Number(p.lat),
+  Number(p.lng)
+ )
 }))
-.filter((p)=>p.distance<=10)
-.sort((a,b)=>{
+.filter((p:any)=>p.distance<=10)
+.sort((a:any,b:any)=>{
 
-if(b.priority!==a.priority)
-return b.priority-a.priority;
+const scoreA =
+(a.priority || 1) * 2 - a.distance;
 
-return a.distance-b.distance;
+const scoreB =
+(b.priority || 1) * 2 - b.distance;
+
+return scoreB - scoreA;
 
 })
 .slice(0,5);
@@ -144,144 +72,71 @@ return a.distance-b.distance;
 
 
 
-
-export async function GET(
-req:NextRequest
-){
+export async function GET(req:Request){
 
 try{
 
-
 const {searchParams}=new URL(req.url);
-
 
 const lat=Number(searchParams.get("lat"));
 const lng=Number(searchParams.get("lng"));
 
 
-if(!lat || !lng){
+return NextResponse.json({
 
-return NextResponse.json(
-{
-error:"Latitude longitude missing"
-},
-{
-status:400
-}
+hospital:nearest(
+ hospitals,
+ lat,
+ lng
+),
+
+school:nearest(
+ schools,
+ lat,
+ lng
+),
+
+college:nearest(
+ colleges,
+ lat,
+ lng
+),
+
+mall:nearest(
+ malls,
+ lat,
+ lng
+),
+
+metro:nearest(
+ metro,
+ lat,
+ lng
+),
+
+railway:nearest(
+ railway,
+ lat,
+ lng
+),
+
+bus:nearest(
+ busStations,
+ lat,
+ lng
 )
 
-}
-
-
-
-let all:any={
-
-hospital:[],
-school:[],
-college:[],
-mall:[],
-railway:[],
-metro:[],
-bus:[]
-
-};
-
-
-
-Object.values(popularPlaces).forEach((place:any)=>{
-
-
-if(place.hospitals)
-all.hospital.push(...place.hospitals);
-
-
-if(place.schools)
-all.school.push(...place.schools);
-
-
-if(place.colleges)
-all.college.push(...place.colleges);
-
-
-if(place.malls)
-all.mall.push(...place.malls);
-
-
-
 });
 
 
+}catch(e:any){
 
-all.railway=[
-...transport.railway
-];
-
-
-all.metro=[
-...transport.metro
-];
-
-
-all.bus=[
-...transport.bus
-];
-
-
-
-
-// duplicate remove
-
-for(const key of Object.keys(all)){
-
-
-const unique:any={};
-
-
-all[key]=all[key].filter((item:any)=>{
-
-const id=item.name.toLowerCase();
-
-if(unique[id])
-return false;
-
-unique[id]=true;
-
-return true;
-
-});
-
-
-all[key]=prepare(
-all[key],
-lat,
-lng
-);
-
-
-}
-
-
-
-return NextResponse.json(all);
-
-
-
-}
-catch(error){
-
-console.log(error);
-
-return NextResponse.json(
-{
-error:"Server error"
-},
-{
+return NextResponse.json({
+error:e.message
+},{
 status:500
-}
-)
-
+});
 
 }
-
 
 }

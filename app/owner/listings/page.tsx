@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -181,8 +183,11 @@ className="bg-zinc-900 rounded-2xl overflow-hidden shadow-xl"
 {
 property.image &&
 
-<img
+<Image
 src={property.image}
+alt={property.title || "Property"}
+width={600}
+height={400}
 className="w-full h-48 object-cover"
 />
 

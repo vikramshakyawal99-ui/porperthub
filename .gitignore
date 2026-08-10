@@ -52,3 +52,22 @@ serviceAccountKey.json
 
 # Local scripts
 test-firestore.js
+
+# Local backup files
+**/*-backup.tsx
+**/*-backup.ts
+**/*.backup.tsx
+**/*.backup.ts
+**/*.before-*.tsx
+**/*.old.tsx
+
+# Local/debug scripts and notes
+check-all-roles.js
+check-owner-claim.js
+check-user-role.js
+check-user.js
+list-users.js
+make-owner.js
+remove-owner-admin-claim.js
+nearby_diff.txt
+project-files.txt

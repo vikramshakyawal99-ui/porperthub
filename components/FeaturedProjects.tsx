@@ -1,74 +1,69 @@
+import Image from "next/image";
 import Link from "next/link";
 import { properties } from "../data/properties";
 
 export default function FeaturedProjects() {
+  const featuredProjects = properties.slice(0, 4);
+
   return (
-    <section className="bg-gray-50 py-20">
+    <section className="relative overflow-hidden bg-gradient-to-b from-[#17120d] via-[#21180d] to-[#120f0b] py-20">
       <div className="mx-auto max-w-7xl px-6">
 
-        <div className="mb-12 text-center">
-          <h2 className="text-5xl font-bold text-gray-900">
-            🌟 Featured Projects
+        <div className="mb-14 text-center">
+          <p className="mx-auto inline-block rounded-full border border-amber-400/20 bg-white/5 px-5 py-2 text-sm font-semibold tracking-wide text-amber-400 backdrop-blur-md">
+            Featured Projects
+          </p>
+
+          <h2 className="mt-5 text-5xl font-black tracking-tight text-white">
+            Featured Projects
           </h2>
 
-          <p className="mt-4 text-lg text-gray-300">
-            Handpicked premium properties for you
+          <p className="mx-auto mt-4 max-w-2xl text-slate-400">
+            Explore premium homes and thoughtfully designed spaces from trusted builders.
           </p>
         </div>
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-
-          {properties.map((property) => (
-
+          {featuredProjects.map((property) => (
             <Link
               key={property.id}
               href={`/properties/${property.id}`}
+              className="group"
             >
-              <div className="group overflow-hidden rounded-3xl bg-zinc-900 shadow-lg transition-all duration-300 hover:-translate-y-3 hover:shadow-2xl">
+              <div className="overflow-hidden rounded-3xl border border-amber-400/10 bg-white/5 shadow-xl backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:border-amber-400/30">
 
-                <div className="relative overflow-hidden">
-
-                  <img
+                <div className="relative h-64 overflow-hidden">
+                  <Image
                     src={property.image}
                     alt={property.title}
-                    className="h-60 w-full object-cover transition duration-500 group-hover:scale-110"
+                    fill
+                    className="object-cover transition duration-700 group-hover:scale-110"
                   />
 
-                  <span className="absolute left-4 top-4 rounded-full bg-red-500 px-4 py-1 text-sm font-bold text-white">
-                    New Launch
-                  </span>
-
-                  <span className="absolute right-4 top-4 rounded-full bg-zinc-900 px-3 py-1 font-bold shadow">
-                    ⭐ {property.rating}
-                  </span>
-
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 </div>
 
-                <div className="p-6">
-
-                  <h3 className="text-2xl font-bold">
+                <div className="p-5">
+                  <h3 className="text-xl font-bold text-white transition-colors group-hover:text-amber-400">
                     {property.title}
                   </h3>
 
-                  <p className="mt-3 text-gray-300">
+                  <p className="mt-2 text-sm text-slate-400">
                     📍 {property.location}
                   </p>
 
-                  <p className="mt-3 text-blue-700 text-2xl font-bold">
+                  <p className="mt-4 text-2xl font-black text-amber-400">
                     {property.price}
                   </p>
 
-                  <button className="mt-6 w-full rounded-xl bg-blue-600 py-3 font-bold text-white transition hover:bg-blue-700">
-                    View Project
-                  </button>
-
+                  <div className="mt-5 font-bold text-amber-400 transition-colors group-hover:text-amber-300">
+                    View Details →
+                  </div>
                 </div>
 
               </div>
             </Link>
-
           ))}
-
         </div>
 
       </div>

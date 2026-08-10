@@ -224,17 +224,21 @@ export default function ProfilePage() {
 
 
 
-            <Link
+            {!isOwner && (
 
-              href="/buyer/dashboard"
+              <Link
 
-              className="bg-purple-600 p-5 rounded-xl text-center"
+                href="/buyer/dashboard"
 
-            >
+                className="bg-purple-600 p-5 rounded-xl text-center"
 
-              👤 Buyer Dashboard
+              >
 
-            </Link>
+                👤 Buyer Dashboard
+
+              </Link>
+
+            )}
 
 
 
@@ -261,7 +265,7 @@ export default function ProfilePage() {
 
               <Link
 
-                href="/owner"
+                href="/owner/dashboard"
 
                 className="bg-green-600 p-5 rounded-xl text-center"
 

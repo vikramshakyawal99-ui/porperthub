@@ -20,7 +20,7 @@ export default function AdminLayout({
 
       if (!user) {
 
-        router.replace("/admin-login");
+        router.replace("/control-x9p-admin-8472");
 
       }
 

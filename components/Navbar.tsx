@@ -57,7 +57,28 @@ export default function Navbar() {
     return ()=>unsub();
 
 
-  },[user]);
+  },[user,role]);
+
+  const ownerRoles = [
+    "property_owner",
+    "hostel_owner",
+    "pg_owner",
+    "room_owner",
+    "resale_seller"
+  ];
+
+  function getDashboardLink(){
+    if(role==="admin"){
+      return "/admin";
+    }
+
+    if(role && ownerRoles.includes(role)){
+      return "/owner/dashboard";
+    }
+
+    return "/buyer/dashboard";
+  }
+
 
   async function handleLogout() {
     await signOut(auth);
@@ -65,13 +86,13 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-white/10 bg-zinc-950/80 backdrop-blur-xl shadow-lg">
+    <nav className="sticky top-0 z-50 border-b border-[#d4a855]/20 bg-[#17130f]/80 backdrop-blur-xl shadow-lg">
 
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
 
         <Link
           href="/"
-          className="text-3xl font-extrabold tracking-wide text-blue-400"
+          className="text-3xl font-extrabold tracking-wide text-[#d4a855]"
         >
           🏠 PropertyHub
         </Link>
@@ -79,22 +100,17 @@ export default function Navbar() {
 
         <button
           onClick={()=>setMenuOpen(!menuOpen)}
-          className="md:hidden rounded-lg bg-blue-600 px-3 py-2 text-white"
+          className="md:hidden rounded-lg bg-[#d4a855] px-3 py-2 text-white"
         >
           ☰
         </button>
 
 
-        <div className="hidden md:flex items-center gap-6 text-sm font-semibold text-gray-200">
+        <div className="hidden md:flex items-center gap-6 text-sm font-semibold text-[#eee5d8]">
 
 
           <Link href="/">
             Home
-          </Link>
-
-
-          <Link href="/properties">
-            Buy
           </Link>
 
 
@@ -112,51 +128,70 @@ export default function Navbar() {
 
             <div className="flex items-center gap-4">
 
-              <Link
-                href="/profile"
-                className="rounded-xl bg-cyan-600 px-4 py-2 text-white hover:bg-cyan-700"
-              >
-                👤 Profile
-              </Link>
+              <div className="relative group">
+
+                <button
+                  className="rounded-xl bg-[#d4a855] px-5 py-2 text-white hover:bg-[#e1b968]"
+                >
+                  👤 Profile
+                </button>
 
 
-              <Link
-                href="/buyer/dashboard"
-                className="rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-              >
-                👤 Dashboard
-              </Link>
+                <div className="absolute right-0 top-12 hidden w-56 rounded-2xl bg-white p-3 shadow-2xl group-hover:block">
 
 
-              <Link
-                href="/my-enquiries"
-                className="rounded-xl bg-purple-600 px-4 py-2 text-white hover:bg-purple-700"
-              >
-                📩 My Enquiries
-              </Link>
+                  <Link
+                    href="/profile"
+                    className="block rounded-xl px-4 py-3 text-[#2a241c] hover:bg-[#f3eadb]"
+                  >
+                    👤 My Profile
+                  </Link>
 
 
-              <Link
-                href="/notifications"
-                className="relative rounded-xl bg-yellow-600 px-4 py-2 text-white hover:bg-yellow-700"
-              >
-                🔔 Notifications
-
-                {unreadNotifications > 0 && (
-                  <span className="absolute -right-2 -top-2 rounded-full bg-red-600 px-2 py-1 text-xs font-bold">
-                    {unreadNotifications}
-                  </span>
-                )}
-
-              </Link>
+                  <Link
+                    href={getDashboardLink()}
+                    className="block rounded-xl px-4 py-3 text-[#2a241c] hover:bg-[#f3eadb]"
+                  >
+                    📊 Dashboard
+                  </Link>
 
 
-              <button
-                onClick={handleLogout}
-                className="rounded-xl bg-red-600 px-5 py-2 text-white hover:bg-red-700"
-              >
-                Logout
-              </button>
+                  <Link
+                    href="/my-enquiries"
+                    className="block rounded-xl px-4 py-3 text-[#2a241c] hover:bg-[#f3eadb]"
+                  >
+                    📩 My Enquiries
+                  </Link>
+
+
+                  <Link
+                    href="/notifications"
+                    className="block rounded-xl px-4 py-3 text-[#2a241c] hover:bg-[#f3eadb]"
+                  >
+                    🔔 Notifications
+                  </Link>
+
+
+                  <button
+                    onClick={handleLogout}
+                    className="mt-2 w-full rounded-xl bg-red-500 px-4 py-3 text-left font-bold text-white hover:bg-red-600"
+                  >
+                    🚪 Logout
+                  </button>
+
+
+                </div>
+
+              </div>
+
+
+
+
+
+
+
+
+
 
             </div>
 
@@ -165,16 +200,16 @@ export default function Navbar() {
             <>
 
               <Link
-                href="/login"
-                className="rounded-xl bg-blue-600 px-5 py-2 text-white"
+                href="/buyer-login"
+                className="rounded-xl bg-[#d4a855] px-5 py-2 text-white"
               >
                 Login
               </Link>
 
 
               <Link
-                href="/signup"
-                className="rounded-xl bg-green-600 px-5 py-2 text-white"
+                href="/buyer-login?signup=true"
+                className="rounded-xl bg-[#9b7a3c] px-5 py-2 text-white"
               >
                 Sign Up
               </Link>
@@ -189,16 +224,63 @@ export default function Navbar() {
 
 
         {menuOpen && (
-          <div className="absolute left-0 top-full w-full bg-zinc-950 border-t border-white/10 p-5 md:hidden">
+          <div className="absolute left-0 top-full w-full bg-[#17130f] border-t border-[#d4a855]/20 p-5 md:hidden">
 
-            <div className="flex flex-col gap-4 text-gray-200 font-semibold">
+            <div className="flex flex-col gap-4 text-[#eee5d8] font-semibold">
 
               <Link href="/" onClick={()=>setMenuOpen(false)}>
                 Home
               </Link>
 
-              <Link href="/properties" onClick={()=>setMenuOpen(false)}>
-                Buy
+              <div className="rounded-2xl bg-white/5 p-4">
+                <p className="mb-3 text-[#d4a855]">
+                  🏠 Buy Property
+                </p>
+
+                <div className="flex flex-col gap-3">
+
+                  <Link href="/properties?type=flat" onClick={()=>setMenuOpen(false)}>
+                    🏠 Flat
+                  </Link>
+
+                  <Link href="/properties?type=villa" onClick={()=>setMenuOpen(false)}>
+                    🏡 Villa
+                  </Link>
+
+                  <Link href="/properties?type=plot" onClick={()=>setMenuOpen(false)}>
+                    🌳 Plot
+                  </Link>
+
+                </div>
+              </div>
+
+
+              <div className="rounded-2xl bg-white/5 p-4">
+                <p className="mb-3 text-[#d4a855]">
+                  🔑 Rent
+                </p>
+
+                <div className="flex flex-col gap-3">
+
+                  <Link href="/properties?purpose=rent" onClick={()=>setMenuOpen(false)}>
+                    🏢 Flat Rent
+                  </Link>
+
+                  <Link href="/properties?type=room_rent" onClick={()=>setMenuOpen(false)}>
+                    🛏 Room
+                  </Link>
+
+                </div>
+              </div>
+
+
+              <Link href="/properties?type=pg" onClick={()=>setMenuOpen(false)}>
+                🛏 PG
+              </Link>
+
+
+              <Link href="/properties?type=hostel" onClick={()=>setMenuOpen(false)}>
+                🏫 Hostel
               </Link>
 
               <Link href="/favorites" onClick={()=>setMenuOpen(false)}>
@@ -218,7 +300,7 @@ export default function Navbar() {
                   </Link>
 
 
-                  <Link href="/buyer/dashboard" onClick={()=>setMenuOpen(false)}>
+                  <Link href={getDashboardLink()} onClick={()=>setMenuOpen(false)}>
                     👤 Dashboard
                   </Link>
 
@@ -238,7 +320,7 @@ export default function Navbar() {
                     role==="pg_owner" ||
                     role==="room_owner" ||
                     role==="resale_seller") && (
-                    <Link href="/owner" onClick={()=>setMenuOpen(false)}>
+                    <Link href="/owner/dashboard" onClick={()=>setMenuOpen(false)}>
                       🏢 Owner Dashboard
                     </Link>
                   )}
@@ -262,11 +344,11 @@ export default function Navbar() {
               ) : (
                 <>
 
-                  <Link href="/login" onClick={()=>setMenuOpen(false)}>
+                  <Link href="/buyer-login" onClick={()=>setMenuOpen(false)}>
                     Login
                   </Link>
 
-                  <Link href="/signup" onClick={()=>setMenuOpen(false)}>
+                  <Link href="/buyer-login?signup=true" onClick={()=>setMenuOpen(false)}>
                     Sign Up
                   </Link>
 

@@ -6,7 +6,21 @@
       "fields": [
         {
           "fieldPath": "ownerId",
-          "order": "ASCENDING"
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "buyerId",
+          "order": "DESCENDING"
         },
         {
           "fieldPath": "createdAt",
