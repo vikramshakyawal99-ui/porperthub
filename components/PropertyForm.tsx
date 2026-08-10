@@ -95,8 +95,8 @@ setRating,
 description,
 setDescription,
 
-images,
-setImages,
+images: _images,
+setImages:
 
 projectName,
 setProjectName,

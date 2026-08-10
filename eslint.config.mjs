@@ -28,6 +28,15 @@ export default defineConfig([
       "**/*.tmp.*",
       "**/*.step1.*",
       "**/*.before-*.*",
+
+  // local/debug scripts
+  "check-all-roles.js",
+  "check-owner-claim.js",
+  "check-user-role.js",
+  "check-user.js",
+  "list-users.js",
+  "make-owner.js",
+  "remove-owner-admin-claim.js",
     ],
   },
 

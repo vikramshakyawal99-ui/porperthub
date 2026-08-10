@@ -47,10 +47,6 @@ category==="hostel";
 
 
 
-const isRoom =
-category==="room" ||
-category==="room_rent";
-
 
 
 const isPlot =

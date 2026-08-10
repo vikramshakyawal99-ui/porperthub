@@ -19,7 +19,7 @@ type Props = {
 
 export default function SimilarProperties({
   currentId,
-  location,
+  location: _location,
   propertyType,
 }: Props) {
 

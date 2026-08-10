@@ -855,15 +855,6 @@ getLeadScore(b)-getLeadScore(a)
 );
 
 
-const todayFollowUpLeads =
-leads
-.filter((lead)=>
-lead.followUpDate===today
-)
-.sort((a,b)=>
-getLeadScore(b)-getLeadScore(a)
-);
-
 
 const overdueFollowUps =
 overdueFollowUpLeads.length;

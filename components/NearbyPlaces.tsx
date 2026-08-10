@@ -316,7 +316,7 @@ className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-slate-800 sh
 
 {filtered
 .slice(0,15)
-.map((p,i)=>( 
+.map((p)=>( 
 
 
 <div

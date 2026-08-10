@@ -80,12 +80,6 @@ if(firebaseUser){
 try{
 
 
-const userRef = doc(
-db,
-"users",
-firebaseUser.uid
-);
-
 
 const token = await firebaseUser.getIdTokenResult(true);
 
