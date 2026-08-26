@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import PropertyForm from "@/components/PropertyForm";
+import PropertyConfigurationsField, {
+  type PropertyConfiguration,
+} from "@/components/PropertyConfigurationsField";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { uploadToCloudinary } from "@/lib/cloudinary";
@@ -12,6 +15,9 @@ export default function AddPropertyPage() {
   const [featured,setFeatured]=useState(false);
   const [location,setLocation]=useState("");
   const [price,setPrice]=useState("");
+
+  const [configurations, setConfigurations] =
+    useState<PropertyConfiguration[]>([]);
 
   const [images,setImages]=useState<File[]>([]);
   const [loading,setLoading]=useState(false);
@@ -66,6 +72,37 @@ try{
 
 setLoading(true);
 
+const normalizedConfigurations = configurations
+  .filter(
+    (item) =>
+      item.bhk.trim() &&
+      item.priceMin.trim()
+  )
+  .map((item) => ({
+    bhk: Number(item.bhk),
+    areaMin: Number(item.areaMin) || 0,
+    areaMax:
+      Number(item.areaMax) ||
+      Number(item.areaMin) ||
+      0,
+    priceMin: Number(item.priceMin) || 0,
+    priceMax:
+      Number(item.priceMax) ||
+      Number(item.priceMin) ||
+      0,
+  }))
+  .filter(
+    (item) =>
+      item.bhk > 0 &&
+      item.priceMin > 0
+  )
+  .sort(
+    (first, second) =>
+      first.priceMin - second.priceMin
+  );
+
+const primaryConfiguration =
+  normalizedConfigurations[0];
 
 let imageUrls:string[] = [];
 
@@ -85,23 +122,31 @@ featured,
 
 location,
 
-price,
+price:
+primaryConfiguration
+  ? String(primaryConfiguration.priceMin)
+  : price,
 
+configurations:normalizedConfigurations,
 
 builder,
 
 builderContact,
 
 
-bedrooms,
+bedrooms:
+primaryConfiguration
+  ? primaryConfiguration.bhk
+  : bedrooms,
 
 bathrooms,
 
-
-area,
+area:
+primaryConfiguration
+  ? String(primaryConfiguration.areaMin)
+  : area,
 
 rating,
-
 
 description,
 
@@ -161,6 +206,7 @@ setFeatured(false);
 setLocation("");
 
 setPrice("");
+setConfigurations([]);
 
 setImages([]);
 
@@ -352,6 +398,14 @@ setSecurity24x7={setSecurity24x7}
 
 />
 
+
+
+
+
+<PropertyConfigurationsField
+  value={configurations}
+  onChange={setConfigurations}
+/>
 
 
 <button

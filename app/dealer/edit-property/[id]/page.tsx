@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../../../../lib/firebase";
+import PropertyConfigurationsField, {
+  type PropertyConfiguration,
+} from "@/components/PropertyConfigurationsField";
 
 export default function EditPropertyPage() {
   const params = useParams();
@@ -19,6 +22,10 @@ export default function EditPropertyPage() {
   const [price, setPrice] = useState("");
   const [type, setType] = useState("");
   const [description, setDescription] = useState("");
+  const [purpose, setPurpose] = useState("");
+
+  const [configurations, setConfigurations] =
+    useState<PropertyConfiguration[]>([]);
 
   useEffect(() => {
     async function loadProperty() {
@@ -51,6 +58,23 @@ export default function EditPropertyPage() {
         setPrice(String(data.price || ""));
         setType(data.propertyType || "");
         setDescription(data.description || "");
+        setPurpose(data.purpose || "");
+
+        setConfigurations(
+          Array.isArray(data.configurations)
+            ? data.configurations.map(
+                (item: any, index: number) => ({
+                  id: `saved-${index}-${Date.now()}`,
+                  bhk: String(item.bhk || ""),
+                  areaMin: String(item.areaMin || ""),
+                  areaMax: String(item.areaMax || ""),
+                  priceMin: String(item.priceMin || ""),
+                  priceMax: String(item.priceMax || ""),
+                })
+              )
+            : []
+        );
+
       } catch (err) {
         console.log(err);
         alert("Failed to load property");
@@ -70,8 +94,46 @@ export default function EditPropertyPage() {
       return;
     }
 
-    if (!title.trim() || !location.trim() || !price.trim()) {
-      alert("Title, location and price are required");
+    const normalizedConfigurations = configurations
+      .filter(
+        (item) =>
+          item.bhk.trim() &&
+          item.priceMin.trim()
+      )
+      .map((item) => ({
+        bhk: Number(item.bhk),
+        areaMin: Number(item.areaMin) || 0,
+        areaMax:
+          Number(item.areaMax) ||
+          Number(item.areaMin) ||
+          0,
+        priceMin: Number(item.priceMin) || 0,
+        priceMax:
+          Number(item.priceMax) ||
+          Number(item.priceMin) ||
+          0,
+      }))
+      .filter(
+        (item) =>
+          item.bhk > 0 &&
+          item.priceMin > 0
+      )
+      .sort(
+        (first, second) =>
+          first.priceMin - second.priceMin
+      );
+
+    const primaryConfiguration =
+      normalizedConfigurations[0];
+
+    if (
+      !title.trim() ||
+      !location.trim() ||
+      (!price.trim() && !primaryConfiguration)
+    ) {
+      alert(
+        "Title, location and price/configuration are required"
+      );
       return;
     }
 
@@ -97,7 +159,20 @@ export default function EditPropertyPage() {
       await updateDoc(propertyRef, {
         title: title.trim(),
         location: location.trim(),
-        price: price.trim(),
+        price:
+          primaryConfiguration
+            ? String(primaryConfiguration.priceMin)
+            : price.trim(),
+        bedrooms:
+          primaryConfiguration
+            ? String(primaryConfiguration.bhk)
+            : currentData.bedrooms || "",
+        area:
+          primaryConfiguration
+            ? String(primaryConfiguration.areaMin)
+            : currentData.area || "",
+        configurations:
+          normalizedConfigurations,
         propertyType: type,
         description: description.trim(),
         updatedAt: new Date(),
@@ -190,6 +265,18 @@ export default function EditPropertyPage() {
               className="w-full border rounded-lg p-3 mt-1"
             />
           </div>
+
+
+          {(purpose === "new" ||
+            configurations.length > 0) &&
+            ["flat", "villa", "house"].includes(
+              type
+            ) && (
+              <PropertyConfigurationsField
+                value={configurations}
+                onChange={setConfigurations}
+              />
+            )}
 
           <div className="flex gap-3 pt-3">
 

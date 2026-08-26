@@ -8,6 +8,9 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import PropertyForm from "@/components/PropertyForm";
+import PropertyConfigurationsField, {
+  type PropertyConfiguration,
+} from "@/components/PropertyConfigurationsField";
 
 export default function EditPropertyPage() {
 
@@ -37,6 +40,9 @@ export default function EditPropertyPage() {
   const [featured,setFeatured]=useState(false);
   const [location,setLocation]=useState("");
   const [price,setPrice]=useState("");
+
+  const [configurations, setConfigurations] =
+    useState<PropertyConfiguration[]>([]);
 
   const [builder,setBuilder]=useState("");
   const [builderContact,setBuilderContact]=useState("");
@@ -93,6 +99,22 @@ setFeatured(data.featured === true);
 setLocation(data.location || "");
 
 setPrice(data.price || "");
+
+setConfigurations(
+  Array.isArray(data.configurations)
+    ? data.configurations.map(
+        (item: any, index: number) => ({
+          id: `saved-${index}-${Date.now()}`,
+          bhk: String(item.bhk || ""),
+          areaMin: String(item.areaMin || ""),
+          areaMax: String(item.areaMax || ""),
+          priceMin: String(item.priceMin || ""),
+          priceMax: String(item.priceMax || ""),
+        })
+      )
+    : []
+);
+
 
 
 setBuilder(data.builder || "");
@@ -164,6 +186,38 @@ async function handleSubmit(e:React.FormEvent){
 e.preventDefault();
 
 
+const normalizedConfigurations = configurations
+  .filter(
+    (item) =>
+      item.bhk.trim() &&
+      item.priceMin.trim()
+  )
+  .map((item) => ({
+    bhk: Number(item.bhk),
+    areaMin: Number(item.areaMin) || 0,
+    areaMax:
+      Number(item.areaMax) ||
+      Number(item.areaMin) ||
+      0,
+    priceMin: Number(item.priceMin) || 0,
+    priceMax:
+      Number(item.priceMax) ||
+      Number(item.priceMin) ||
+      0,
+  }))
+  .filter(
+    (item) =>
+      item.bhk > 0 &&
+      item.priceMin > 0
+  )
+  .sort(
+    (first, second) =>
+      first.priceMin - second.priceMin
+  );
+
+const primaryConfiguration =
+  normalizedConfigurations[0];
+
 const uploadedImages=[...images];
 
 if(newImages.length){
@@ -184,8 +238,12 @@ featured,
 
 location,
 
-price,
+price:
+primaryConfiguration
+  ? String(primaryConfiguration.priceMin)
+  : price,
 
+configurations:normalizedConfigurations,
 
 builder,
 
@@ -220,12 +278,17 @@ cleaning,
 security24x7,
 
 
-bedrooms,
+bedrooms:
+primaryConfiguration
+  ? primaryConfiguration.bhk
+  : bedrooms,
 
 bathrooms,
 
-
-area,
+area:
+primaryConfiguration
+  ? String(primaryConfiguration.areaMin)
+  : area,
 
 rating,
 
@@ -465,6 +528,19 @@ setImages={setNewImages}
 />
 
 
+
+
+
+
+{purpose === "new" &&
+  ["flat", "villa", "house"].includes(
+    propertyType
+  ) && (
+    <PropertyConfigurationsField
+      value={configurations}
+      onChange={setConfigurations}
+    />
+  )}
 
 
 <button

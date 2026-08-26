@@ -9,6 +9,9 @@ import { uploadToCloudinary } from "@/lib/cloudinary";
 import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
 import LocationPicker from "@/components/LocationPicker";
+import PropertyConfigurationsField, {
+  type PropertyConfiguration,
+} from "@/components/PropertyConfigurationsField";
 
 
 export default function AddPropertyPage(){
@@ -23,6 +26,9 @@ const [loading,setLoading]=useState(false);
 const [images,setImages]=useState<File[]>([]);
 
 const [previewImages,setPreviewImages]=useState<string[]>([]);
+
+const [configurations, setConfigurations] =
+  useState<PropertyConfiguration[]>([]);
 
 
 const [locationData,setLocationData]=useState({
@@ -121,6 +127,37 @@ setLoading(true);
 
 try{
 
+const normalizedConfigurations = configurations
+  .filter(
+    (item) =>
+      item.bhk.trim() &&
+      item.priceMin.trim()
+  )
+  .map((item) => ({
+    bhk: Number(item.bhk),
+    areaMin: Number(item.areaMin) || 0,
+    areaMax:
+      Number(item.areaMax) ||
+      Number(item.areaMin) ||
+      0,
+    priceMin: Number(item.priceMin) || 0,
+    priceMax:
+      Number(item.priceMax) ||
+      Number(item.priceMin) ||
+      0,
+  }))
+  .filter(
+    (item) =>
+      item.bhk > 0 &&
+      item.priceMin > 0
+  )
+  .sort(
+    (first, second) =>
+      first.priceMin - second.priceMin
+  );
+
+const primaryConfiguration =
+  normalizedConfigurations[0];
 
 let imageUrl="";
 
@@ -146,6 +183,23 @@ collection(db,"properties"),
 {
 
 ...form,
+
+price:
+  primaryConfiguration
+    ? String(primaryConfiguration.priceMin)
+    : form.price,
+
+bedrooms:
+  primaryConfiguration
+    ? String(primaryConfiguration.bhk)
+    : form.bedrooms,
+
+area:
+  primaryConfiguration
+    ? String(primaryConfiguration.areaMin)
+    : form.area,
+
+configurations:normalizedConfigurations,
 
 image:imageUrl,
 
@@ -205,6 +259,19 @@ return (
 
 
 <form onSubmit={handleSubmit} className="space-y-4">
+
+
+{form.purpose === "new" &&
+  ["flat", "villa", "house"].includes(
+    form.propertyType
+  ) && (
+    <PropertyConfigurationsField
+      value={configurations}
+      onChange={setConfigurations}
+    />
+  )}
+
+
 
 
 <input

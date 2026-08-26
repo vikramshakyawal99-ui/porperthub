@@ -8,6 +8,7 @@ import EMICalculator from "../../../components/EMICalculator";
 import ImageGallery from "../../../components/ImageGallery";
 import Amenities from "../../../components/Amenities";
 import PropertyAreaInsights from "../../../components/PropertyAreaInsights";
+import PropertyConfigurations from "../../../components/PropertyConfigurations";
 import PropertyHomeLoanPanel from "../../../components/PropertyHomeLoanPanel";
 
 
@@ -353,6 +354,20 @@ const isPurchaseProperty =
                   )}
                 />
               )}
+
+              {isPurchaseProperty &&
+                String(
+                  property.propertyType || ""
+                ).toLowerCase() !== "plot" && (
+                  <PropertyConfigurations
+                    configurations={
+                      property.configurations
+                    }
+                    propertyType={
+                      property.propertyType
+                    }
+                  />
+                )}
 
               <hr className="my-10" />
 
