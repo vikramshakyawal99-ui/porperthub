@@ -3,8 +3,32 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "./AuthProvider";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
+type HomepageAd = {
+  id: string;
+  sponsorName: string;
+  title: string;
+  subtitle: string;
+  startingPrice: string;
+  desktopImage: string;
+  mobileImage: string;
+  ctaLabel: string;
+  targetUrl: string;
+  placement: "website" | "app" | "both";
+  startDate: string;
+  endDate: string;
+  priority: number;
+  active: boolean;
+};
 
 const tabs = [
   { label: "Buy", icon: "⌂" },
@@ -28,6 +52,84 @@ export default function Hero() {
   const [location, setLocation] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [budget, setBudget] = useState("");
+  const [activeAd, setActiveAd] =
+    useState<HomepageAd | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadSponsoredAd() {
+      try {
+        const snapshot = await getDocs(
+          query(
+            collection(db, "homepageAds"),
+            where("active", "==", true)
+          )
+        );
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const campaigns = snapshot.docs
+          .map((document) => ({
+            id: document.id,
+            ...document.data(),
+          })) as HomepageAd[];
+
+        const eligibleCampaigns = campaigns
+          .filter((campaign) => {
+            const placementMatch =
+              campaign.placement === "website" ||
+              campaign.placement === "both";
+
+            const startDate = campaign.startDate
+              ? new Date(`${campaign.startDate}T00:00:00`)
+              : null;
+
+            const endDate = campaign.endDate
+              ? new Date(`${campaign.endDate}T23:59:59`)
+              : null;
+
+            const started =
+              !startDate || startDate <= today;
+
+            const notExpired =
+              !endDate || endDate >= today;
+
+            return (
+              placementMatch &&
+              started &&
+              notExpired &&
+              Boolean(campaign.desktopImage)
+            );
+          })
+          .sort(
+            (first, second) =>
+              Number(second.priority || 0) -
+              Number(first.priority || 0)
+          );
+
+        if (mounted) {
+          setActiveAd(eligibleCampaigns[0] || null);
+        }
+      } catch (error) {
+        console.error(
+          "SPONSORED AD LOAD ERROR:",
+          error
+        );
+
+        if (mounted) {
+          setActiveAd(null);
+        }
+      }
+    }
+
+    loadSponsoredAd();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   function getPostPropertyLink() {
     if (!user) {
@@ -89,19 +191,94 @@ export default function Hero() {
     <section className="bg-[#fbfaf8] px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
       <div className="mx-auto max-w-7xl overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
         <div className="relative min-h-[620px] overflow-hidden bg-[#fbfaf8]">
-          <Image
-            src="/hero-integrated.png"
-            alt="Premium modern home"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-center"
+          {activeAd ? (
+            <picture>
+              {activeAd.mobileImage && (
+                <source
+                  media="(max-width: 639px)"
+                  srcSet={activeAd.mobileImage}
+                />
+              )}
+
+              <img
+                src={activeAd.desktopImage}
+                alt={activeAd.title || "Sponsored project"}
+                className="absolute inset-0 h-full w-full object-cover object-center"
+              />
+            </picture>
+          ) : (
+            <Image
+              src="/hero-integrated.png"
+              alt="Premium modern home"
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+          )}
+
+          <div
+            className={`absolute inset-0 ${
+              activeAd
+                ? "bg-gradient-to-r from-slate-950/90 via-slate-950/60 via-55% to-slate-950/10"
+                : "bg-gradient-to-r from-[#fbfaf8] via-[#fbfaf8]/95 via-45% to-transparent"
+            }`}
           />
 
-          <div className="absolute inset-0 bg-gradient-to-r from-[#fbfaf8] via-[#fbfaf8]/95 via-45% to-transparent" />
-
           <div className="relative z-10 flex min-h-[620px] max-w-[650px] flex-col justify-center p-7 sm:p-10 lg:p-14">
-            <div className="inline-flex w-fit items-center gap-2 rounded-full bg-green-50 px-3 py-2 text-xs font-bold text-green-700">
+            {activeAd ? (
+              <>
+                <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-black/30 px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-white backdrop-blur">
+                  Sponsored
+                </div>
+
+                <p className="mt-5 text-xs font-black uppercase tracking-[0.18em] text-green-300">
+                  {activeAd.sponsorName}
+                </p>
+
+                <h1 className="mt-3 max-w-xl text-4xl font-black leading-[1.05] tracking-[-0.04em] text-white sm:text-5xl lg:text-[58px]">
+                  {activeAd.title}
+                </h1>
+
+                {activeAd.subtitle && (
+                  <p className="mt-5 max-w-lg text-base leading-7 text-slate-200">
+                    {activeAd.subtitle}
+                  </p>
+                )}
+
+                {activeAd.startingPrice && (
+                  <p className="mt-4 text-lg font-black text-green-300 sm:text-xl">
+                    Starting Price: {activeAd.startingPrice}
+                  </p>
+                )}
+
+                {activeAd.targetUrl && (
+                  <a
+                    href={activeAd.targetUrl}
+                    target={
+                      activeAd.targetUrl.startsWith("http")
+                        ? "_blank"
+                        : undefined
+                    }
+                    rel={
+                      activeAd.targetUrl.startsWith("http")
+                        ? "noopener noreferrer sponsored"
+                        : undefined
+                    }
+                    className="mt-7 inline-flex min-h-14 w-fit items-center justify-center gap-3 rounded-xl bg-green-600 px-7 text-sm font-black text-white shadow-[0_12px_28px_rgba(22,163,74,0.35)] transition hover:-translate-y-0.5 hover:bg-green-700"
+                  >
+                    {activeAd.ctaLabel || "Explore Project"}
+                    <span>→</span>
+                  </a>
+                )}
+
+                <p className="mt-5 text-[10px] font-semibold uppercase tracking-wider text-white/60">
+                  Advertisement · PropertyHub
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="inline-flex w-fit items-center gap-2 rounded-full bg-green-50 px-3 py-2 text-xs font-bold text-green-700">
               <span>⌂</span>
               Find. Compare. Own.
             </div>
@@ -194,6 +371,8 @@ export default function Hero() {
                 )
               )}
             </div>
+              </>
+            )}
           </div>
 
         </div>
