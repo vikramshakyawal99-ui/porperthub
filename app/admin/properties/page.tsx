@@ -8,9 +8,6 @@ import {
   getDocs,
   deleteDoc,
   doc,
-  updateDoc,
-  addDoc,
-  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -61,98 +58,14 @@ export default function ManageProperties() {
     loadProperties();
   }
 
-  async function updatePropertyStatus(
-    id: string,
-    status: "approved" | "rejected"
-  ) {
-    try {
-
-      console.log("🚀 Updating status", id, status);
-
-      const property = properties.find(
-        (item) => item.id === id
-      );
-
-      if (!property) {
-        console.log("❌ Property not found");
-        return;
-      }
-
-
-      // ⚡ Instant UI update
-      setProperties((prev) =>
-        prev.map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                status,
-              }
-            : item
-        )
-      );
-
-
-      // Firestore update
-      await updateDoc(
-        doc(db, "properties", id),
-        {
-          status,
-        }
-      );
-
-
-      // Create notification
-      if (property.ownerId) {
-
-        await addDoc(
-          collection(db, "notifications"),
-          {
-            ownerId: property.ownerId,
-
-            title:
-              status === "approved"
-                ? "Property Approved ✅"
-                : "Property Rejected ❌",
-
-            message:
-              status === "approved"
-                ? "Your property has been approved by admin."
-                : "Your property has been rejected by admin.",
-
-            propertyTitle: property.title || "",
-
-            read: false,
-
-            createdAt: serverTimestamp(),
-          }
-        );
-
-      }
-
-
-      console.log("✅ Status updated");
-
-    } catch(error) {
-
-      console.error(
-        "❌ UPDATE STATUS ERROR:",
-        error
-      );
-
-      loadProperties();
-
-    }
-  }
-
-
   useEffect(() => {
     loadProperties();
   }, []);
 
   return (
-    <main className="min-h-screen bg-zinc-950 p-10">
+    <main className="min-h-screen bg-slate-50 p-10">
       <div className="mx-auto max-w-7xl">
-        <h1 className="mb-8 text-4xl font-bold text-white">
+        <h1 className="mb-8 text-4xl font-bold text-slate-900">
           Manage Properties
         </h1>
 
@@ -162,7 +75,7 @@ export default function ManageProperties() {
 
             <div
               key={property.id}
-              className="rounded-2xl bg-zinc-900 p-5 shadow"
+              className="rounded-2xl bg-white p-5 shadow"
             >
 
               <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
@@ -181,7 +94,7 @@ export default function ManageProperties() {
 
                   <div>
 
-                    <h2 className="text-2xl font-bold text-white">
+                    <h2 className="text-2xl font-bold text-slate-900">
                       {property.title}
                     </h2>
 
@@ -189,7 +102,7 @@ export default function ManageProperties() {
                       📍 {property.location}
                     </p>
 
-                    <p className="mt-1 font-semibold text-blue-400">
+                    <p className="mt-1 font-semibold text-[#93C5FD]">
                       ₹ {
                         (
                           property.propertyType==="rent" ||
@@ -256,15 +169,15 @@ export default function ManageProperties() {
                     <div className="mt-3">
 
                       {property.status === "approved" ? (
-                        <span className="rounded bg-green-600 px-3 py-1 text-white">
+                        <span className="rounded bg-green-600 px-3 py-1 text-slate-900">
                           ✅ Approved
                         </span>
                       ) : property.status === "rejected" ? (
-                        <span className="rounded bg-red-600 px-3 py-1 text-white">
+                        <span className="rounded bg-red-600 px-3 py-1 text-slate-900">
                           ❌ Rejected
                         </span>
                       ) : (
-                        <span className="rounded bg-yellow-500 px-3 py-1 text-black">
+                        <span className="rounded bg-green-600 px-3 py-1 text-slate-900">
                           ⏳ Pending
                         </span>
                       )}
@@ -277,34 +190,16 @@ export default function ManageProperties() {
 
                 <div className="flex flex-wrap gap-3">
 
-                  <button
-                    onClick={() =>
-                      updatePropertyStatus(property.id, "approved")
-                    }
-                    className="rounded-lg bg-green-600 px-4 py-2 text-white"
-                  >
-                    Approve
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      updatePropertyStatus(property.id, "rejected")
-                    }
-                    className="rounded-lg bg-yellow-600 px-4 py-2 text-white"
-                  >
-                    Reject
-                  </button>
-
                   <Link
                     href={`/admin/edit-property/${property.id}`}
-                    className="rounded-lg bg-blue-600 px-4 py-2 text-white"
+                    className="rounded-lg bg-green-600 px-4 py-2 text-slate-900"
                   >
                     Edit
                   </Link>
 
                   <button
                     onClick={() => removeProperty(property.id)}
-                    className="rounded-lg bg-red-600 px-4 py-2 text-white"
+                    className="rounded-lg bg-red-600 px-4 py-2 text-slate-900"
                   >
                     Delete
                   </button>

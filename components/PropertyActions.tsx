@@ -308,7 +308,7 @@ export default function PropertyActions({
               placeholder="Your Name"
               value={name}
               onChange={(e)=>setName(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
+              className="w-full rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-[#60A5FA]"
             />
 
 
@@ -316,7 +316,7 @@ export default function PropertyActions({
               placeholder="Mobile Number"
               value={phone}
               onChange={(e)=>setPhone(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
+              className="w-full rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-[#60A5FA]"
             />
 
 
@@ -324,14 +324,14 @@ export default function PropertyActions({
               placeholder="Email (optional)"
               value={email}
               onChange={(e)=>setEmail(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-blue-500"
+              className="w-full rounded-xl border border-slate-200 bg-white p-3 text-slate-900 outline-none focus:border-[#60A5FA]"
             />
 
 
             <button
               onClick={submitLead}
               disabled={loading}
-              className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white shadow-md transition hover:bg-blue-700"
+              className="rounded-xl bg-[#60A5FA] px-6 py-3 font-semibold text-white shadow-md transition hover:bg-[#3B82F6]"
             >
 
               {

@@ -135,7 +135,7 @@ key={item}
 
 onClick={()=>setFilter(item)}
 
-className="px-5 py-2 rounded-xl bg-blue-600"
+className="px-5 py-2 rounded-xl bg-[#60A5FA]"
 
 >
 
@@ -287,7 +287,7 @@ property.status==="rejected" ?
 
 :
 
-<span className="bg-yellow-500 text-black px-3 py-1 rounded-full">
+<span className="bg-[#d4a855] text-black px-3 py-1 rounded-full">
 ⏳ Pending
 </span>
 
@@ -303,7 +303,7 @@ property.status==="rejected" ?
 
 onClick={()=>router.push(`/owner/edit-property/${property.id}`)}
 
-className="mt-5 mr-3 bg-blue-600 px-5 py-2 rounded-xl"
+className="mt-5 mr-3 bg-[#60A5FA] px-5 py-2 rounded-xl"
 
 >
 

@@ -39,7 +39,7 @@ export default function WishlistPage() {
     <>
       <Navbar />
 
-      <main className="min-h-screen bg-zinc-950 py-10">
+      <main className="min-h-screen bg-slate-50 py-10">
         <div className="mx-auto max-w-7xl px-6">
 
           <h1 className="mb-8 text-4xl font-bold text-gray-900">
@@ -47,7 +47,7 @@ export default function WishlistPage() {
           </h1>
 
           {wishlistProperties.length === 0 ? (
-            <div className="rounded-3xl bg-zinc-900 p-10 text-center shadow">
+            <div className="rounded-3xl bg-white p-10 text-center shadow">
               <h2 className="text-3xl font-bold">
                 Wishlist Empty
               </h2>
@@ -58,7 +58,7 @@ export default function WishlistPage() {
 
               <Link
                 href="/"
-                className="mt-6 inline-block rounded-xl bg-blue-600 px-6 py-3 font-bold text-white"
+                className="mt-6 inline-block rounded-xl bg-green-600 px-6 py-3 font-bold text-slate-900"
               >
                 Explore Properties
               </Link>
@@ -71,7 +71,7 @@ export default function WishlistPage() {
 
                 <div
                   key={property.id}
-                  className="overflow-hidden rounded-3xl bg-zinc-900 shadow-lg"
+                  className="overflow-hidden rounded-3xl bg-white shadow-lg"
                 >
 
                   <Image
@@ -92,7 +92,7 @@ className="h-60 w-full object-cover"
                       📍 {property.location}
                     </p>
 
-                    <p className="mt-3 text-2xl font-bold text-blue-600">
+                    <p className="mt-3 text-2xl font-bold text-[#60A5FA]">
                       {property.price}
                     </p>
 
@@ -101,7 +101,7 @@ className="h-60 w-full object-cover"
 
                       <Link
                         href={`/properties/${property.id}`}
-                        className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white"
+                        className="rounded-xl bg-green-600 px-5 py-3 font-semibold text-slate-900"
                       >
                         View
                       </Link>

@@ -30,7 +30,7 @@ export default function PropertyHeader({
         </div>
       </div>
 
-      <div className="rounded-2xl bg-blue-600 px-8 py-5 text-center text-white shadow-lg">
+      <div className="rounded-2xl bg-[#60A5FA] px-8 py-5 text-center text-white shadow-lg">
         <p className="text-sm uppercase tracking-wide">
           Price
         </p>

@@ -22,6 +22,7 @@ export default function AdminDashboard() {
 
   const [leadCount, setLeadCount] = useState(0);
   const [visitCount, setVisitCount] = useState(0);
+  const [loanApplicationCount, setLoanApplicationCount] = useState(0);
   const [followUpCount, setFollowUpCount] = useState(0);
   const [pendingLeadCount, setPendingLeadCount] = useState(0);
   const [conversionRate, setConversionRate] = useState(0);
@@ -47,6 +48,9 @@ export default function AdminDashboard() {
 
       const leadsSnap = await getDocs(collection(db, "leads"));
       const visitsSnap = await getDocs(collection(db, "siteVisits"));
+      const loanApplicationsSnap = await getDocs(
+        collection(db, "loanApplications")
+      );
 
       const leadData = leadsSnap.docs.map(doc => ({
         id: doc.id,
@@ -86,6 +90,7 @@ export default function AdminDashboard() {
 
       setLeadCount(leadData.length);
       setVisitCount(visitData.length);
+      setLoanApplicationCount(loanApplicationsSnap.size);
 
       const followUps = leadData.filter(
         (lead:any)=> lead.followUpDate
@@ -140,125 +145,126 @@ export default function AdminDashboard() {
 
   return (
   <>
+    <div className="flex justify-end border-b border-green-100 bg-white px-8 py-4">
+      <button
+        onClick={async () => {
+          await signOut(auth);
+          window.location.href = "/control-x9p-admin-8472";
+        }}
+        className="rounded-lg bg-red-600 px-4 py-2 text-slate-900 hover:bg-red-700"
+      >
+        Logout
+      </button>
+    </div>
 
-<div className="flex justify-end bg-zinc-950 p-4">
-  <button
-    onClick={async()=>{
-      await signOut(auth);
-      window.location.href="/control-x9p-admin-8472";
-    }}
-    className="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
-  >
-    Logout
-  </button>
-</div>
-    <main className="min-h-screen bg-zinc-950 p-8">
+    <main className="min-h-screen bg-slate-50 p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
 
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-950">
               🏢 Admin Dashboard
             </h1>
 
             <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
 
-              <div className="rounded-2xl bg-zinc-900 p-5 shadow">
-                <h3 className="text-gray-400">
-                  Properties
-                </h3>
-                <p className="text-3xl font-bold">
+              <Link
+                href="/admin/properties"
+                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-green-200 hover:shadow-[0_12px_30px_rgba(22,163,74,0.10)]"
+              >
+                <h3 className="text-slate-500">Properties</h3>
+                <p className="text-3xl font-bold text-slate-950">
                   {properties.length}
                 </p>
-              </div>
+              </Link>
 
-              <div className="rounded-2xl bg-zinc-900 p-5 shadow">
-                <h3 className="text-gray-400">
-                  Builders
-                </h3>
-                <p className="text-3xl font-bold">
-                  {new Set(properties.map((p:any)=>p.builder)).size}
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+                <h3 className="text-slate-500">Builders</h3>
+                <p className="text-3xl font-bold text-slate-950">
+                  {new Set(properties.map((p: any) => p.builder)).size}
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-zinc-900 p-5 shadow">
-                <h3 className="text-gray-400">
-                  Locations
-                </h3>
-                <p className="text-3xl font-bold">
-                  {new Set(properties.map((p:any)=>p.location)).size}
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+                <h3 className="text-slate-500">Locations</h3>
+                <p className="text-3xl font-bold text-slate-950">
+                  {new Set(properties.map((p: any) => p.location)).size}
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-zinc-900 p-5 shadow">
-                <h3 className="text-gray-400">
-                  Types
-                </h3>
-                <p className="text-3xl font-bold">
-                  {new Set(properties.map((p:any)=>p.propertyType)).size}
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+                <h3 className="text-slate-500">Types</h3>
+                <p className="text-3xl font-bold text-slate-950">
+                  {new Set(properties.map((p: any) => p.propertyType)).size}
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-zinc-900 p-5 shadow">
-                <h3 className="text-gray-400">
-                  Leads
-                </h3>
-                <p className="text-3xl font-bold text-green-600">
+              <Link
+                href="/admin/leads"
+                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-green-200 hover:shadow-[0_12px_30px_rgba(22,163,74,0.10)]"
+              >
+                <h3 className="text-slate-500">Leads</h3>
+                <p className="text-3xl font-bold text-green-700">
                   {leadCount}
                 </p>
-              </div>
+              </Link>
 
-              <div className="rounded-2xl bg-zinc-900 p-5 shadow">
-                <h3 className="text-gray-400">
-                  Site Visits
-                </h3>
-                <p className="text-3xl font-bold text-purple-600">
+              <Link
+                href="/admin/site-visits"
+                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-green-200 hover:shadow-[0_12px_30px_rgba(22,163,74,0.10)]"
+              >
+                <h3 className="text-slate-500">Site Visits</h3>
+                <p className="text-3xl font-bold text-green-700">
                   {visitCount}
                 </p>
-              </div>
+              </Link>
 
-
-              <div className="rounded-2xl bg-zinc-900 p-5 shadow">
-                <h3 className="text-gray-400">
-                  Follow Ups
+              <Link
+                href="/admin/loan-applications"
+                className="rounded-2xl border border-green-100 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-green-300 hover:shadow-[0_12px_30px_rgba(22,163,74,0.10)]"
+              >
+                <h3 className="text-slate-500">
+                  🏦 Home Loans
                 </h3>
-                <p className="text-3xl font-bold text-orange-600">
+                <p className="text-3xl font-bold text-green-700">
+                  {loanApplicationCount}
+                </p>
+                <p className="mt-1 text-xs text-slate-400">
+                  Loan Applications
+                </p>
+              </Link>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+                <h3 className="text-slate-500">Follow Ups</h3>
+                <p className="text-3xl font-bold text-green-700">
                   {followUpCount}
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-zinc-900 p-5 shadow">
-                <h3 className="text-gray-400">
-                  Pending Leads
-                </h3>
-                <p className="text-3xl font-bold text-red-600">
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+                <h3 className="text-slate-500">Pending Leads</h3>
+                <p className="text-3xl font-bold text-green-700">
                   {pendingLeadCount}
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-zinc-900 p-5 shadow">
-                <h3 className="text-gray-400">
-                  Conversion Rate
-                </h3>
-                <p className="text-3xl font-bold text-green-600">
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+                <h3 className="text-slate-500">Conversion Rate</h3>
+                <p className="text-3xl font-bold text-green-700">
                   {conversionRate}%
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-zinc-900 p-5 shadow">
-                <h3 className="text-gray-400">
-                  Property Views
-                </h3>
-                <p className="text-3xl font-bold text-indigo-600">
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+                <h3 className="text-slate-500">Property Views</h3>
+                <p className="text-3xl font-bold text-green-700">
                   {viewCount}
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-zinc-900 p-5 shadow">
-                <h3 className="text-gray-400">
-                  Most Viewed
-                </h3>
-                <p className="mt-2 font-bold text-blue-600">
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+                <h3 className="text-slate-500">Most Viewed</h3>
+                <p className="mt-2 font-bold text-green-700">
                   {mostViewedProperty}
                 </p>
               </div>
@@ -268,132 +274,30 @@ export default function AdminDashboard() {
 
           <Link
             href="/admin/add-property"
-            className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
+            className="rounded-xl bg-green-600 px-6 py-3 font-semibold text-slate-900 shadow-sm transition hover:bg-green-700 hover:shadow-md"
           >
             + Add Property
           </Link>
         </div>
 
         {loading ? (
-          <div className="rounded-2xl bg-zinc-900 p-10 text-center shadow">
-            Loading...
+          <div className="rounded-2xl border border-green-100 bg-white p-10 text-center text-slate-600 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+            Loading properties...
           </div>
         ) : (
-          <div className="mb-8 rounded-2xl bg-zinc-900 p-6 shadow">
-            <h2 className="mb-5 text-2xl font-bold">
-              🏠 Recent Added Properties
+          <div className="rounded-2xl border border-green-100 bg-white p-6 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+            <h2 className="text-xl font-bold text-slate-950">
+              Dashboard Overview
             </h2>
-<div className="grid gap-4 md:grid-cols-5">
-              {properties.slice(0, 5).map((property) => (
-                <div
-                  key={property.id}
-                  className="rounded-xl border p-3"
-                >
-                  {property.image && (
-                    <Image
-                      src={property.image}
-                      alt={property.title || "Property"}
-                      width={300}
-                      height={128}
-                      className="h-32 w-full rounded-lg object-cover"
-                    />
-                  )}
-
-                  <h3 className="mt-3 font-bold">
-                    {property.title}
-                  </h3>
-
-                  <p className="text-sm text-gray-300">
-                    {property.location}
-                  </p>
-
-                  <p className="font-semibold text-blue-600">
-                    {property.price}
-                  </p>
-
-                  <div className="mt-3 flex gap-2">
-                    <Link
-                      href={`/admin/edit-property/${property.id}`}
-                      className="rounded bg-blue-600 px-3 py-1 text-sm text-white"
-                    >
-                      Edit
-                    </Link>
-
-                    <button
-                      onClick={() => handleDelete(property.id)}
-                      className="rounded bg-red-600 px-3 py-1 text-sm text-white"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <p className="mt-2 text-slate-500">
+              Manage properties, leads and site visits from the dashboard.
+            </p>
           </div>
-
-
         )}
-
-        <div className="mt-8 grid gap-6 lg:grid-cols-2">
-
-          <div className="rounded-2xl bg-zinc-900 p-6 shadow">
-            <h2 className="mb-4 text-2xl font-bold">👥 Recent Leads</h2>
-
-            {recentLeads.length === 0 ? (
-              <p className="text-gray-400">No Leads Found</p>
-            ) : (
-              <div className="space-y-3">
-                {recentLeads.map((lead:any) => (
-                  <div
-                    key={lead.id}
-                    className="flex items-center justify-between rounded-lg border p-3"
-                  >
-                    <div>
-                      <h3 className="font-semibold">{lead.name || "No Name"}</h3>
-                      <p className="text-sm text-gray-300">{lead.phone}</p>
-                    </div>
-
-                    <span className="rounded-full bg-yellow-100 px-3 py-1 text-sm">
-                      {lead.status || "Pending"}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="rounded-2xl bg-zinc-900 p-6 shadow">
-            <h2 className="mb-4 text-2xl font-bold">🚗 Recent Site Visits</h2>
-
-            {recentVisits.length === 0 ? (
-              <p className="text-gray-400">No Site Visits Found</p>
-            ) : (
-              <div className="space-y-3">
-                {recentVisits.map((visit:any) => (
-                  <div
-                    key={visit.id}
-                    className="flex items-center justify-between rounded-lg border p-3"
-                  >
-                    <div>
-                      <h3 className="font-semibold">{visit.name || "No Name"}</h3>
-                      <p className="text-sm text-gray-300">
-                        {visit.date || ""} {visit.time || ""}
-                      </p>
-                    </div>
-
-                    <span className="rounded-full bg-blue-100 px-3 py-1 text-sm">
-                      {visit.status || "Pending"}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-        </div>
 
       </div>
     </main>
   </>
 );
 }
+

@@ -3,12 +3,13 @@
 import { useState } from "react";
 import PropertyForm from "@/components/PropertyForm";
 import { collection, addDoc } from "firebase/firestore";
-import { db, storage } from "@/lib/firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db } from "@/lib/firebase";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 export default function AddPropertyPage() {
 
   const [title,setTitle]=useState("");
+  const [featured,setFeatured]=useState(false);
   const [location,setLocation]=useState("");
   const [price,setPrice]=useState("");
 
@@ -31,7 +32,7 @@ export default function AddPropertyPage() {
 
 
   // CATEGORY SYSTEM
-  const [purpose,setPurpose]=useState("buy");
+  const [purpose,setPurpose]=useState("new");
 
   const [propertyCondition,setPropertyCondition]=useState("new");
 
@@ -40,6 +41,20 @@ export default function AddPropertyPage() {
   const [parking,setParking]=useState("");
 
   const [furnished,setFurnished]=useState("");
+
+  // DYNAMIC PROPERTY OPTIONS
+  const [plotApproval,setPlotApproval]=useState("");
+  const [societyName,setSocietyName]=useState("");
+  const [roomSharing,setRoomSharing]=useState("");
+  const [acType,setAcType]=useState("");
+  const [bathroomType,setBathroomType]=useState("");
+  const [kitchenAvailable,setKitchenAvailable]=useState(false);
+
+  const [wifi,setWifi]=useState(false);
+  const [cctv,setCctv]=useState(false);
+  const [laundry,setLaundry]=useState(false);
+  const [cleaning,setCleaning]=useState(false);
+  const [security24x7,setSecurity24x7]=useState(false);
 
 
 
@@ -52,34 +67,21 @@ try{
 setLoading(true);
 
 
-const imageUrls:string[]=[];
+let imageUrls:string[] = [];
 
-
-for(const image of images){
-
-const imageRef=ref(
-storage,
-`properties/${Date.now()}-${image.name}`
-);
-
-
-await uploadBytes(imageRef,image);
-
-
-const url=await getDownloadURL(imageRef);
-
-
-imageUrls.push(url);
-
+if(images.length){
+  imageUrls = await Promise.all(
+    images.map(file => uploadToCloudinary(file))
+  );
 }
-
-
 
 const docRef=await addDoc(
 collection(db,"properties"),
 {
 
 title,
+
+featured,
 
 location,
 
@@ -121,11 +123,23 @@ parking,
 
 furnished,
 
+plotApproval,
+societyName,
+roomSharing,
+acType,
+bathroomType,
+kitchenAvailable,
+wifi,
+cctv,
+laundry,
+cleaning,
+security24x7,
 
 image:imageUrls[0] || "",
 
 images:imageUrls,
 
+status:"approved",
 
 createdAt:new Date()
 
@@ -142,6 +156,8 @@ alert("Property Added Successfully");
 
 setTitle("");
 
+setFeatured(false);
+
 setLocation("");
 
 setPrice("");
@@ -156,7 +172,7 @@ setProjectName("");
 
 setReraNumber("");
 
-setPurpose("buy");
+setPurpose("new");
 
 setPropertyCondition("new");
 
@@ -190,10 +206,10 @@ setLoading(false);
 
 return(
 
-<main className="min-h-screen bg-zinc-950 p-10">
+<main className="min-h-screen bg-slate-50 p-10">
 
 
-<div className="mx-auto max-w-2xl rounded-3xl bg-zinc-900 p-8">
+<div className="mx-auto max-w-2xl rounded-3xl bg-white p-8">
 
 
 <h1 className="mb-6 text-3xl font-bold">
@@ -213,6 +229,9 @@ className="space-y-5"
 
 title={title}
 setTitle={setTitle}
+
+featured={featured}
+setFeatured={setFeatured}
 
 
 
@@ -298,6 +317,38 @@ setParking={setParking}
 furnished={furnished}
 setFurnished={setFurnished}
 
+plotApproval={plotApproval}
+setPlotApproval={setPlotApproval}
+
+societyName={societyName}
+setSocietyName={setSocietyName}
+
+roomSharing={roomSharing}
+setRoomSharing={setRoomSharing}
+
+acType={acType}
+setAcType={setAcType}
+
+bathroomType={bathroomType}
+setBathroomType={setBathroomType}
+
+kitchenAvailable={kitchenAvailable}
+setKitchenAvailable={setKitchenAvailable}
+
+wifi={wifi}
+setWifi={setWifi}
+
+cctv={cctv}
+setCctv={setCctv}
+
+laundry={laundry}
+setLaundry={setLaundry}
+
+cleaning={cleaning}
+setCleaning={setCleaning}
+
+security24x7={security24x7}
+setSecurity24x7={setSecurity24x7}
 
 />
 
@@ -309,7 +360,7 @@ type="submit"
 
 disabled={loading}
 
-className="w-full rounded-xl bg-blue-600 p-3 text-white"
+className="w-full rounded-xl bg-green-600 p-3 text-slate-900"
 
 >
 

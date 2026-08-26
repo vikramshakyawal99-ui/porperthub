@@ -1,178 +1,286 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
-import StatsCounter from "./StatsCounter";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useAuth } from "./AuthProvider";
 
-const categories = ["Buy", "Rent", "PG", "Hostel", "Plot"];
+const tabs = [
+  { label: "Buy", icon: "⌂" },
+  { label: "Rent", icon: "▣" },
+  { label: "PG/Hostel", icon: "▥" },
+  { label: "Plot", icon: "⌁" },
+];
 
-const searchOptions: any = {
-  Buy: ["Flat", "Villa", "Resale House", "Plot"],
-  Rent: ["Flat Rent", "House Rent", "Room"],
-  PG: ["Boys PG", "Girls PG", "Co-Living PG"],
-  Hostel: ["Boys Hostel", "Girls Hostel"],
+const propertyTypes: Record<string, string[]> = {
+  Buy: ["Flat", "Villa", "House", "Plot"],
+  Rent: ["Flat", "House", "Room"],
+  "PG/Hostel": ["PG", "Hostel", "Co-living"],
   Plot: ["JDA Approved Plot", "Society Plot"],
 };
 
 export default function Hero() {
   const router = useRouter();
+  const { user, role } = useAuth();
 
-  const [category, setCategory] = useState("");
-  const [type, setType] = useState("");
+  const [activeTab, setActiveTab] = useState("Buy");
   const [location, setLocation] = useState("");
+  const [propertyType, setPropertyType] = useState("");
   const [budget, setBudget] = useState("");
+
+  function getPostPropertyLink() {
+    if (!user) {
+      return (
+        "/buyer-login?redirect=" +
+        encodeURIComponent("/owner/add-property")
+      );
+    }
+
+    if (role === "property_dealer") {
+      return "/dealer/add-property";
+    }
+
+    return "/owner/add-property";
+  }
 
   function handleSearch() {
     const params = new URLSearchParams();
 
-    params.set("purpose", category.toLowerCase());
+    if (activeTab === "Rent") {
+      params.set("purpose", "rent");
+    } else if (activeTab === "PG/Hostel") {
+      params.set("purpose", "rent");
 
-    if (type) params.set("type", type);
-    if (location) params.set("location", location);
-    if (budget) params.set("budget", budget);
+      if (propertyType) {
+        params.set(
+          "type",
+          propertyType.toLowerCase().replace("-", "_")
+        );
+      }
+    } else {
+      params.set("purpose", "new");
+    }
+
+    if (
+      propertyType &&
+      activeTab !== "PG/Hostel"
+    ) {
+      params.set(
+        "type",
+        propertyType
+          .toLowerCase()
+          .replaceAll(" ", "_")
+      );
+    }
+
+    if (location.trim()) {
+      params.set("location", location.trim());
+    }
+
+    if (budget) {
+      params.set("budget", budget);
+    }
 
     router.push(`/properties?${params.toString()}`);
   }
 
   return (
-    <section className="relative min-h-[680px] lg:min-h-[700px] overflow-hidden bg-[#17130f]">
+    <section className="bg-[#fbfaf8] px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
+      <div className="mx-auto max-w-7xl overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+        <div className="relative min-h-[620px] overflow-hidden bg-[#fbfaf8]">
+          <Image
+            src="/hero-integrated.png"
+            alt="Premium modern home"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
 
-      {/* BACKGROUND IMAGE */}
-      <div className="absolute inset-0">
-        <Image
-          src="/images/hero/property-hero.png"
-          alt=""
-          fill
-          priority
-          className="object-cover object-center"
-        />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#fbfaf8] via-[#fbfaf8]/95 via-45% to-transparent" />
 
-        {/* DARK LEFT OVERLAY */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#17130f] via-[#17130f]/90 to-[#17130f]/20" />
+          <div className="relative z-10 flex min-h-[620px] max-w-[650px] flex-col justify-center p-7 sm:p-10 lg:p-14">
+            <div className="inline-flex w-fit items-center gap-2 rounded-full bg-green-50 px-3 py-2 text-xs font-bold text-green-700">
+              <span>⌂</span>
+              Find. Compare. Own.
+            </div>
 
-        {/* TOP / BOTTOM BLEND */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#17130f]/65 via-transparent to-[#17130f]/80" />
+            <h1 className="mt-6 max-w-xl text-4xl font-black leading-[1.05] tracking-[-0.04em] text-slate-950 sm:text-5xl lg:text-[58px]">
+              Find Your
+              <br />
+              <span className="text-green-700">
+                Perfect Property
+              </span>
+            </h1>
 
-        {/* GOLD ATMOSPHERE */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_45%,rgba(212,168,85,0.16),transparent_35%)]" />
-      </div>
+            <p className="mt-5 max-w-md text-base leading-7 text-slate-600">
+              Search verified homes, plots and rental properties in Jaipur.
+            </p>
 
-      {/* CONTENT */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 min-h-[680px] lg:min-h-[700px] flex items-center translate-y-12 lg:translate-y-14">
+            <div className="mt-7 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.label}
+                  type="button"
+                  onClick={() => {
+                    setActiveTab(tab.label);
+                    setPropertyType("");
+                  }}
+                  className={`flex min-h-12 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-bold ${
+                    activeTab === tab.label
+                      ? "border-green-600 bg-green-600 text-white shadow-md shadow-green-600/20"
+                      : "border-slate-200 bg-white text-slate-700 hover:border-green-300 hover:bg-green-50 hover:text-green-700"
+                  }`}
+                >
+                  <span>{tab.icon}</span>
+                  {tab.label}
+                </button>
+              ))}
 
-        <div className="w-full lg:w-[54%] py-16 lg:py-20">
-
-          {/* LABEL */}
-          <span className="inline-flex px-5 py-2 rounded-full border border-[#d4a855]/40 bg-[#211b15]/60 backdrop-blur-md text-[#e5c27a] text-xs tracking-[0.18em] uppercase">
-            Real Estate Platform
-          </span>
-
-          {/* HEADING */}
-          <h1 className="mt-6 text-5xl sm:text-6xl lg:text-[68px] font-serif font-semibold leading-[0.98] tracking-tight text-white">
-            Discover Spaces
-            <br />
-            <span className="text-[#d4a855]">
-              Designed For
-            </span>
-            <br />
-            <span className="text-[#d4a855]">
-              Your Lifestyle
-            </span>
-          </h1>
-
-          {/* SUBTITLE */}
-          <p className="mt-6 text-[#d6cfc4] text-lg max-w-lg leading-relaxed">
-            Find A Place That Feels Like Home
-          </p>
-
-          {/* CATEGORY */}
-          <div className="flex flex-wrap gap-3 mt-8">
-            {categories.map((item) => (
-              <button
-                key={item}
-                onClick={() => {
-                  setCategory(category === item ? "" : item);
-                  setType("");
-                }}
-                className={`px-5 py-2.5 rounded-full border transition-all ${
-                  category === item
-                    ? "bg-[#d4a855] text-[#17130f] border-[#d4a855] shadow-lg shadow-[#d4a855]/25"
-                    : "border-[#d4a855]/30 bg-[#17130f]/45 backdrop-blur-md text-[#eee5d8] hover:border-[#d4a855]/70 hover:bg-[#d4a855]/10"
-                }`}
+              <Link
+                href={getPostPropertyLink()}
+                className="col-span-2 flex min-h-12 items-center justify-center gap-2 rounded-xl border border-green-200 bg-white px-4 text-sm font-black text-slate-800 shadow-sm transition hover:border-green-500 hover:bg-green-50 hover:text-green-700 sm:col-auto sm:ml-2"
               >
-                {item}
-              </button>
-            ))}
+                <span>＋</span>
+
+                <span>Post Property</span>
+
+                <span className="rounded-md bg-green-600 px-2 py-1 text-[9px] font-black tracking-wide text-white">
+                  FREE
+                </span>
+              </Link>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+              {propertyTypes[activeTab].map(
+                (item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() =>
+                      setPropertyType(
+                        propertyType === item ? "" : item
+                      )
+                    }
+                    className={`rounded-full border px-4 py-2 text-xs font-bold ${
+                      propertyType === item
+                        ? "border-green-600 bg-green-50 text-green-700"
+                        : "border-slate-200 bg-white text-slate-500 hover:border-green-300 hover:text-green-700"
+                    }`}
+                  >
+                    {item}
+                  </button>
+                )
+              )}
+            </div>
           </div>
 
-          {/* PROPERTY TYPE */}
-          <div className="mt-4 flex flex-wrap gap-3">
-            {searchOptions[category]?.map((item: string) => (
-              <button
-                key={item}
-                onClick={() => setType(item)}
-                className={`px-4 py-2 rounded-full border text-sm transition-all ${
-                  type === item
-                    ? "bg-[#d4a855] text-[#17130f] border-[#d4a855]"
-                    : "border-white/15 bg-[#17130f]/40 backdrop-blur-md text-[#d0c7b9] hover:border-[#d4a855]/50"
-                }`}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
+        </div>
 
-          {/* SEARCH */}
-          <div className="mt-7 p-2 rounded-2xl bg-[#211b15]/65 backdrop-blur-xl border border-[#d4a855]/25 shadow-2xl max-w-2xl">
-            <div className="flex flex-col md:flex-row gap-2">
+        <div className="relative z-10 mx-5 -mt-1 mb-5 rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_14px_35px_rgba(15,23,42,0.10)] sm:mx-8 lg:mx-10 lg:-mt-10">
+          <div className="grid gap-3 md:grid-cols-[1.2fr_1fr_0.8fr_auto]">
+            <label className="rounded-xl bg-slate-50 px-4 py-3">
+              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                Location
+              </span>
 
               <input
-                placeholder="Search location"
                 value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="flex-1 px-5 py-4 rounded-xl bg-[#17130f]/70 text-[#eee5d8] placeholder:text-[#9f9586] border border-[#d4a855]/20 outline-none"
+                onChange={(event) =>
+                  setLocation(event.target.value)
+                }
+                placeholder="Enter city, locality or area"
+                className="mt-1 w-full border-0 bg-transparent text-sm font-semibold text-slate-900 outline-none placeholder:font-normal placeholder:text-slate-400"
               />
+            </label>
 
-              <input
-                placeholder="Budget"
-                value={budget}
-                onChange={(e) => setBudget(e.target.value)}
-                className="md:w-40 px-5 py-4 rounded-xl bg-[#17130f]/70 text-[#eee5d8] placeholder:text-[#9f9586] border border-[#d4a855]/20 outline-none"
-              />
+            <label className="rounded-xl bg-slate-50 px-4 py-3">
+              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                Property Type
+              </span>
 
-              <button
-                onClick={handleSearch}
-                className="px-8 py-4 bg-[#d4a855] hover:bg-[#e1b968] text-[#17130f] rounded-xl font-bold transition-all shadow-lg shadow-[#d4a855]/25"
+              <select
+                value={propertyType}
+                onChange={(event) =>
+                  setPropertyType(event.target.value)
+                }
+                className="mt-1 w-full border-0 bg-transparent text-sm font-semibold text-slate-900 outline-none"
               >
-                Search
-              </button>
+                <option value="">
+                  Select type
+                </option>
 
-            </div>
+                {propertyTypes[activeTab].map(
+                  (item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  )
+                )}
+              </select>
+            </label>
+
+            <label className="rounded-xl bg-slate-50 px-4 py-3">
+              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                Price Range
+              </span>
+
+              <select
+                value={budget}
+                onChange={(event) =>
+                  setBudget(event.target.value)
+                }
+                className="mt-1 w-full border-0 bg-transparent text-sm font-semibold text-slate-900 outline-none"
+              >
+                <option value="">Any budget</option>
+                <option value="2500000">
+                  Up to ₹25 Lakh
+                </option>
+                <option value="5000000">
+                  Up to ₹50 Lakh
+                </option>
+                <option value="10000000">
+                  Up to ₹1 Crore
+                </option>
+              </select>
+            </label>
+
+            <button
+              type="button"
+              onClick={handleSearch}
+              className="min-h-14 rounded-xl bg-green-600 px-8 font-bold text-white shadow-md shadow-green-600/20 hover:bg-green-700"
+            >
+              Search
+            </button>
           </div>
+        </div>
 
-          {/* STATS */}
-          <div className="mt-8 max-w-2xl rounded-2xl bg-[#211b15]/75 backdrop-blur-xl border border-[#d4a855]/30 px-5 py-5 shadow-2xl">
-            <div className="grid grid-cols-3 gap-4 text-center">
+        <div className="grid border-t border-slate-100 bg-white sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            ["✓", "Verified Properties", "Quality checked"],
+            ["▥", "Trusted Builders", "Top rated & reliable"],
+            ["⌖", "Prime Locations", "Best places to live"],
+            ["♧", "Easy & Secure", "Safe transactions"],
+          ].map(([icon, title, text]) => (
+            <div
+              key={title}
+              className="flex items-center gap-3 border-b border-slate-100 px-6 py-4 last:border-b-0 sm:border-r lg:border-b-0"
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 font-black text-green-700">
+                {icon}
+              </span>
 
-              <StatsCounter
-                end={500}
-                label="Properties"
-              />
-
-              <StatsCounter
-                end={50}
-                label="Builders"
-              />
-
-              <StatsCounter
-                end={10}
-                label="Cities"
-              />
-
+              <div>
+                <p className="text-xs font-black text-slate-900">
+                  {title}
+                </p>
+                <p className="mt-1 text-[10px] text-slate-500">
+                  {text}
+                </p>
+              </div>
             </div>
-          </div>
-
+          ))}
         </div>
       </div>
     </section>

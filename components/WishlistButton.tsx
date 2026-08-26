@@ -22,7 +22,14 @@ export default function WishlistButton({
 
   async function toggleWishlist() {
     if (!user) {
-      router.push("/login");
+      const returnPath = `/properties/${propertyId}`;
+
+      router.push(
+        `/buyer-login?redirect=${encodeURIComponent(
+          returnPath
+        )}`
+      );
+
       return;
     }
 

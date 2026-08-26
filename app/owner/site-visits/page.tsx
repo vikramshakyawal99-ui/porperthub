@@ -275,7 +275,7 @@ return(
 
 
 
-<div className="bg-yellow-500 text-black p-5 rounded-xl">
+<div className="bg-[#d4a855] text-black p-5 rounded-xl">
 
 <h2>Pending</h2>
 
@@ -289,7 +289,7 @@ return(
 
 
 
-<div className="bg-blue-600 p-5 rounded-xl">
+<div className="bg-[#60A5FA] p-5 rounded-xl">
 
 <h2>Scheduled</h2>
 
@@ -484,7 +484,7 @@ Cancelled
 
 href={`tel:${visit.phone}`}
 
-className="bg-blue-600 px-5 py-2 rounded-xl"
+className="bg-[#60A5FA] px-5 py-2 rounded-xl"
 
 >
 

@@ -67,7 +67,7 @@ export default function FavoritesPage() {
 
         <Link
           href="/login"
-          className="bg-blue-600 text-white px-6 py-3 rounded-xl"
+          className="bg-green-600 text-slate-900 px-6 py-3 rounded-xl"
         >
           Login
         </Link>
@@ -76,7 +76,7 @@ export default function FavoritesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white p-10">
+    <main className="min-h-screen bg-slate-50 text-slate-900 p-10">
       <h1 className="text-4xl font-bold mb-8">
         ❤️ My Favorite Properties
       </h1>
@@ -88,7 +88,7 @@ export default function FavoritesPage() {
           {favorites.map((property) => (
             <div
               key={property.id}
-              className="bg-zinc-900 rounded-xl overflow-hidden"
+              className="bg-white rounded-xl overflow-hidden"
             >
               <Image
 src={property.image}
@@ -105,13 +105,13 @@ className="h-56 w-full object-cover"
 
                 <p>{property.location}</p>
 
-                <p className="text-blue-400 font-bold">
+                <p className="text-[#93C5FD] font-bold">
                   {property.price}
                 </p>
 
                 <Link
                   href={`/properties/${property.id}`}
-                  className="inline-block mt-4 bg-blue-600 px-5 py-2 rounded-lg"
+                  className="inline-block mt-4 bg-green-600 px-5 py-2 rounded-lg"
                 >
                   View Property
                 </Link>

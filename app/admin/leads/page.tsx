@@ -126,7 +126,7 @@ export default function LeadsPage() {
 
   return (
 
-    <div className="p-8 bg-zinc-950 min-h-screen">
+    <div className="p-8 bg-slate-50 min-h-screen">
 
       <h1 className="text-3xl font-bold mb-8">
         Leads Management
@@ -136,7 +136,7 @@ export default function LeadsPage() {
       {
         leads.length===0 ?
 
-        <div className="bg-zinc-900 p-6 rounded-xl shadow">
+        <div className="bg-white p-6 rounded-xl shadow">
           No Leads Found
         </div>
 
@@ -149,7 +149,7 @@ export default function LeadsPage() {
 
             <div
               key={lead.id}
-              className="bg-zinc-900 rounded-2xl shadow p-6 flex justify-between items-center"
+              className="bg-white rounded-2xl shadow p-6 flex justify-between items-center"
             >
 
               <div>
@@ -191,7 +191,7 @@ export default function LeadsPage() {
                       (document.getElementById(`date-${lead.id}`) as HTMLInputElement).value
                     )
                   }
-                  className="mt-2 rounded-xl bg-green-600 px-4 py-2 text-white"
+                  className="mt-2 rounded-xl bg-green-600 px-4 py-2 text-slate-900"
                 >
                   Save Follow-up
                 </button>
@@ -217,7 +217,7 @@ export default function LeadsPage() {
 
                 <a
                   href={`tel:${lead.phone}`}
-                  className="bg-blue-600 text-white px-5 py-2 rounded-xl"
+                  className="bg-green-600 text-slate-900 px-5 py-2 rounded-xl"
                 >
                   Call
                 </a>
@@ -225,7 +225,7 @@ export default function LeadsPage() {
 
                 <button
                   onClick={()=>deleteLead(lead.id)}
-                  className="bg-red-600 text-white px-5 py-2 rounded-xl"
+                  className="bg-red-600 text-slate-900 px-5 py-2 rounded-xl"
                 >
                   Delete
                 </button>

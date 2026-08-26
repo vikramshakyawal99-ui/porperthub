@@ -5,8 +5,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db, storage } from "@/lib/firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db } from "@/lib/firebase";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 import PropertyForm from "@/components/PropertyForm";
 
 export default function EditPropertyPage() {
@@ -14,12 +14,27 @@ export default function EditPropertyPage() {
   const [parking,setParking] = useState("");
   const [furnished,setFurnished] = useState("");
 
+  // DYNAMIC CATEGORY FIELDS
+  const [plotApproval,setPlotApproval] = useState("");
+  const [societyName,setSocietyName] = useState("");
+  const [roomSharing,setRoomSharing] = useState("");
+  const [acType,setAcType] = useState("");
+  const [bathroomType,setBathroomType] = useState("");
+  const [kitchenAvailable,setKitchenAvailable] = useState(false);
+
+  const [wifi,setWifi] = useState(false);
+  const [cctv,setCctv] = useState(false);
+  const [laundry,setLaundry] = useState(false);
+  const [cleaning,setCleaning] = useState(false);
+  const [security24x7,setSecurity24x7] = useState(false);
+
   const { id } = useParams();
   const router = useRouter();
 
   const [loading,setLoading]=useState(true);
 
   const [title,setTitle]=useState("");
+  const [featured,setFeatured]=useState(false);
   const [location,setLocation]=useState("");
   const [price,setPrice]=useState("");
 
@@ -73,6 +88,8 @@ const data=snap.data();
 
 setTitle(data.title || "");
 
+setFeatured(data.featured === true);
+
 setLocation(data.location || "");
 
 setPrice(data.price || "");
@@ -93,6 +110,22 @@ setPurpose(data.purpose || "buy");
 setPropertyCondition(data.propertyCondition || "new");
 
 setPropertyType(data.propertyType || "flat");
+
+setParking(data.parking || "");
+setFurnished(data.furnished || "");
+
+setPlotApproval(data.plotApproval || "");
+setSocietyName(data.societyName || "");
+setRoomSharing(data.roomSharing || "");
+setAcType(data.acType || "");
+setBathroomType(data.bathroomType || "");
+setKitchenAvailable(data.kitchenAvailable || false);
+
+setWifi(data.wifi || false);
+setCctv(data.cctv || false);
+setLaundry(data.laundry || false);
+setCleaning(data.cleaning || false);
+setSecurity24x7(data.security24x7 || false);
 
 
 setBedrooms(data.bedrooms || 0);
@@ -133,32 +166,21 @@ e.preventDefault();
 
 const uploadedImages=[...images];
 
+if(newImages.length){
+  const newUploadedImages = await Promise.all(
+    newImages.map(file => uploadToCloudinary(file))
+  );
 
-for(const image of newImages){
-
-const imageRef=ref(
-storage,
-`properties/${Date.now()}-${image.name}`
-);
-
-
-await uploadBytes(imageRef,image);
-
-
-const url=await getDownloadURL(imageRef);
-
-
-uploadedImages.push(url);
-
+  uploadedImages.push(...newUploadedImages);
 }
-
-
 
 await updateDoc(
 doc(db,"properties",id as string),
 {
 
 title,
+
+featured,
 
 location,
 
@@ -180,6 +202,22 @@ purpose,
 propertyCondition,
 
 propertyType,
+
+parking,
+furnished,
+
+plotApproval,
+societyName,
+roomSharing,
+acType,
+bathroomType,
+kitchenAvailable,
+
+wifi,
+cctv,
+laundry,
+cleaning,
+security24x7,
 
 
 bedrooms,
@@ -234,10 +272,10 @@ Loading...
 
 return(
 
-<main className="min-h-screen bg-zinc-950 p-10">
+<main className="min-h-screen bg-slate-50 p-10">
 
 
-<div className="mx-auto max-w-2xl rounded-3xl bg-zinc-900 p-8 shadow-xl">
+<div className="mx-auto max-w-2xl rounded-3xl bg-white p-8 shadow-xl">
 
 
 <h1 className="mb-6 text-3xl font-bold">
@@ -309,12 +347,47 @@ className="w-full rounded-xl border p-3"
 
 <PropertyForm
 
+featured={featured}
+setFeatured={setFeatured}
+
 parking={parking}
 setParking={setParking}
 
 furnished={furnished}
 setFurnished={setFurnished}
 
+plotApproval={plotApproval}
+setPlotApproval={setPlotApproval}
+
+societyName={societyName}
+setSocietyName={setSocietyName}
+
+roomSharing={roomSharing}
+setRoomSharing={setRoomSharing}
+
+acType={acType}
+setAcType={setAcType}
+
+bathroomType={bathroomType}
+setBathroomType={setBathroomType}
+
+kitchenAvailable={kitchenAvailable}
+setKitchenAvailable={setKitchenAvailable}
+
+wifi={wifi}
+setWifi={setWifi}
+
+cctv={cctv}
+setCctv={setCctv}
+
+laundry={laundry}
+setLaundry={setLaundry}
+
+cleaning={cleaning}
+setCleaning={setCleaning}
+
+security24x7={security24x7}
+setSecurity24x7={setSecurity24x7}
 
 
 title={title}
@@ -398,7 +471,7 @@ setImages={setNewImages}
 
 type="submit"
 
-className="w-full rounded-xl bg-green-600 p-3 text-white"
+className="w-full rounded-xl bg-green-600 p-3 text-slate-900"
 
 >
 

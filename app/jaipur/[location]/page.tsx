@@ -17,15 +17,53 @@ export async function generateMetadata(
 
   const { location } = await params;
 
+  const locationName = location
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+
+  const title = `${locationName} Jaipur Properties | PropertyHub`;
+
+  const description =
+    `Find verified properties for sale and rent in ${locationName}, Jaipur. ` +
+    `Explore flats, villas, plots, PG, hostels and rooms on PropertyHub.`;
+
   return {
-    title: `${location} Jaipur Properties | PropertyHub`,
-    description:
-      `Find verified properties in ${location} Jaipur on PropertyHub.`,
+    title,
+    description,
+
+    alternates: {
+      canonical: `/jaipur/${location}`,
+    },
+
+    robots: {
+      index: true,
+      follow: true,
+    },
+
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      url: `https://propertyhub.com/jaipur/${location}`,
+      siteName: "PropertyHub",
+      images: [
+        {
+          url: "/og-image.jpg",
+          width: 1200,
+          height: 630,
+          alt: `${locationName} Jaipur Properties - PropertyHub`,
+        },
+      ],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/og-image.jpg"],
+    },
   };
-
 }
-
-
 
 export default async function LocationPage(
   { params }: Props

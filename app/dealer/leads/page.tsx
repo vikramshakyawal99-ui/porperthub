@@ -68,8 +68,34 @@ fetchLeads();
 
 async function changeStatus(id:string,status:string){
 
+try{
+
+const user=auth.currentUser;
+
+if(!user){
+alert("Login required");
+return;
+}
+
+const leadRef=doc(db,"leads",id);
+const leadSnap=await getDocs(
+query(
+collection(db,"leads"),
+where("dealerId","==",user.uid)
+)
+);
+
+const ownsLead=leadSnap.docs.some(
+lead=>lead.id===id
+);
+
+if(!ownsLead){
+alert("Access denied");
+return;
+}
+
 await updateDoc(
-doc(db,"leads",id),
+leadRef,
 {
 status
 }
@@ -77,17 +103,60 @@ status
 
 fetchLeads();
 
+}catch(e){
+
+console.log(e);
+alert("Status update failed");
+
+}
+
 }
 
 
 
 async function removeLead(id:string){
 
-await deleteDoc(
-doc(db,"leads",id)
+try{
+
+const user=auth.currentUser;
+
+if(!user){
+alert("Login required");
+return;
+}
+
+const leadRef=doc(db,"leads",id);
+
+const leadSnap=await getDocs(
+query(
+collection(db,"leads"),
+where("dealerId","==",user.uid)
+)
 );
 
+const ownsLead=leadSnap.docs.some(
+lead=>lead.id===id
+);
+
+if(!ownsLead){
+alert("Access denied");
+return;
+}
+
+if(!confirm("Delete this lead?")){
+return;
+}
+
+await deleteDoc(leadRef);
+
 fetchLeads();
+
+}catch(e){
+
+console.log(e);
+alert("Delete failed");
+
+}
 
 }
 
@@ -101,7 +170,7 @@ return(
 <div className="max-w-6xl mx-auto">
 
 
-<h1 className="text-3xl font-bold text-blue-700">
+<h1 className="text-3xl font-bold text-[#3B82F6]">
 Customer Leads
 </h1>
 
@@ -175,7 +244,7 @@ className="bg-white rounded-2xl shadow p-6"
 
 <div className="mt-4">
 
-<span className="bg-blue-100 px-3 py-1 rounded-full text-sm">
+<span className="bg-[#EFF6FF] px-3 py-1 rounded-full text-sm">
 {lead.status || "New"}
 </span>
 
@@ -212,7 +281,7 @@ WhatsApp
 
 <button
 onClick={()=>changeStatus(lead.id,"Contacted")}
-className="flex-1 bg-blue-700 text-white rounded-lg"
+className="flex-1 bg-[#3B82F6] text-white rounded-lg"
 >
 Contacted
 </button>

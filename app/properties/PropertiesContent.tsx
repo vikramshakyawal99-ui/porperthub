@@ -55,92 +55,255 @@ const purpose=searchParams.get("purpose");
 
 const type=searchParams.get("type");
 
+const builder=searchParams.get("builder");
 
 
-if(purpose){
 
-data=data.filter((p:any)=>
+if (purpose) {
+  const requestedPurpose = purpose.toLowerCase().trim();
 
-(p.purpose||"")
-.toLowerCase()
-===purpose.toLowerCase()
+  data = data.filter((p: any) => {
+    const propertyPurpose = (p.purpose || "").toLowerCase().trim();
+    const propertyCondition = (p.propertyCondition || "").toLowerCase().trim();
 
-);
+    // New properties
+    // New system: purpose = "new"
+    // Old records: purpose = "buy" + propertyCondition = "new"
+    if (requestedPurpose === "new") {
+      return (
+        propertyPurpose === "new" ||
+        (propertyPurpose === "buy" && propertyCondition === "new")
+      );
+    }
 
+    // Resale properties
+    // New system: purpose = "resale"
+    // Old records: propertyCondition = "resale"
+    if (requestedPurpose === "resale") {
+      return (
+        propertyPurpose === "resale" ||
+        propertyCondition === "resale"
+      );
+    }
+
+    // Rental properties
+    if (requestedPurpose === "rent") {
+      return propertyPurpose === "rent";
+    }
+
+    return propertyPurpose === requestedPurpose;
+  });
 }
 
 
+
+if(builder){
+
+const builderName = builder.toLowerCase().trim();
+
+data = data.filter((p:any)=>
+  (p.builder || "").toLowerCase().trim() === builderName
+);
+
+}
 
 if(type){
-
-const urlType = type.toLowerCase();
-
+const urlType = type.toLowerCase().trim();
 
 data = data.filter((p:any)=>{
+const propertyType = (p.propertyType || "").toLowerCase().trim();
+const propertyCategory = (p.type || "").toLowerCase().trim();
+const propertyPurpose = (p.purpose || "").toLowerCase().trim();
+const propertyCondition = (p.propertyCondition || "").toLowerCase().trim();
+const gender = (p.gender || "").toLowerCase().trim();
+const suitableFor = (p.suitableFor || "").toLowerCase().trim();
+const roomType = (p.roomType || "").toLowerCase().trim();
 
-const propertyType =
-(p.propertyType || "").toLowerCase();
+const isNewProperty =
+  propertyPurpose === "new" ||
+  (propertyPurpose === "buy" && propertyCondition === "new");
 
-const propertyCategory =
-(p.type || "").toLowerCase();
+const isResaleProperty =
+  propertyPurpose === "resale" ||
+  propertyCondition === "resale";
 
-
-const text = `
+const combined = `
 ${propertyType}
 ${propertyCategory}
-${p.gender || ""}
-${p.suitableFor || ""}
-${p.roomType || ""}
-${p.sharingType || ""}
-`
-.toLowerCase();
+${gender}
+${suitableFor}
+${roomType}
+`.toLowerCase();
 
+switch(urlType){
 
+case "flat":
+case "apartment":
+  return (
+    (
+      propertyType === "flat" ||
+      propertyType === "apartment" ||
+      propertyCategory === "flat" ||
+      propertyCategory === "apartment"
+    ) &&
+    (
+      !purpose ||
+      (purpose.toLowerCase().trim() === "new" && isNewProperty) ||
+      (purpose.toLowerCase().trim() === "resale" && isResaleProperty) ||
+      (purpose.toLowerCase().trim() === "rent" && propertyPurpose === "rent")
+    )
+  );
 
-return (
+case "villa":
+  return (
+    (
+      propertyType === "villa" ||
+      propertyCategory === "villa"
+    ) &&
+    (
+      !purpose ||
+      (purpose.toLowerCase().trim() === "new" && isNewProperty) ||
+      (purpose.toLowerCase().trim() === "resale" && isResaleProperty) ||
+      (purpose.toLowerCase().trim() === "rent" && propertyPurpose === "rent")
+    )
+  );
 
-text.includes(urlType)
+case "resale house":
+case "resale_house":
+case "resale":
+  return (
+    propertyType === "resale" ||
+    propertyType === "resale_house" ||
+    propertyType === "house" ||
+    propertyCategory === "resale" ||
+    propertyCategory === "resale house" ||
+    propertyCategory === "house"
+  );
 
-||
+case "flat rent":
+  return (
+    propertyPurpose === "rent" &&
+    (
+      propertyType === "flat" ||
+      propertyType === "apartment" ||
+      propertyCategory === "flat" ||
+      propertyCategory === "apartment"
+    )
+  );
 
-(urlType==="flat" &&
-(
-propertyType==="flat" ||
-propertyType==="apartment"
-))
+case "house rent":
+  return (
+    propertyPurpose === "rent" &&
+    (
+      propertyType === "house" ||
+      propertyType === "resale_house" ||
+      propertyCategory === "house"
+    )
+  );
 
-||
+case "shop":
+case "warehouse":
+case "office space":
+case "office_space":
+case "showroom":
+case "commercial building":
+case "commercial_building":
+case "industrial space":
+case "industrial_space":
+  return (
+    propertyPurpose === "rent" &&
+    (
+      propertyType === urlType.replace(/\s+/g, "_") ||
+      propertyCategory === urlType.replace(/\s+/g, "_") ||
+      propertyType === urlType ||
+      propertyCategory === urlType
+    )
+  );
 
-(urlType.includes("boys") &&
-text.includes("boys"))
+case "room":
+case "room rent":
+case "room_rent":
+  return (
+    propertyType === "room" ||
+    propertyType === "room_rent" ||
+    propertyCategory === "room" ||
+    propertyCategory === "room_rent"
+  );
 
-||
+case "pg":
+case "boys pg":
+case "girls pg":
+case "co-living pg":
+  if(propertyType !== "pg" && propertyCategory !== "pg"){
+    return false;
+  }
 
-(urlType.includes("girls") &&
-text.includes("girls"))
+  if(urlType === "boys pg"){
+    return gender === "boys" || combined.includes("boys");
+  }
 
-||
+  if(urlType === "girls pg"){
+    return gender === "girls" || combined.includes("girls");
+  }
 
-(urlType.includes("pg") &&
-text.includes("pg"))
+  if(urlType === "co-living pg"){
+    return (
+      suitableFor === "co_living" ||
+      suitableFor === "co-living" ||
+      combined.includes("co_living") ||
+      combined.includes("co-living")
+    );
+  }
 
-||
+  return true;
 
-(urlType.includes("hostel") &&
-text.includes("hostel"))
+case "hostel":
+case "boys hostel":
+case "girls hostel":
+  if(propertyType !== "hostel" && propertyCategory !== "hostel"){
+    return false;
+  }
 
-||
+  if(urlType === "boys hostel"){
+    return gender === "boys" || combined.includes("boys");
+  }
 
-(urlType.includes("plot") &&
-text.includes("plot"))
+  if(urlType === "girls hostel"){
+    return gender === "girls" || combined.includes("girls");
+  }
 
-);
+  return true;
 
+case "plot":
+case "jda approved plot":
+case "society plot":
+  if(propertyType !== "plot" && propertyCategory !== "plot"){
+    return false;
+  }
 
-});
+  if(urlType === "jda approved plot"){
+    return (
+      combined.includes("jda") ||
+      combined.includes("approved")
+    );
+  }
 
+  if(urlType === "society plot"){
+    return (
+      combined.includes("society")
+    );
+  }
+
+  return true;
+
+default:
+  return (
+    propertyType === urlType ||
+    propertyCategory === urlType
+  );
 }
-
+});
+}
 
 setCategoryProperties(data);
 
@@ -581,7 +744,7 @@ visible<finalProperties.length && (
 
 onClick={()=>setVisible(v=>v+12)}
 
-className="rounded-xl bg-blue-600 px-8 py-3 text-white hover:bg-blue-700"
+className="rounded-xl bg-[#60A5FA] px-8 py-3 text-white hover:bg-[#3B82F6]"
 
 >
 

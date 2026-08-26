@@ -41,7 +41,7 @@ function Card({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl bg-blue-50 p-5 shadow">
+    <div className="rounded-2xl bg-[#F8FAFC] p-5 shadow">
       <h3 className="text-white">{title}</h3>
       <p className="mt-2 text-xl font-bold">{value}</p>
     </div>

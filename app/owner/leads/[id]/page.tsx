@@ -410,7 +410,7 @@ Stage
 </div>
 
 
-<div className="bg-gradient-to-r from-blue-900 to-zinc-900 rounded-2xl p-6 mb-6 border border-blue-500">
+<div className="bg-gradient-to-r from-[#0B0F14] to-zinc-900 rounded-2xl p-6 mb-6 border border-[#60A5FA]">
 
         <h2 className="text-2xl font-bold mb-4">
           🧠 Lead Intelligence
@@ -641,7 +641,7 @@ Interested Property
             className={
               tags.includes(tag)
               ?
-              "bg-blue-600 px-3 py-2 rounded-lg"
+              "bg-[#60A5FA] px-3 py-2 rounded-lg"
               :
               "bg-zinc-700 px-3 py-2 rounded-lg"
             }
@@ -701,7 +701,7 @@ Interested Property
 
         <button
           onClick={saveDetails}
-          className="bg-blue-600 px-5 py-3 rounded-xl"
+          className="bg-[#60A5FA] px-5 py-3 rounded-xl"
         >
           Save Updates
         </button>

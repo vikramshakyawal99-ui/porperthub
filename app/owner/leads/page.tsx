@@ -898,7 +898,7 @@ return(
 
 
 
-<div className="bg-yellow-500 text-black p-5 rounded-xl">
+<div className="bg-[#d4a855] text-black p-5 rounded-xl">
 
 <h2>New</h2>
 
@@ -911,7 +911,7 @@ return(
 
 
 
-<div className="bg-blue-600 p-5 rounded-xl">
+<div className="bg-[#60A5FA] p-5 rounded-xl">
 
 <h2>Contacted</h2>
 
@@ -955,7 +955,7 @@ return(
 <div className="grid md:grid-cols-2 gap-5 mb-8">
 
 
-<div className="bg-blue-600 p-6 rounded-xl">
+<div className="bg-[#60A5FA] p-6 rounded-xl">
 
 <h2 className="text-xl font-bold">
 📅 Today's Follow Ups
@@ -1075,7 +1075,7 @@ onClick={()=>setPriorityFilter("Warm")}
 className={`px-4 py-2 rounded-xl ${
 priorityFilter==="Warm"
 ?
-"bg-yellow-500 text-black"
+"bg-[#d4a855] text-black"
 :
 "bg-zinc-800"
 }`}
@@ -1094,7 +1094,7 @@ onClick={()=>setPriorityFilter("Cold")}
 className={`px-4 py-2 rounded-xl ${
 priorityFilter==="Cold"
 ?
-"bg-blue-600"
+"bg-[#60A5FA]"
 :
 "bg-zinc-800"
 }`}
@@ -1124,13 +1124,13 @@ priorityFilter==="Cold"
 title:"🆕 New",
 value:"New",
 count:newLeads,
-color:"bg-yellow-500 text-black"
+color:"bg-[#d4a855] text-black"
 },
 {
 title:"📞 Contacted",
 value:"Contacted",
 count:contacted,
-color:"bg-blue-600"
+color:"bg-[#60A5FA]"
 },
 {
 title:"🔥 Follow Up",
@@ -1292,9 +1292,9 @@ getLeadPriority(lead)==="Hot"
 :
 getLeadPriority(lead)==="Warm"
 ?
-"bg-yellow-500 text-black"
+"bg-[#d4a855] text-black"
 :
-"bg-blue-600"
+"bg-[#60A5FA]"
 }`}>
 
 {getLeadPriority(lead)}
@@ -1485,7 +1485,7 @@ onClick={()=>setFilter(item)}
 className={`px-5 py-2 rounded-xl ${
 filter===item
 ?
-"bg-blue-600"
+"bg-[#60A5FA]"
 :
 "bg-zinc-800"
 }`}
@@ -1611,13 +1611,13 @@ getLeadPriority(lead)==="Hot" ?
 
 getLeadPriority(lead)==="Warm" ?
 
-<span className="bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-bold">
+<span className="bg-[#d4a855] text-black px-3 py-1 rounded-full text-sm font-bold">
 🟡 WARM LEAD
 </span>
 
 :
 
-<span className="bg-blue-600 px-3 py-1 rounded-full text-sm font-bold">
+<span className="bg-[#60A5FA] px-3 py-1 rounded-full text-sm font-bold">
 ❄ COLD LEAD
 </span>
 
@@ -1886,7 +1886,7 @@ Save Follow-up
 
 href={`tel:${lead.phone}`}
 
-className="bg-blue-600 px-5 py-2 rounded-xl"
+className="bg-[#60A5FA] px-5 py-2 rounded-xl"
 
 >
 
@@ -2137,7 +2137,7 @@ selectedLead.id,
 "📞 Called customer"
 )
 }
-className="bg-blue-600 px-5 py-3 rounded-xl"
+className="bg-[#60A5FA] px-5 py-3 rounded-xl"
 >
 📞 Call
 </a>

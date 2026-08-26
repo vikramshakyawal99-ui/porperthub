@@ -33,15 +33,15 @@ const builders = [
 
 export default function BuildersPage() {
   return (
-    <section className="min-h-screen bg-black py-16">
+    <section className="min-h-screen bg-slate-50 py-16">
 
       <div className="mx-auto max-w-7xl px-6">
 
-        <h1 className="text-center text-5xl font-black text-white">
+        <h1 className="text-center text-5xl font-black text-slate-900">
           Top Builders
         </h1>
 
-        <p className="mt-3 text-center text-gray-400">
+        <p className="mt-3 text-center text-slate-500">
           Trusted developers of Jaipur
         </p>
 
@@ -53,7 +53,7 @@ export default function BuildersPage() {
               key={builder.name}
               className="
               rounded-2xl
-              border border-yellow-500/30
+              border border-green-200/30
               bg-white/5
               p-6
               text-center
@@ -64,15 +64,15 @@ export default function BuildersPage() {
                 🏢
               </div>
 
-              <h2 className="mt-4 text-xl font-bold text-white">
+              <h2 className="mt-4 text-xl font-bold text-slate-900">
                 {builder.name}
               </h2>
 
-              <p className="mt-2 text-yellow-400">
+              <p className="mt-2 text-green-700">
                 ⭐ {builder.rating}
               </p>
 
-              <p className="mt-2 text-white">
+              <p className="mt-2 text-slate-900">
                 {builder.projects}+ Projects
               </p>
 

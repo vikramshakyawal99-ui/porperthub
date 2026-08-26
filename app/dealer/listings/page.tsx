@@ -84,7 +84,7 @@ export default function DealerListings() {
         <div className="flex items-center justify-between mb-8">
 
           <div>
-            <h1 className="text-3xl font-bold text-blue-700">
+            <h1 className="text-3xl font-bold text-[#3B82F6]">
               My Properties
             </h1>
 
@@ -95,7 +95,7 @@ export default function DealerListings() {
 
           <Link
             href="/dealer/add-property"
-            className="bg-blue-700 text-white px-5 py-3 rounded-xl"
+            className="bg-[#3B82F6] text-white px-5 py-3 rounded-xl"
           >
             + Add Property
           </Link>
@@ -151,12 +151,30 @@ export default function DealerListings() {
                     📍 {property.location}
                   </p>
 
-                  <p className="text-blue-700 font-bold mt-3">
+                  <p className="text-[#3B82F6] font-bold mt-3">
                     ₹ {property.price}
                   </p>
 
                   <p className="mt-2 text-sm text-gray-500">
                     {property.propertyType}
+
+                    <div className="mt-3">
+                      <span
+                        className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${
+                          property.status === "approved"
+                            ? "bg-green-100 text-green-700"
+                            : property.status === "rejected"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-[#d4a855]/10 text-[#d4a855]"
+                        }`}
+                      >
+                        {property.status === "approved"
+                          ? "Approved"
+                          : property.status === "rejected"
+                          ? "Rejected"
+                          : "Pending Review"}
+                      </span>
+                    </div>
                   </p>
 
                   <div className="flex gap-2 mt-5">
@@ -169,7 +187,7 @@ export default function DealerListings() {
 
                     <Link
                       href={`/dealer/edit-property/${property.id}`}
-                      className="flex-1 text-center bg-blue-700 text-white py-2 rounded-lg hover:bg-blue-800"
+                      className="flex-1 text-center bg-[#3B82F6] text-white py-2 rounded-lg hover:bg-[#60A5FA]"
                     >
                       Edit
                     </Link>

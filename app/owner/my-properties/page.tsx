@@ -42,14 +42,10 @@ export default function MyPropertiesPage() {
 
       const snap = await getDocs(q);
 
-      const data = snap.docs
-        .map((docSnap) => ({
-          id: docSnap.id,
-          ...docSnap.data(),
-        }))
-        .filter((property: any) =>
-          ["flat", "villa", "plot"].includes(property.propertyType)
-        ) as Property[];
+      const data = snap.docs.map((docSnap) => ({
+  id: docSnap.id,
+  ...docSnap.data(),
+})) as Property[];
 
       setProperties(data);
     }
@@ -129,7 +125,7 @@ property.price
                     ❌ Rejected
                   </span>
                 ) : (
-                  <span className="rounded bg-yellow-500 px-3 py-1 text-black">
+                  <span className="rounded bg-[#d4a855] px-3 py-1 text-black">
                     ⏳ Pending
                   </span>
                 )}
@@ -137,7 +133,16 @@ property.price
 
               <div className="mt-5 flex gap-3">
                 <button
-                  className="rounded bg-blue-600 px-4 py-2 text-white"
+              className="rounded bg-green-600 px-4 py-2 text-white"
+              onClick={() =>
+                router.push(`/properties/${property.id}`)
+              }
+            >
+              View
+            </button>
+
+            <button
+                  className="rounded bg-[#60A5FA] px-4 py-2 text-white"
                   onClick={() =>
                     router.push(`/owner/edit-property/${property.id}`)
                   }

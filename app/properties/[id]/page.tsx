@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import dynamic from "next/dynamic";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -6,6 +7,8 @@ import { db } from "@/lib/firebase";
 import EMICalculator from "../../../components/EMICalculator";
 import ImageGallery from "../../../components/ImageGallery";
 import Amenities from "../../../components/Amenities";
+import PropertyAreaInsights from "../../../components/PropertyAreaInsights";
+import PropertyHomeLoanPanel from "../../../components/PropertyHomeLoanPanel";
 
 
 
@@ -20,6 +23,8 @@ import WhatsAppButton from "../../../components/WhatsAppButton";
 import ShareButton from "../../../components/ShareButton";
 import LeadForm from "../../../components/LeadForm";
 import PropertySchema from "../../../components/PropertySchema";
+import PropertyViewTracker from "../../../components/PropertyViewTracker";
+import PropertyDetailDeferred from "../../../components/PropertyDetailDeferred";
 
 
 
@@ -44,31 +49,33 @@ type Props = {
   }>;
 };
 
+const getProperty = cache(async (id: string): Promise<any | null> => {
+  const docRef = doc(db, "properties", id);
+  const docSnap = await getDoc(docRef);
+
+  if (!docSnap.exists()) {
+    return null;
+  }
+
+  return {
+    id: docSnap.id,
+    ...docSnap.data(),
+  } as any;
+});
+
 
 export async function generateMetadata({ params }: Props) {
 
   const { id } = await params;
 
-  const docRef = doc(db, "properties", id);
+  const property = await getProperty(id);
 
-  const docSnap = await getDoc(docRef);
-
-
-  if (!docSnap.exists()) {
-
+  if (!property) {
     return {
-
       title: "Property Not Found | PropertyHub",
-
-      description:
-        "Property details not available."
-
+      description: "Property details not available.",
     };
-
   }
-
-
-  const property = docSnap.data() as any;
 
 
   return {
@@ -142,49 +149,42 @@ export default async function PropertyDetails({ params }: Props) {
   const { id } = await params;
 
 
-  let property:any = null;
+  const property = await getProperty(id);
 
-
-  const docRef = doc(db,"properties",id);
-
-  const docSnap = await getDoc(docRef);
-
-
-  if(docSnap.exists()){
-
-    property = {
-      id: docSnap.id,
-      ...docSnap.data(),
-    };
-
-  }
-
-
-
-
-
-  if(!property){
-
+  if (!property) {
     notFound();
-
   }
-
-
-  console.log("PROPERTY DEBUG", {
-  id: property.id,
-  latitude: property.latitude,
-  longitude: property.longitude,
-  property: property
-});
 
 const isRental =
     property.propertyType==="pg" ||
     property.propertyType==="hostel" ||
     property.propertyType==="room_rent";
 
+const isResale =
+    property.purpose === "resale" ||
+    property.propertyType === "resale";
+
+const normalizedPurpose = String(
+  property.purpose || property.type || ""
+).toLowerCase();
+
+const normalizedPropertyType = String(
+  property.propertyType || property.type || ""
+).toLowerCase();
+
+const isPurchaseProperty =
+  ["new", "buy", "resale"].includes(
+    normalizedPurpose
+  ) ||
+  normalizedPropertyType === "resale";
+
 
   return (
     <>
+      <PropertyViewTracker
+        propertyId={property.id}
+        propertyTitle={property.title}
+      />
       <PropertySchema property={property} />
 
       <main className="min-h-screen bg-slate-50 py-10">
@@ -244,7 +244,7 @@ const isRental =
                   </p>
 
 
-                  <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-yellow-50 px-4 py-2">
+                  <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#d4a855]/10 px-4 py-2">
 
                     <span>
                       ⭐⭐⭐⭐⭐
@@ -260,9 +260,9 @@ const isRental =
                 </div>
 
 
-                <div className="rounded-3xl bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 px-8 py-7 text-center text-white shadow-2xl ring-1 ring-white/10 backdrop-blur-xl">
+                <div className="rounded-3xl bg-gradient-to-br from-slate-900 via-[#0B0F14] to-[#111827] px-8 py-7 text-center text-white shadow-2xl ring-1 ring-white/10 backdrop-blur-xl">
 
-                  <p className="text-xs uppercase tracking-[0.35em] text-blue-200">
+                  <p className="text-xs uppercase tracking-[0.35em] text-[#DBEAFE]">
 
                     Price
 
@@ -344,72 +344,157 @@ const isRental =
                 </div>
 
 
-              </div>              <hr className="my-10" />
-
-
-              <h2 className="mb-6 text-3xl font-bold text-slate-900">
-                Property Highlights
-              </h2>
-
-
-              <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
-
-
-                <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl">
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Builder</h3>
-                  <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900">
-                    {property.builder}
-                  </p>
-                </div>
-
-
-                <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl">
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Bedrooms</h3>
-                  <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900">
-                    🛏 {property.bedrooms}
-                  </p>
-                </div>
-
-
-                <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl">
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Bathrooms</h3>
-                  <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900">
-                    🛁 {property.bathrooms}
-                  </p>
-                </div>
-
-
-                <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl">
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Area</h3>
-                  <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900">
-                    📐 {property.area}
-                  </p>
-                </div>
-
-
-                <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl">
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Project</h3>
-                  <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900">
-                    🏗 {property.projectName || "-"}
-                  </p>
-                </div>
-
-
-                <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl">
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Property Type</h3>
-                  <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900">
-                    🏢 {property.propertyType || "-"}
-                  </p>
-                </div>
-
-
               </div>
 
+              {isPurchaseProperty && (
+                <PropertyAreaInsights
+                  location={String(
+                    property.location || "Jaipur"
+                  )}
+                />
+              )}
 
-              <Amenities />
+              <hr className="my-10" />
 
 
-              {!isRental && (
+              {(() => {
+                const isRoomType =
+                  property.propertyType === "room_rent" ||
+                  property.propertyType === "pg" ||
+                  property.propertyType === "hostel";
+
+                const highlightCards = [];
+
+                if (!isRoomType && property.builder) {
+                  highlightCards.push(
+                    <div
+                      key="builder"
+                      className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl"
+                    >
+                      <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
+                        Builder
+                      </h3>
+                      <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900">
+                        {property.builder}
+                      </p>
+                    </div>
+                  );
+                }
+
+                if (!isRoomType && property.bedrooms) {
+                  highlightCards.push(
+                    <div
+                      key="bedrooms"
+                      className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl"
+                    >
+                      <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
+                        Bedrooms
+                      </h3>
+                      <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900">
+                        🛏 {property.bedrooms}
+                      </p>
+                    </div>
+                  );
+                }
+
+                if (!isRoomType && property.bathrooms) {
+                  highlightCards.push(
+                    <div
+                      key="bathrooms"
+                      className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl"
+                    >
+                      <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
+                        Bathrooms
+                      </h3>
+                      <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900">
+                        🛁 {property.bathrooms}
+                      </p>
+                    </div>
+                  );
+                }
+
+                if (
+                  !isRoomType &&
+                  String(property.purpose || "").toLowerCase() !== "rent" &&
+                  String(property.propertyType || "").toLowerCase() !== "plot" &&
+                  property.area
+                ) {
+                  highlightCards.push(
+                    <div
+                      key="area"
+                      className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl"
+                    >
+                      <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
+                        Area
+                      </h3>
+                      <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900">
+                        📐 {property.area}
+                      </p>
+                    </div>
+                  );
+                }
+
+                if (!isRoomType && !isResale && property.projectName) {
+                  highlightCards.push(
+                    <div
+                      key="project"
+                      className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl"
+                    >
+                      <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
+                        Project
+                      </h3>
+                      <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900">
+                        🏗 {property.projectName}
+                      </p>
+                    </div>
+                  );
+                }
+
+                if (!isRoomType && property.propertyType) {
+                  highlightCards.push(
+                    <div
+                      key="property-type"
+                      className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl"
+                    >
+                      <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
+                        Property Type
+                      </h3>
+                      <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900">
+                        🏢 {property.propertyType}
+                      </p>
+                    </div>
+                  );
+                }
+
+                if (highlightCards.length === 0) {
+                  return null;
+                }
+
+                return (
+                  <>
+                    <h2 className="mb-6 text-3xl font-bold text-slate-900">
+                      Property Highlights
+                    </h2>
+
+                    <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
+                      {highlightCards}
+                    </div>
+                  </>
+                );
+              })()}
+
+              {!isResale && property.propertyType !== "plot" && (
+                <Amenities
+                  amenities={
+                    Array.isArray(property.amenities)
+                      ? property.amenities
+                      : []
+                  }
+                />
+              )}
+
+
+              {!isRental && !isResale && (
                 <>
                   <BuilderCard
                     builder={property.builder}
@@ -421,7 +506,7 @@ const isRental =
 
                   <PropertyScore rating={property.rating} />
 
-                  <PriceTrend />
+                  <PriceTrend price={property.price} />
 
                   <AIPropertyAssistant />
                 </>
@@ -552,7 +637,9 @@ const isRental =
 
 {/* PREMIUM AMENITIES */}
 
-{property.amenities && property.amenities.length > 0 && (
+{property.propertyType !== "plot" &&
+property.amenities &&
+property.amenities.length > 0 && (
 
 <div className="mt-8 rounded-xl bg-gray-50 p-5">
 
@@ -567,7 +654,7 @@ const isRental =
 
 <span
 key={item}
-className="bg-blue-50 px-3 py-2 rounded-lg text-blue-600"
+className="bg-[#F8FAFC] px-3 py-2 rounded-lg text-[#60A5FA]"
 >
 ✓ {item}
 </span>
@@ -583,12 +670,14 @@ className="bg-blue-50 px-3 py-2 rounded-lg text-blue-600"
               <div className="mt-10 flex flex-wrap gap-5">
 
 
-                <a
+                {!isRental && !isResale && property.builderContact && (
+<a
                   href={`tel:${property.builderContact}`}
-                  className="rounded-xl bg-blue-600 px-8 py-4 font-bold text-white"
+                  className="rounded-xl bg-[#60A5FA] px-8 py-4 font-bold text-white"
                 >
                   📞 Call Builder
                 </a>
+)}
 
 
                 <div className="flex flex-wrap gap-4">
@@ -638,18 +727,26 @@ className="bg-blue-50 px-3 py-2 rounded-lg text-blue-600"
 />
 
 
-              <NearbyPlaces
-  location={property.location}
-  latitude={Number(property.latitude)}
-  longitude={Number(property.longitude)}
-/>
+              <PropertyDetailDeferred
+                fallback={
+                  <div className="mt-8 space-y-6">
+                    <div className="h-72 animate-pulse rounded-xl bg-zinc-100" />
+                    <div className="h-48 animate-pulse rounded-xl bg-zinc-100" />
+                  </div>
+                }
+              >
+                <NearbyPlaces
+                  location={property.location}
+                  latitude={Number(property.latitude)}
+                  longitude={Number(property.longitude)}
+                />
 
-
-              <SimilarProperties
-                currentId={property.id}
-                location={property.location}
-                propertyType={property.propertyType}
-              />
+                <SimilarProperties
+                  currentId={property.id}
+                  location={property.location}
+                  propertyType={property.propertyType}
+                />
+              </PropertyDetailDeferred>
 
 
               {(
@@ -661,6 +758,7 @@ className="bg-blue-50 px-3 py-2 rounded-lg text-blue-600"
                   propertyId={property.id}
                   propertyTitle={property.title}
                   ownerId={property.ownerId}
+                  dealerId={property.dealerId}
                 />
               )}
 
@@ -668,8 +766,19 @@ className="bg-blue-50 px-3 py-2 rounded-lg text-blue-600"
                 propertyId={property.id}
                 propertyTitle={property.title}
                 ownerId={property.ownerId}
+                dealerId={property.dealerId}
               />
 
+              {isPurchaseProperty && (
+                <PropertyHomeLoanPanel
+                  propertyTitle={String(
+                    property.title || "Property"
+                  )}
+                  propertyPrice={String(
+                    property.price || ""
+                  )}
+                />
+              )}
 
             </div>
 

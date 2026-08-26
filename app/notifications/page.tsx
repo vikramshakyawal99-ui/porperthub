@@ -118,7 +118,7 @@ Loading notifications...
 
 return(
 
-<div className="min-h-screen bg-zinc-950 text-white p-6">
+<div className="min-h-screen bg-slate-50 text-slate-900 p-6">
 
 
 <h1 className="text-3xl font-bold mb-8">
@@ -130,7 +130,7 @@ return(
 {
 notifications.length===0 ?
 
-<p className="text-gray-400">
+<p className="text-slate-500">
 No notifications yet
 </p>
 
@@ -149,9 +149,9 @@ key={item.id}
 className={`p-5 rounded-xl ${
 item.read
 ?
-"bg-zinc-900"
+"bg-white"
 :
-"bg-blue-900"
+"bg-[#0B0F14]"
 }`}
 
 >

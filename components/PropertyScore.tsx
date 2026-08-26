@@ -16,7 +16,7 @@ export default function PropertyScore({ rating }: Props) {
   ).toFixed(1);
 
   return (
-    <section className="mt-10 rounded-3xl bg-gradient-to-r from-blue-600 to-indigo-700 p-8 text-white shadow-2xl">
+    <section className="mt-10 rounded-3xl bg-gradient-to-r from-[#60A5FA] to-[#3B82F6] p-8 text-white shadow-2xl">
       <h2 className="text-3xl font-bold">
         🤖 AI Property Score
       </h2>

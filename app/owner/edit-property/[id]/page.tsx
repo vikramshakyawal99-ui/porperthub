@@ -14,6 +14,7 @@ import { uploadToCloudinary } from "@/lib/cloudinary";
 
 import { useRouter, useParams } from "next/navigation";
 import LocationPicker from "@/components/LocationPicker";
+import { useAuth } from "@/components/AuthProvider";
 
 
 export default function EditPropertyPage(){
@@ -21,6 +22,10 @@ export default function EditPropertyPage(){
 const router = useRouter();
 const params = useParams();
 
+const {
+  user,
+  loading: authLoading,
+} = useAuth();
 
 const [loading,setLoading]=useState(false);
 
@@ -42,7 +47,7 @@ const [form,setForm]=useState({
 
 title:"",
 
-purpose:"buy",
+purpose:"new",
 
 propertyType:"flat",
 
@@ -90,6 +95,18 @@ useEffect(()=>{
 
 async function loadProperty(){
 
+if(authLoading){
+return;
+}
+
+if(!user){
+router.replace(
+  `/owner-login?redirect=${encodeURIComponent(
+    `/owner/edit-property/${String(params.id)}`
+  )}`
+);
+return;
+}
 
 const snap = await getDoc(
 
@@ -117,15 +134,22 @@ return;
 
 const data:any=snap.data();
 
-
+if(String(data.ownerId || "") !== user.uid){
+alert("You are not authorized to edit this property.");
+router.replace("/owner/my-properties");
+return;
+}
 
 setForm({
 
 title:data.title || "",
 
-purpose:data.purpose || "buy",
+purpose:data.purpose || "new",
 
-propertyType:data.propertyType || "flat",
+propertyType:
+data.propertyType === "room"
+  ? "room_rent"
+  : data.propertyType || "flat",
 
 location:data.location || "",
 
@@ -186,7 +210,12 @@ loadProperty();
 
 
 
-},[params.id,router]);
+},[
+  params.id,
+  router,
+  user,
+  authLoading,
+]);
 
 
 
@@ -265,7 +294,9 @@ images:[
 
 latitude:locationData.latitude,
 
-longitude:locationData.longitude
+longitude:locationData.longitude,
+
+status:"approved"
 
 }
 
@@ -299,13 +330,13 @@ setLoading(false);
 
 return (
 
-<div className="min-h-screen bg-zinc-950 text-white p-10">
+<div className="min-h-screen bg-[#F4FAF6] px-4 py-10 text-[#102A1A] sm:px-6">
 
 
-<div className="mx-auto max-w-3xl bg-zinc-900 rounded-2xl p-8">
+<div className="mx-auto max-w-3xl rounded-3xl border border-[#DCE9DF] bg-white p-6 shadow-[0_20px_60px_rgba(16,42,26,0.10)] sm:p-8">
 
 
-<h1 className="text-3xl font-bold mb-6">
+<h1 className="mb-8 text-3xl font-black text-[#102A1A]">
 ✏️ Edit Property
 </h1>
 
@@ -328,7 +359,7 @@ onChange={handleChange}
 
 placeholder="Property Title"
 
-className="w-full rounded p-3 text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 
 />
 
@@ -343,12 +374,12 @@ value={form.purpose}
 
 onChange={handleChange}
 
-className="w-full rounded p-3 text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 
 >
 
-<option value="buy">
-Buy
+<option value="new">
+New
 </option>
 
 <option value="rent">
@@ -374,7 +405,7 @@ value={form.propertyType}
 
 onChange={handleChange}
 
-className="w-full rounded p-3 text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 
 >
 
@@ -398,8 +429,8 @@ Plot
 </option>
 
 
-<option value="room">
-Room
+<option value="room_rent">
+Room Rent
 </option>
 
 
@@ -429,7 +460,7 @@ onChange={handleChange}
 
 placeholder="Location"
 
-className="w-full rounded p-3 text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 
 />
 
@@ -473,7 +504,7 @@ onChange={handleChange}
 
 placeholder="Bedrooms / BHK"
 
-className="w-full rounded p-3 text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 
 />
 
@@ -489,7 +520,7 @@ onChange={handleChange}
 
 placeholder="Price"
 
-className="w-full rounded p-3 text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 
 />
 
@@ -519,7 +550,7 @@ onChange={handleChange}
 
 placeholder="Plot Area"
 
-className="w-full rounded p-3 text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 
 />
 
@@ -535,7 +566,7 @@ onChange={handleChange}
 
 placeholder="Plot Price"
 
-className="w-full rounded p-3 text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 
 />
 
@@ -551,7 +582,7 @@ className="w-full rounded p-3 text-black"
 {
 (
 form.propertyType==="pg" ||
-form.propertyType==="room" ||
+form.propertyType==="room_rent" ||
 form.propertyType==="hostel"
 )
 
@@ -569,7 +600,7 @@ onChange={handleChange}
 
 placeholder="Single / Shared Room"
 
-className="w-full rounded p-3 text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 
 />
 
@@ -586,7 +617,7 @@ onChange={handleChange}
 
 placeholder="Sharing"
 
-className="w-full rounded p-3 text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 
 />
 
@@ -601,7 +632,7 @@ value={form.suitableFor}
 
 onChange={handleChange}
 
-className="w-full rounded p-3 text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 
 >
 
@@ -642,7 +673,7 @@ value={form.kitchen}
 
 onChange={handleChange}
 
-className="w-full rounded p-3 text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 
 >
 
@@ -671,7 +702,7 @@ onChange={handleChange}
 
 placeholder="Food Available"
 
-className="w-full rounded p-3 text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 
 />
 
@@ -688,7 +719,7 @@ onChange={handleChange}
 
 placeholder="Monthly Rent"
 
-className="w-full rounded p-3 text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 
 />
 
@@ -710,7 +741,7 @@ onChange={handleChange}
 
 placeholder="Contact"
 
-className="w-full rounded p-3 text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 
 />
 
@@ -728,7 +759,7 @@ onChange={handleChange}
 
 placeholder="Description"
 
-className="w-full rounded p-3 text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 
 />
 
@@ -739,7 +770,7 @@ className="w-full rounded p-3 text-black"
 
 {existingImages.length>0 && (
 
-<div className="rounded-xl border border-zinc-700 p-4">
+<div className="rounded-2xl border border-[#DCE9DF] bg-[#F7FBF8] p-4">
 
 <h3 className="mb-4 text-lg font-bold">
 Existing Images
@@ -760,7 +791,7 @@ className="h-32 w-full rounded-lg object-cover"
 />
 
 {index===0 && (
-<span className="absolute left-2 top-2 rounded bg-blue-600 px-2 py-1 text-xs text-white">
+<span className="absolute left-2 top-2 rounded bg-[#60A5FA] px-2 py-1 text-xs text-white">
 Cover
 </span>
 )}
@@ -787,7 +818,7 @@ const selected=updated.splice(index,1)[0];
 updated.unshift(selected);
 setExistingImages(updated);
 }}
-className="absolute bottom-2 left-2 rounded bg-blue-600 px-2 py-1 text-xs text-white"
+className="absolute bottom-2 left-2 rounded bg-[#60A5FA] px-2 py-1 text-xs text-white"
 >
 ⭐ Make Cover
 </button>
@@ -809,11 +840,11 @@ className="absolute bottom-2 left-2 rounded bg-blue-600 px-2 py-1 text-xs text-w
 
 type="file"
 
-accept="image/*"
+accept="image/jpeg,image/png,image/webp,image/avif"
 
 multiple
 
-className="w-full rounded bg-white p-3 text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] file:mr-4 file:rounded-lg file:border-0 file:bg-[#EAF7EE] file:px-4 file:py-2 file:font-bold file:text-[#15803D]"
 
 onChange={(e)=>{
 
@@ -897,7 +928,7 @@ form.amenities.filter((x:string)=>x!==item)
 
 disabled={loading}
 
-className="w-full rounded-xl bg-blue-600 p-3 font-bold"
+className="w-full rounded-xl bg-[#16A34A] p-3 font-bold text-white shadow-lg transition hover:bg-[#15803D] disabled:cursor-wait disabled:opacity-60"
 
 >
 

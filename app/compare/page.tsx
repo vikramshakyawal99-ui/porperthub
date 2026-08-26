@@ -37,14 +37,14 @@ export default function ComparePage() {
 
   return (
 
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-blue-50 px-6 py-16">
+    <main className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-[#F8FAFC] px-6 py-16">
 
       <div className="mx-auto max-w-7xl">
 
 
         <div className="text-center mb-12">
 
-          <span className="rounded-full bg-blue-100 px-5 py-2 text-sm font-bold text-blue-700">
+          <span className="rounded-full bg-[#EFF6FF] px-5 py-2 text-sm font-bold text-[#3B82F6]">
             Smart Comparison
           </span>
 
@@ -80,7 +80,7 @@ export default function ComparePage() {
                 hover:-translate-y-2
                 ${
                   selected.includes(property.id)
-                  ? "border-blue-600 ring-2 ring-blue-200"
+                  ? "border-[#60A5FA] ring-2 ring-blue-200"
                   : "border-slate-200"
                 }
               `}
@@ -113,14 +113,14 @@ export default function ComparePage() {
               </p>
 
 
-              <p className="mt-3 font-bold text-blue-600">
+              <p className="mt-3 font-bold text-[#60A5FA]">
                 💰 {property.price}
               </p>
 
 
               {selected.includes(property.id) && (
 
-                <div className="mt-4 rounded-xl bg-blue-600 px-3 py-2 text-center text-sm font-bold text-white">
+                <div className="mt-4 rounded-xl bg-green-600 px-3 py-2 text-center text-sm font-bold text-slate-900">
                   Added ✓
                 </div>
 

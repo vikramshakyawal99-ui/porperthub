@@ -326,7 +326,7 @@ Unread {unread}
 
 onClick={markAllRead}
 
-className="bg-blue-600 px-4 py-2 rounded-xl"
+className="bg-[#60A5FA] px-4 py-2 rounded-xl"
 
 >
 
@@ -366,7 +366,7 @@ onClick={()=>setFilter(item[0])}
 className={`px-4 py-2 rounded-xl ${
 filter===item[0]
 ?
-"bg-blue-600"
+"bg-[#60A5FA]"
 :
 "bg-zinc-800"
 }`}
@@ -424,7 +424,7 @@ item.read
 ?
 "bg-zinc-900 border-zinc-800"
 :
-"bg-blue-900 border-blue-500"
+"bg-[#0B0F14] border-[#60A5FA]"
 }`}
 
 

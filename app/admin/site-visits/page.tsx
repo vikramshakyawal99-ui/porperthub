@@ -57,7 +57,7 @@ export default function SiteVisitsPage() {
 
 
   return (
-    <main className="min-h-screen bg-zinc-950 p-10">
+    <main className="min-h-screen bg-slate-50 p-10">
 
       <h1 className="mb-8 text-4xl font-bold">
         📅 Site Visit Requests
@@ -77,7 +77,7 @@ export default function SiteVisitsPage() {
 
           <div
             key={visit.id}
-            className="rounded-2xl bg-zinc-900 p-6 shadow"
+            className="rounded-2xl bg-white p-6 shadow"
           >
 
             <h2 className="text-2xl font-bold">
@@ -118,7 +118,7 @@ export default function SiteVisitsPage() {
                       ? "bg-green-100 text-green-700"
                       : visit.status === "Rejected"
                       ? "bg-red-100 text-red-700"
-                      : "bg-yellow-100 text-yellow-700"
+                      : "bg-green-600/10 text-green-700"
                   }`}
                 >
                   {visit.status}
@@ -132,7 +132,7 @@ export default function SiteVisitsPage() {
 
               <a
                 href={`tel:${visit.phone}`}
-                className="rounded-xl bg-blue-600 px-5 py-2 text-white"
+                className="rounded-xl bg-green-600 px-5 py-2 text-slate-900"
               >
                 📞 Call Customer
               </a>
@@ -141,7 +141,7 @@ export default function SiteVisitsPage() {
               <a
                 href={`https://wa.me/91${visit.phone}`}
                 target="_blank"
-                className="rounded-xl bg-green-500 px-5 py-2 text-white"
+                className="rounded-xl bg-green-500 px-5 py-2 text-slate-900"
               >
                 💬 WhatsApp
               </a>
@@ -154,7 +154,7 @@ export default function SiteVisitsPage() {
                     "Approved"
                   )
                 }
-                className="rounded-xl bg-green-600 px-5 py-2 text-white"
+                className="rounded-xl bg-green-600 px-5 py-2 text-slate-900"
               >
                 Approve
               </button>
@@ -167,7 +167,7 @@ export default function SiteVisitsPage() {
                     "Rejected"
                   )
                 }
-                className="rounded-xl bg-red-600 px-5 py-2 text-white"
+                className="rounded-xl bg-red-600 px-5 py-2 text-slate-900"
               >
                 Reject
               </button>
@@ -177,7 +177,7 @@ export default function SiteVisitsPage() {
                 onClick={() =>
                   deleteVisit(visit.id)
                 }
-                className="rounded-xl bg-gray-800 px-5 py-2 text-white"
+                className="rounded-xl bg-gray-800 px-5 py-2 text-slate-900"
               >
                 🗑 Delete
               </button>

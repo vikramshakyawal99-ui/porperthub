@@ -14,6 +14,7 @@ type Props = {
   propertyId: string;
   propertyTitle: string;
   ownerId: string;
+  dealerId?: string;
   ownerEmail?: string;
   propertyType?: string;
 };
@@ -22,6 +23,7 @@ export default function LeadForm({
   propertyId,
   propertyTitle,
   ownerId,
+  dealerId,
   ownerEmail,
   propertyType,
 }: Props) {
@@ -69,6 +71,7 @@ export default function LeadForm({
           propertyId,
           propertyTitle,
           ownerId,
+          dealerId: dealerId || "",
           ownerEmail: ownerEmail || "",
 
           buyerId:user?.uid || "",
@@ -139,7 +142,7 @@ export default function LeadForm({
         onSubmit={submitLead}
         className="space-y-4"
       >        <input
-          className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-[#60A5FA] focus:bg-white"
           placeholder="Name"
           value={name}
           onChange={(e)=>setName(e.target.value)}
@@ -147,7 +150,7 @@ export default function LeadForm({
         />
 
         <input
-          className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-[#60A5FA] focus:bg-white"
           placeholder="Phone"
           value={phone}
           onChange={(e)=>setPhone(e.target.value)}
@@ -155,21 +158,21 @@ export default function LeadForm({
         />
 
         <input
-          className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-[#60A5FA] focus:bg-white"
           placeholder="Email"
           value={email}
           onChange={(e)=>setEmail(e.target.value)}
         />
 
         <textarea
-          className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-[#60A5FA] focus:bg-white"
           placeholder="Message"
           value={message}
           onChange={(e)=>setMessage(e.target.value)}
           rows={4}
         />        <button
           disabled={loading}
-          className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 font-black text-white shadow-xl transition hover:scale-[1.02] disabled:opacity-50"
+          className="w-full rounded-xl bg-gradient-to-r from-[#60A5FA] to-[#60A5FA] px-6 py-4 font-black text-white shadow-xl transition hover:scale-[1.02] disabled:opacity-50"
         >
           {
             loading

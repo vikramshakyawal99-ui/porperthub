@@ -2,21 +2,36 @@
 
 import Link from "next/link";
 import useProperties from "@/hooks/useProperties";
+import { properties as oldProperties } from "@/data/properties";
 import PropertyCard from "./PropertyCard";
 
 export default function FeaturedProperties() {
   const { properties, loading } = useProperties();
 
-  const featured = properties.slice(0, 8);
+  const legacyProperties = oldProperties.map((property) => ({
+    ...property,
+    propertyType:
+      property.type?.toLowerCase() === "apartment"
+        ? "flat"
+        : property.type?.toLowerCase() === "flat"
+        ? "flat"
+        : property.type?.toLowerCase() === "villa"
+        ? "villa"
+        : property.type?.toLowerCase(),
+    purpose: "new",
+    propertyCondition: "new",
+  }));
+
+  const featured = [
+    ...legacyProperties,
+    ...properties,
+  ].slice(0, 8);
 
   if (loading) {
     return (
-      <section className="py-24 bg-gradient-to-b from-white to-blue-50">
-        <div className="mx-auto max-w-7xl px-6">
-          <h2 className="text-5xl font-black tracking-tight text-slate-900">
-            Featured Properties
-          </h2>
-          <p className="mt-4 text-slate-600">
+      <section className="bg-[#F8FAF8] py-20">
+        <div className="mx-auto max-w-7xl px-6 text-center">
+          <p className="text-lg text-slate-500">
             Loading properties...
           </p>
         </div>
@@ -24,32 +39,30 @@ export default function FeaturedProperties() {
     );
   }
 
-
   return (
-    <section className="py-24 bg-gradient-to-b from-white via-slate-50 to-blue-50">
-
+    <section className="bg-[#F8FAF8] py-20">
       <div className="mx-auto max-w-7xl px-6">
 
-        <div className="mb-12 flex flex-col items-center text-center">
+        <div className="mb-10 text-center">
 
-          <p className="rounded-full bg-blue-100 px-5 py-2 text-sm font-bold text-blue-700">
-            ⭐ Premium Collection
+          <p className="inline-flex rounded-full border border-green-200 bg-green-50 px-5 py-2 text-sm font-bold text-green-700">
+            ⭐ Featured Collection
           </p>
 
-          <h2 className="mt-4 text-5xl font-black tracking-tight text-slate-900">
-            Featured Properties
+          <h2 className="mt-5 text-4xl font-black tracking-tight text-slate-900 md:text-5xl">
+            Find A Place That Feels Like Home
           </h2>
 
-          <p className="mt-4 max-w-2xl text-lg text-slate-600">
-            Explore verified properties selected specially for you.
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-500">
+            Explore verified properties selected to help you find the right
+            place with confidence.
           </p>
 
         </div>
 
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
 
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 xl:gap-10">
-
-          {featured.map((property)=>(
+          {featured.map((property) => (
             <PropertyCard
               key={property.id}
               property={property}
@@ -58,26 +71,27 @@ export default function FeaturedProperties() {
 
         </div>
 
-
-        <div className="mt-12 text-center">
-
+        <div className="mt-10 text-center">
           <Link
             href="/properties"
             className="
-              inline-block rounded-xl
-              bg-gradient-to-r from-blue-600 to-indigo-600 px-10 py-4
-              font-black text-white shadow-xl
-              transition-all duration-300 hover:scale-[1.05] hover:shadow-2xl
+              inline-block
+              rounded-xl
+              bg-green-600
+              px-10 py-4
+              font-black
+              text-white
+              shadow-sm
+              transition
+              hover:bg-green-700
+              hover:shadow-md
             "
           >
             View All Properties →
           </Link>
-
         </div>
 
-
       </div>
-
     </section>
   );
 }

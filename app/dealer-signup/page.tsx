@@ -70,7 +70,7 @@ export default function DealerSignup(){
 
       <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl p-8">
 
-        <h1 className="text-3xl font-bold text-center text-blue-700">
+        <h1 className="text-3xl font-bold text-center text-[#3B82F6]">
           Dealer Registration
         </h1>
 
@@ -135,7 +135,7 @@ export default function DealerSignup(){
           <button
             onClick={signup}
             disabled={loading}
-            className="w-full bg-blue-700 text-white py-3 rounded-lg font-semibold"
+            className="w-full bg-[#3B82F6] text-white py-3 rounded-lg font-semibold"
           >
             {loading ? "Creating..." : "Create Dealer Account"}
           </button>

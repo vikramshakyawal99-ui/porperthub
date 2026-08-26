@@ -5,9 +5,11 @@ import {
   doc,
   setDoc,
   increment,
+  serverTimestamp,
 } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 
-import { db } from "@/lib/firebase";
+import { db, auth } from "@/lib/firebase";
 
 type Props = {
   propertyId: string;
@@ -18,18 +20,21 @@ export default function PropertyViewTracker({
   propertyId,
   propertyTitle,
 }: Props) {
-
   useEffect(() => {
-
     const key = "viewed_" + propertyId;
 
     if (sessionStorage.getItem(key)) {
       return;
     }
 
-    sessionStorage.setItem(key, "1");
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        sessionStorage.setItem(key, "1");
+        return;
+      }
 
-    async function track() {
+      sessionStorage.setItem(key, "1");
+
       try {
         await setDoc(
           doc(db, "propertyViews", propertyId),
@@ -37,7 +42,7 @@ export default function PropertyViewTracker({
             propertyId,
             propertyTitle,
             views: increment(1),
-            updatedAt: new Date(),
+            updatedAt: serverTimestamp(),
           },
           {
             merge: true,
@@ -46,10 +51,9 @@ export default function PropertyViewTracker({
       } catch (err) {
         console.error("View tracking failed", err);
       }
-    }
+    });
 
-    track();
-
+    return () => unsubscribe();
   }, [propertyId, propertyTitle]);
 
   return null;

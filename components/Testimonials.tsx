@@ -22,104 +22,65 @@ const testimonials = [
   },
 ];
 
-
 export default function Testimonials() {
   return (
-    <section className="py-24 bg-gradient-to-b from-blue-50 via-white to-slate-50">
+    <section className="relative overflow-hidden bg-[#fbfaf8] py-20">
+      <div className="pointer-events-none absolute left-1/2 top-10 h-72 w-72 -translate-x-1/2 rounded-full bg-green-100/60 blur-3xl" />
 
-      <div className="mx-auto max-w-7xl px-6">
-
-
+      <div className="relative mx-auto max-w-7xl px-5 sm:px-6">
         <div className="mb-12 text-center">
-
-          <p className="inline-block rounded-full bg-blue-100 px-5 py-2 text-sm font-black text-blue-700">
+          <span className="inline-flex rounded-full border border-green-200 bg-green-50 px-5 py-2 text-xs font-black uppercase tracking-[0.14em] text-green-700">
             Customer Experience
-          </p>
+          </span>
 
-          <h2 className="mt-4 text-5xl font-black tracking-tight text-slate-900">
-            What Our Customers Say
+          <h2 className="mt-5 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
+            What Our Customers{" "}
+            <span className="text-green-700">
+              Say
+            </span>
           </h2>
 
-          <p className="mt-3 text-slate-600">
+          <p className="mx-auto mt-4 max-w-2xl leading-7 text-slate-600">
             Trusted by people finding their dream properties.
           </p>
-
         </div>
 
-
-
         <div className="grid gap-6 md:grid-cols-3">
-
-
           {testimonials.map((item) => (
-
-            <div
+            <article
               key={item.id}
-              className="
-                rounded-3xl
-                bg-white/90
-                border border-slate-200
-                p-8
-                shadow-xl
-                backdrop-blur
-                transition-all duration-300
-                hover:-translate-y-3
-                hover:shadow-2xl
-              "
+              className="group flex min-h-[310px] flex-col rounded-3xl border border-slate-200 bg-white p-7 shadow-[0_12px_35px_rgba(15,23,42,0.07)] transition duration-300 hover:-translate-y-2 hover:border-green-200 hover:shadow-[0_20px_45px_rgba(22,163,74,0.12)]"
             >
-
-
-              <div className="flex items-center gap-3">
-
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-2xl text-white shadow-lg">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-green-200 bg-green-50 text-2xl">
                   👤
                 </div>
 
-                <div className="text-xl">
-                  ⭐⭐⭐⭐⭐
+                <div
+                  className="text-base tracking-[0.15em] text-amber-400"
+                  aria-label="5 star rating"
+                >
+                  ★★★★★
                 </div>
-
               </div>
 
-
-
-              <p className="
-                mt-5
-                leading-7
-                text-slate-600
-              ">
+              <p className="mt-6 flex-1 text-[15px] leading-7 text-slate-600">
                 “{item.review}”
               </p>
 
-
-
-              <div className="mt-6">
-
-                <h3 className="
-                  text-lg
-                  font-bold
-                  text-slate-900
-                ">
+              <div className="mt-7 border-t border-slate-100 pt-5">
+                <h3 className="text-lg font-black text-slate-950">
                   {item.name}
                 </h3>
 
-                <p className="text-sm text-slate-500">
+                <p className="mt-2 text-sm text-slate-500">
                   📍 {item.city}
                 </p>
-
               </div>
-
-
-            </div>
-
+            </article>
           ))}
-
-
         </div>
-
-
       </div>
-
     </section>
   );
 }

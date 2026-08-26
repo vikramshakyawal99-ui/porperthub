@@ -20,19 +20,63 @@ const categoryMap: Record<string, { type: string; title: string }> = {
   resale: { type: "resale", title: "Resale Properties" },
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(
+  { params }: Props
+): Promise<Metadata> {
+
   const { location, category } = await params;
 
   const locationName = location
     .replace(/-/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
 
+  const config = categoryMap[category];
+
   const categoryTitle =
-    categoryMap[category]?.title ?? category.charAt(0).toUpperCase() + category.slice(1);
+    config?.title ??
+    category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+  const title = `${categoryTitle} in ${locationName}, Jaipur | PropertyHub`;
+
+  const description =
+    `Find verified ${categoryTitle.toLowerCase()} in ${locationName}, Jaipur. ` +
+    `Browse available properties on PropertyHub.`;
 
   return {
-    title: `${categoryTitle} in ${locationName}, Jaipur | PropertyHub`,
-    description: `Find verified ${categoryTitle.toLowerCase()} in ${locationName}, Jaipur on PropertyHub.`,
+    title,
+    description,
+
+    alternates: {
+      canonical: `/jaipur/${location}/${category}`,
+    },
+
+    robots: {
+      index: true,
+      follow: true,
+    },
+
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      url: `https://propertyhub.com/jaipur/${location}/${category}`,
+      siteName: "PropertyHub",
+      images: [
+        {
+          url: "/og-image.jpg",
+          width: 1200,
+          height: 630,
+          alt: `${categoryTitle} in ${locationName}, Jaipur - PropertyHub`,
+        },
+      ],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/og-image.jpg"],
+    },
   };
 }
 

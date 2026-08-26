@@ -16,12 +16,16 @@ export default function OwnerLayout({
     if (loading) return;
 
     if (!user) {
-      router.replace("/owner-login");
+      router.replace(
+        "/buyer-login?redirect=" +
+          encodeURIComponent(window.location.pathname)
+      );
       return;
     }
 
     const allowedRoles = [
-      "property_owner",
+          "buyer",
+"property_owner",
       "hostel_owner",
       "pg_owner",
       "room_owner",
@@ -46,7 +50,8 @@ export default function OwnerLayout({
   }
 
   const allowedRoles = [
-    "property_owner",
+        "buyer",
+"property_owner",
     "hostel_owner",
     "pg_owner",
     "room_owner",

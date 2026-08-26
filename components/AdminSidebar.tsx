@@ -11,6 +11,7 @@ const menu = [
   { name: "Enquiries", href: "/admin/enquiries" },
   { name: "Site Visits", href: "/admin/site-visits" },
   { name: "Leads", href: "/admin/leads" },
+  { name: "Loan Applications", href: "/admin/loan-applications" },
 ];
 
 export default function AdminSidebar() {
@@ -29,7 +30,7 @@ export default function AdminSidebar() {
             href={item.href}
             className={`block rounded-xl px-4 py-3 transition ${
               pathname === item.href
-                ? "bg-blue-600"
+                ? "bg-[#60A5FA]"
                 : "hover:bg-slate-800"
             }`}
           >

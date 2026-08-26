@@ -13,6 +13,7 @@ export type Property = {
   propertyType?: string;
   type?: string;
   purpose?: string;
+  propertyCondition?: string;
 
   image?: string;
   images?: string[];
@@ -33,11 +34,31 @@ export type Property = {
 
   status?: string;
 
-  [key: string]: any;
+  sharingType?: string;
+  roomType?: string;
+  ac?: string;
+  food?: string;
+  suitableFor?: string;
+  society?: string;
+  plotSize?: string;
+  parking?: string;
+  furnished?: string;
+  gender?: string;
 };
 
-// Memory cache (shared in browser session)
-let cachedProperties: Property[] | null = null;
+async function fetchProperties(): Promise<Property[]> {
+  const snapshot = await getDocs(
+    query(
+      collection(db, "properties"),
+      where("status", "==", "approved")
+    )
+  );
+
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  })) as Property[];
+}
 
 export default function useProperties() {
   const [properties, setProperties] = useState<Property[]>([]);
@@ -46,44 +67,20 @@ export default function useProperties() {
   useEffect(() => {
     let mounted = true;
 
-    async function loadProperties() {
-      try {
-        // Use cache if already loaded
-        if (cachedProperties) {
-          if (mounted) {
-            setProperties(cachedProperties);
-            setLoading(false);
-          }
-          return;
-        }
+    fetchProperties()
+      .then((data) => {
+        if (!mounted) return;
 
-        const snapshot = await getDocs(
-          query(
-            collection(db, "properties"),
-            where("status", "==", "approved")
-          )
-        );
-
-        const data = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Property[];
-
-        cachedProperties = data;
-
-        if (mounted) {
-          setProperties(data);
-        }
-      } catch (error) {
+        setProperties(data);
+        setLoading(false);
+      })
+      .catch((error) => {
         console.error("Failed to load properties:", error);
-      } finally {
+
         if (mounted) {
           setLoading(false);
         }
-      }
-    }
-
-    loadProperties();
+      });
 
     return () => {
       mounted = false;

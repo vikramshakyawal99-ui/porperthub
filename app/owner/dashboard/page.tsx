@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { signOut } from "firebase/auth";
 
 import {
   collection,
@@ -15,7 +17,10 @@ import {
   serverTimestamp
 } from "firebase/firestore";
 
-import { db } from "@/lib/firebase";
+import {
+  auth,
+  db,
+} from "@/lib/firebase";
 import { useAuth } from "@/components/AuthProvider";
 
 
@@ -187,14 +192,15 @@ return;
 
 try{
 
-
 const propertyQuery=query(
 collection(db,"properties"),
 where("ownerId","==",user.uid)
 );
 
 
+console.log("DASHBOARD STEP 1: properties");
 const propertySnap=await getDocs(propertyQuery);
+console.log("DASHBOARD STEP 1 OK:", propertySnap.size);
 
 
 let pending=0;
@@ -230,9 +236,11 @@ limit(5)
 );
 
 
+console.log("DASHBOARD STEP 2: recent properties");
 const recentPropertySnap=await getDocs(
 recentPropertyQuery
 );
+console.log("DASHBOARD STEP 2 OK:", recentPropertySnap.size);
 
 
 const recentProperties:any =
@@ -248,9 +256,11 @@ recentProperties.map(
 (property:any)=>property.id
 );
 
+console.log("DASHBOARD STEP 3: property views");
 const viewsSnap = await getDocs(
 collection(db,"propertyViews")
 );
+console.log("DASHBOARD STEP 3 OK:", viewsSnap.size);
 
 let totalViews = 0;
 const topViewedProperties:any[] = [];
@@ -338,7 +348,9 @@ where("ownerId","==",user.uid)
 );
 
 
+console.log("DASHBOARD STEP 4: leads");
 const leadsSnap=await getDocs(leadsQuery);
+console.log("DASHBOARD STEP 4 OK:", leadsSnap.size);
 
 
 let followUps=0;
@@ -572,9 +584,11 @@ limit(5)
 );
 
 
+console.log("DASHBOARD STEP 5: recent leads");
 const recentLeadSnap=await getDocs(
 recentLeadQuery
 );
+console.log("DASHBOARD STEP 5 OK:", recentLeadSnap.size);
 
 
 const recentLeads:any =
@@ -594,7 +608,9 @@ where("ownerId","==",user.uid)
 );
 
 
+console.log("DASHBOARD STEP 6: site visits");
 const visitsSnap=await getDocs(visitsQuery);
+console.log("DASHBOARD STEP 6 OK:", visitsSnap.size);
 
 
 const recentVisits:any =
@@ -617,9 +633,11 @@ where("read","==",false)
 );
 
 
+console.log("DASHBOARD STEP 7: notifications");
 const notificationSnap=await getDocs(
 notificationQuery
 );
+console.log("DASHBOARD STEP 7 OK:", notificationSnap.size);
 
 
 const notificationCount =
@@ -749,7 +767,7 @@ if(loading){
 
 return(
 
-<div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
+<div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center">
 
 Loading Dashboard...
 
@@ -769,7 +787,7 @@ Loading Dashboard...
 {
 data.performanceData.length===0 ?
 
-<div className="bg-zinc-900 p-5 rounded-xl">
+<div className="bg-white p-5 rounded-xl">
 No performance data
 </div>
 
@@ -779,7 +797,7 @@ data.performanceData.map((property:any)=>(
 
 <div
 key={property.id}
-className="bg-zinc-900 p-5 rounded-xl space-y-2"
+className="bg-white p-5 rounded-xl space-y-2"
 >
 
 <h3 className="text-xl font-bold">
@@ -802,7 +820,7 @@ className="bg-zinc-900 p-5 rounded-xl space-y-2"
 </p>
 
 
-<p className="text-green-400 font-bold">
+<p className="text-green-700 font-bold">
 Conversion: {property.conversion}%
 </p>
 
@@ -831,7 +849,7 @@ Conversion: {property.conversion}%
 {
 data.recentVisits.length===0 ?
 
-<div className="bg-zinc-900 p-5 rounded-xl">
+<div className="bg-white p-5 rounded-xl">
 No site visits
 </div>
 
@@ -841,7 +859,7 @@ data.recentVisits.map((visit:any)=>(
 
 <div
 key={visit.id}
-className="bg-zinc-900 p-5 rounded-xl"
+className="bg-white p-5 rounded-xl"
 >
 
 <h3 className="font-bold">
@@ -859,7 +877,7 @@ className="bg-zinc-900 p-5 rounded-xl"
 </p>
 
 
-<p className="text-blue-400">
+<p className="text-slate-500">
 {visit.status || "Pending"}
 </p>
 
@@ -882,14 +900,80 @@ className="bg-zinc-900 p-5 rounded-xl"
 
 
 
+async function handleOwnerLogout() {
+  await signOut(auth);
+  window.location.href = "/";
+}
+
 return(
 
-<div className="min-h-screen bg-zinc-950 text-white p-10">
+<div className="min-h-screen bg-slate-50 text-slate-900 px-5 py-6 sm:px-8 lg:px-10">
 
+<header className="mb-8 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
+  <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
 
-<h1 className="text-4xl font-bold mb-8">
-🏠 Owner Dashboard
-</h1>
+    <Link
+      href="/"
+      className="inline-flex w-fit items-center"
+    >
+      <Image
+        src="/branding/propertyhub-logo.svg"
+        alt="PropertyHub"
+        width={205}
+        height={58}
+        priority
+        className="h-[52px] w-auto object-contain"
+      />
+    </Link>
+
+    <nav className="flex flex-wrap items-center gap-2">
+
+      <Link
+        href="/"
+        className="rounded-xl border border-green-200 bg-green-50 px-4 py-2.5 text-sm font-bold text-green-800 transition hover:bg-green-100"
+      >
+        ← Home Page
+      </Link>
+
+      <Link
+        href="/properties"
+        className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:border-green-300 hover:text-green-700"
+      >
+        Browse Properties
+      </Link>
+
+      <Link
+        href="/owner/my-properties"
+        className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:border-green-300 hover:text-green-700"
+      >
+        My Properties
+      </Link>
+
+      <button
+        type="button"
+        onClick={handleOwnerLogout}
+        className="rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-bold text-red-600 transition hover:bg-red-100"
+      >
+        Logout
+      </button>
+
+    </nav>
+  </div>
+</header>
+
+<div className="mb-7">
+  <p className="mb-2 text-sm font-bold uppercase tracking-[0.16em] text-green-700">
+    Property Owner Panel
+  </p>
+
+  <h1 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
+    🏠 Owner Dashboard
+  </h1>
+
+  <p className="mt-2 text-sm text-slate-500 sm:text-base">
+    Manage listings, enquiries, visits and property performance.
+  </p>
+</div>
 
 
 
@@ -899,7 +983,7 @@ return(
 
 <Link
 href="/owner/add-property"
-className="bg-blue-600 p-5 rounded-xl"
+className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-green-200 hover:shadow-md"
 >
 <h2 className="font-bold">
 ➕ Add Property
@@ -911,7 +995,7 @@ className="bg-blue-600 p-5 rounded-xl"
 
 <Link
 href="/owner/my-properties"
-className="bg-green-600 p-5 rounded-xl"
+className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-green-200 hover:shadow-md"
 >
 <h2 className="font-bold">
 🏠 My Properties
@@ -923,7 +1007,7 @@ className="bg-green-600 p-5 rounded-xl"
 
 <Link
 href="/owner/leads"
-className="bg-purple-600 p-5 rounded-xl"
+className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-green-200 hover:shadow-md"
 >
 <h2 className="font-bold">
 📞 Leads
@@ -935,7 +1019,7 @@ className="bg-purple-600 p-5 rounded-xl"
 
 <Link
 href="/owner/site-visits"
-className="bg-orange-600 p-5 rounded-xl"
+className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-green-200 hover:shadow-md"
 >
 <h2 className="font-bold">
 📅 Site Visits
@@ -947,7 +1031,7 @@ className="bg-orange-600 p-5 rounded-xl"
 
 <Link
 href="/owner/notifications"
-className="bg-pink-600 p-5 rounded-xl"
+className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-green-200 hover:shadow-md"
 >
 <h2 className="font-bold">
 🔔 Notifications
@@ -959,7 +1043,7 @@ className="bg-pink-600 p-5 rounded-xl"
 
 <Link
 href="/owner/dashboard"
-className="bg-zinc-800 p-5 rounded-xl"
+className="group rounded-2xl border border-green-200 bg-green-50 p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md"
 >
 <h2 className="font-bold">
 📊 Analytics
@@ -977,49 +1061,49 @@ className="bg-zinc-800 p-5 rounded-xl"
 <div className="grid md:grid-cols-3 gap-6">
 
 
-<div className="bg-zinc-900 p-6 rounded-xl">
+<div className="bg-white p-6 rounded-xl">
 <h2>Total Properties</h2>
 <p className="text-3xl">{data.properties}</p>
 </div>
 
 
-<div className="bg-yellow-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>Pending</h2>
 <p className="text-3xl">{data.pending}</p>
 </div>
 
 
-<div className="bg-green-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>Approved</h2>
 <p className="text-3xl">{data.approved}</p>
 </div>
 
 
-<div className="bg-red-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>Rejected</h2>
 <p className="text-3xl">{data.rejected}</p>
 </div>
 
 
-<div className="bg-blue-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>Leads</h2>
 <p className="text-3xl">{data.leads}</p>
 </div>
 
 
-<div className="bg-purple-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>Site Visits</h2>
 <p className="text-3xl">{data.visits}</p>
 </div>
 
 
-<div className="bg-pink-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>🔔 Unread Notifications</h2>
 <p className="text-3xl">{data.notifications}</p>
 </div>
 
 
-<div className="bg-indigo-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>Conversion Rate</h2>
 <p className="text-3xl">
 {data.conversion}%
@@ -1027,7 +1111,7 @@ className="bg-zinc-800 p-5 rounded-xl"
 </div>
 
 
-<div className="bg-orange-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>Follow Ups</h2>
 <p className="text-3xl">
 {data.followUps}
@@ -1035,7 +1119,7 @@ className="bg-zinc-800 p-5 rounded-xl"
 </div>
 
 
-<Link href="/owner/leads?filter=today" className="bg-red-500 p-6 rounded-xl">
+<Link href="/owner/leads?filter=today" className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>Today's Follow Ups</h2>
 <p className="text-3xl">
 {data.todayFollowUps}
@@ -1043,7 +1127,7 @@ className="bg-zinc-800 p-5 rounded-xl"
 </Link>
 
 
-<Link href="/owner/leads?filter=overdue" className="bg-red-800 p-6 rounded-xl">
+<Link href="/owner/leads?filter=overdue" className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>⚠️ Overdue Follow Ups</h2>
 <p className="text-3xl">
 {data.overdueFollowUps}
@@ -1051,7 +1135,7 @@ className="bg-zinc-800 p-5 rounded-xl"
 </Link>
 
 
-<div className="bg-orange-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>🔥 Urgent Hot Leads</h2>
 <p className="text-3xl">
 {data.urgentHotLeads}
@@ -1059,7 +1143,7 @@ className="bg-zinc-800 p-5 rounded-xl"
 </div>
 
 
-<div className="bg-pink-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>Notes Added</h2>
 <p className="text-3xl">
 {data.notesCount}
@@ -1067,7 +1151,7 @@ className="bg-zinc-800 p-5 rounded-xl"
 </div>
 
 
-<Link href="/owner/leads?filter=hot" className="bg-red-700 p-6 rounded-xl">
+<Link href="/owner/leads?filter=hot" className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>🔥 Hot Leads</h2>
 <p className="text-3xl">
 {data.hotLeads}
@@ -1075,7 +1159,7 @@ className="bg-zinc-800 p-5 rounded-xl"
 </Link>
 
 
-<Link href="/owner/leads?filter=warm" className="bg-yellow-600 p-6 rounded-xl">
+<Link href="/owner/leads?filter=warm" className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>🌤 Warm Leads</h2>
 <p className="text-3xl">
 {data.warmLeads}
@@ -1083,7 +1167,7 @@ className="bg-zinc-800 p-5 rounded-xl"
 </Link>
 
 
-<Link href="/owner/leads?filter=cold" className="bg-zinc-700 p-6 rounded-xl">
+<Link href="/owner/leads?filter=cold" className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>❄ Cold Leads</h2>
 <p className="text-3xl">
 {data.coldLeads}
@@ -1091,7 +1175,7 @@ className="bg-zinc-800 p-5 rounded-xl"
 </Link>
 
 
-<div className="bg-orange-500 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>🔥 Interested Leads</h2>
 <p className="text-3xl">
 {data.interestedLeads}
@@ -1099,7 +1183,7 @@ className="bg-zinc-800 p-5 rounded-xl"
 </div>
 
 
-<div className="bg-indigo-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>📅 Site Visit Leads</h2>
 <p className="text-3xl">
 {data.siteVisitLeads}
@@ -1107,7 +1191,7 @@ className="bg-zinc-800 p-5 rounded-xl"
 </div>
 
 
-<div className="bg-gray-700 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>❌ Lost Leads</h2>
 <p className="text-3xl">
 {data.lostLeads}
@@ -1115,14 +1199,14 @@ className="bg-zinc-800 p-5 rounded-xl"
 </div>
 
 
-<div className="bg-green-700 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>✅ Closed Leads</h2>
 <p className="text-3xl">
 {data.closedLeads}
 </p>
 </div>
 
-<div className="bg-cyan-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h2>👀 Property Views</h2>
 <p className="text-3xl">
 {data.viewCount}
@@ -1143,9 +1227,9 @@ className="bg-zinc-800 p-5 rounded-xl"
 
 <div className="overflow-x-auto mb-12">
 
-<table className="w-full bg-zinc-900 rounded-xl overflow-hidden">
+<table className="w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
 
-<thead className="bg-zinc-800">
+<thead className="border-b border-slate-200 bg-green-50">
 
 <tr>
 <th className="text-left p-4">Property</th>
@@ -1162,7 +1246,7 @@ className="bg-zinc-800 p-5 rounded-xl"
 {data.performanceData.length===0 ? (
 
 <tr>
-<td colSpan={5} className="p-6 text-center text-gray-400">
+<td colSpan={5} className="p-8 text-center text-slate-500">
 No analytics available
 </td>
 </tr>
@@ -1173,7 +1257,7 @@ data.performanceData.map((item:any)=>(
 
 <tr
 key={item.id}
-className="border-t border-zinc-800"
+className="border-t border-slate-200"
 >
 
 <td className="p-4 font-semibold">
@@ -1192,7 +1276,7 @@ className="border-t border-zinc-800"
 📅 {item.visits}
 </td>
 
-<td className="text-center font-bold text-green-400">
+<td className="text-center font-bold text-green-700">
 {item.conversion}%
 </td>
 
@@ -1216,43 +1300,43 @@ className="border-t border-zinc-800"
 <div className="grid md:grid-cols-7 gap-4 mb-12">
 
 
-<div className="bg-blue-600 p-5 rounded-xl">
+<div className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">🆕 New</h3>
 <p className="text-4xl">{data.hotLeads}</p>
 </div>
 
 
-<div className="bg-purple-600 p-5 rounded-xl">
+<div className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">📞 Contacted</h3>
 <p className="text-4xl">{data.warmLeads}</p>
 </div>
 
 
-<div className="bg-orange-500 p-5 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">🔥 Interested</h3>
 <p className="text-4xl">{data.interestedLeads}</p>
 </div>
 
 
-<div className="bg-indigo-600 p-5 rounded-xl">
+<div className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">📅 Site Visit</h3>
 <p className="text-4xl">{data.siteVisitLeads}</p>
 </div>
 
 
-<div className="bg-yellow-600 p-5 rounded-xl">
+<div className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">📝 Follow Up</h3>
 <p className="text-4xl">{data.followUps}</p>
 </div>
 
 
-<div className="bg-green-600 p-5 rounded-xl">
+<div className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">✅ Closed</h3>
 <p className="text-4xl">{data.closedLeads}</p>
 </div>
 
 
-<div className="bg-red-600 p-5 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">❌ Lost</h3>
 <p className="text-4xl">{data.lostLeads}</p>
 </div>
@@ -1271,7 +1355,7 @@ className="border-t border-zinc-800"
 <div className="grid md:grid-cols-4 gap-6 mb-12">
 
 
-<div className="bg-blue-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">
 Total Follow Ups
 </h3>
@@ -1281,7 +1365,7 @@ Total Follow Ups
 </div>
 
 
-<div className="bg-green-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">
 Today's Follow Ups
 </h3>
@@ -1291,7 +1375,7 @@ Today's Follow Ups
 </div>
 
 
-<div className="bg-red-700 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">
 Overdue Follow Ups
 </h3>
@@ -1301,7 +1385,7 @@ Overdue Follow Ups
 </div>
 
 
-<div className="bg-purple-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">
 Completed
 </h3>
@@ -1325,7 +1409,7 @@ data.closedLeads
 <div className="grid md:grid-cols-4 gap-6 mb-12">
 
 
-<div className="bg-blue-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">
 Lead To Interested
 </h3>
@@ -1344,7 +1428,7 @@ Math.round(
 </div>
 
 
-<div className="bg-purple-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">
 Interested To Visit
 </h3>
@@ -1363,7 +1447,7 @@ Math.round(
 </div>
 
 
-<div className="bg-green-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">
 Visit To Closed
 </h3>
@@ -1382,7 +1466,7 @@ Math.round(
 </div>
 
 
-<div className="bg-orange-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">
 Overall Closing
 </h3>
@@ -1413,7 +1497,7 @@ Math.round(
 <div className="grid md:grid-cols-5 gap-6 mb-12">
 
 
-<div className="bg-blue-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">
 New Leads
 </h3>
@@ -1425,7 +1509,7 @@ New Leads
 
 
 
-<div className="bg-yellow-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">
 Interested
 </h3>
@@ -1437,7 +1521,7 @@ Interested
 
 
 
-<div className="bg-purple-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">
 Site Visits
 </h3>
@@ -1449,7 +1533,7 @@ Site Visits
 
 
 
-<div className="bg-green-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">
 Closed
 </h3>
@@ -1461,7 +1545,7 @@ Closed
 
 
 
-<div className="bg-red-700 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">
 Lost
 </h3>
@@ -1484,7 +1568,7 @@ Lost
 <div className="grid md:grid-cols-3 gap-6 mb-12">
 
 
-<div className="bg-red-700 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">
 🔥 High Priority
 </h3>
@@ -1494,7 +1578,7 @@ Lost
 </div>
 
 
-<div className="bg-yellow-600 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">
 🟡 Medium Priority
 </h3>
@@ -1504,7 +1588,7 @@ Lost
 </div>
 
 
-<div className="bg-zinc-700 p-6 rounded-xl">
+<div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-green-200 hover:shadow-md">
 <h3 className="font-bold">
 ❄ Low Priority
 </h3>
@@ -1537,7 +1621,7 @@ data.recentProperties.map((property:any)=>(
 
 <div
 key={property.id}
-className="bg-zinc-900 p-5 rounded-xl"
+className="bg-white p-5 rounded-xl"
 >
 
 <h3 className="font-bold">
@@ -1599,7 +1683,7 @@ data.recentLeads.map((lead:any)=>(
 
 <div
 key={lead.id}
-className="bg-zinc-900 p-5 rounded-xl space-y-3"
+className="bg-white p-5 rounded-xl space-y-3"
 >
 
 <h3 className="font-bold text-xl">
@@ -1624,13 +1708,13 @@ lead.priority && (
 className={
 lead.priority==="Hot"
 ?
-"inline-block rounded-full bg-red-600 px-3 py-1 text-sm"
+"inline-block rounded-full border border-red-200 bg-red-50 px-3 py-1 text-sm font-semibold text-red-700"
 :
 lead.priority==="Warm"
 ?
-"inline-block rounded-full bg-yellow-500 text-black px-3 py-1 text-sm"
+"inline-block rounded-full border border-green-200 bg-green-50 px-3 py-1 text-sm font-semibold text-green-700"
 :
-"inline-block rounded-full bg-zinc-700 px-3 py-1 text-sm"
+"inline-block rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-600"
 }
 >
 {
@@ -1654,7 +1738,7 @@ lead.priority==="Warm"
 {
 lead.followUpDate && (
 
-<p className="text-sm text-gray-400">
+<p className="text-sm text-slate-500">
 📅 Follow Up: {lead.followUpDate}
 </p>
 
@@ -1666,7 +1750,7 @@ lead.followUpDate && (
 {
 lead.notes && (
 
-<p className="text-sm text-gray-400">
+<p className="text-sm text-slate-500">
 📝 {lead.notes}
 </p>
 
@@ -1679,7 +1763,7 @@ lead.notes && (
 
 <a
 href={`tel:${lead.phone}`}
-className="bg-green-600 px-3 py-2 rounded-lg text-sm"
+className="rounded-xl bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700"
 >
 📞 Call
 </a>
@@ -1696,7 +1780,7 @@ className="bg-emerald-600 px-3 py-2 rounded-lg text-sm"
 
 <button
 onClick={()=>updateLeadStatus(lead.id,"Contacted")}
-className="bg-blue-600 px-3 py-2 rounded-lg text-sm"
+className="rounded-xl bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700"
 >
 📞 Contacted
 </button>
@@ -1704,7 +1788,7 @@ className="bg-blue-600 px-3 py-2 rounded-lg text-sm"
 
 <button
 onClick={()=>updateLeadStatus(lead.id,"Closed")}
-className="bg-green-600 px-3 py-2 rounded-lg text-sm"
+className="rounded-xl bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700"
 >
 ✅ Close
 </button>
@@ -1712,7 +1796,7 @@ className="bg-green-600 px-3 py-2 rounded-lg text-sm"
 
 <button
 onClick={()=>updateLeadStatus(lead.id,"New")}
-className="bg-yellow-500 text-black px-3 py-2 rounded-lg text-sm"
+className="rounded-xl bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700"
 >
 🔄 Reopen
 </button>
@@ -1732,13 +1816,13 @@ lead.status==="Closed" ?
 
 lead.status==="Contacted" ?
 
-<span className="inline-block rounded-full bg-blue-600 px-3 py-1 text-sm">
+<span className="inline-block rounded-full bg-green-600 px-3 py-1 text-sm">
 📞 Contacted
 </span>
 
 :
 
-<span className="inline-block rounded-full bg-yellow-500 px-3 py-1 text-sm text-black">
+<span className="inline-block rounded-full bg-green-600 px-3 py-1 text-sm text-black">
 🆕 New Lead
 </span>
 
@@ -1748,7 +1832,7 @@ lead.status==="Contacted" ?
 {
 lead.createdAt && (
 
-<p className="text-sm text-gray-400">
+<p className="text-sm text-slate-500">
 📅 {
 lead.createdAt.toDate
 ?
@@ -1788,7 +1872,7 @@ lead.followUpDate === new Date().toISOString().split("T")[0]
 
 ?
 
-<div className="bg-zinc-900 p-5 rounded-xl">
+<div className="bg-white p-5 rounded-xl">
 No Follow Ups Today
 </div>
 
@@ -1803,7 +1887,7 @@ lead.followUpDate === new Date().toISOString().split("T")[0]
 
 <div
 key={lead.id}
-className="bg-zinc-900 p-5 rounded-xl space-y-3"
+className="bg-white p-5 rounded-xl space-y-3"
 >
 
 <h3 className="font-bold text-xl">
@@ -1872,7 +1956,7 @@ className="bg-emerald-600 px-3 py-2 rounded-lg"
 {
 data.performanceData.length===0 ?
 
-<div className="bg-zinc-900 p-5 rounded-xl">
+<div className="bg-white p-5 rounded-xl">
 No performance data
 </div>
 
@@ -1882,7 +1966,7 @@ data.performanceData.map((property:any)=>(
 
 <div
 key={property.id}
-className="bg-zinc-900 p-5 rounded-xl space-y-2"
+className="bg-white p-5 rounded-xl space-y-2"
 >
 
 <h3 className="text-xl font-bold">
@@ -1905,7 +1989,7 @@ className="bg-zinc-900 p-5 rounded-xl space-y-2"
 </p>
 
 
-<p className="text-green-400 font-bold">
+<p className="text-green-700 font-bold">
 Conversion: {property.conversion}%
 </p>
 
@@ -1934,7 +2018,7 @@ Conversion: {property.conversion}%
 {
 data.recentVisits.length===0 ?
 
-<div className="bg-zinc-900 p-5 rounded-xl">
+<div className="bg-white p-5 rounded-xl">
 No site visits
 </div>
 
@@ -1944,7 +2028,7 @@ data.recentVisits.map((visit:any)=>(
 
 <div
 key={visit.id}
-className="bg-zinc-900 p-5 rounded-xl"
+className="bg-white p-5 rounded-xl"
 >
 
 <h3 className="font-bold">
@@ -1962,7 +2046,7 @@ className="bg-zinc-900 p-5 rounded-xl"
 </p>
 
 
-<p className="text-blue-400">
+<p className="text-slate-500">
 {visit.status || "Pending"}
 </p>
 

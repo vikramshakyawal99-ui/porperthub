@@ -163,7 +163,7 @@ export default function PropertySearch() {
         </select>
 
 
-        <div className="rounded-xl bg-blue-600 p-4 text-center font-bold text-white">
+        <div className="rounded-xl bg-[#60A5FA] p-4 text-center font-bold text-white">
           {filteredProperties.length} Properties Found
         </div>
 

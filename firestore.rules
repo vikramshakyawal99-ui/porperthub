@@ -4,30 +4,41 @@ service cloud.firestore {
 
   match /databases/{database}/documents {
 
+    // =========================
+    // AUTH HELPERS
+    // =========================
 
     function isLoggedIn() {
       return request.auth != null;
     }
-
 
     function isAdmin() {
       return isLoggedIn()
         && request.auth.token.role == "admin";
     }
 
-
     function isOwnerRole() {
       return isLoggedIn()
-      &&
-      (
-        request.auth.token.role == "property_owner" ||
-        request.auth.token.role == "hostel_owner" ||
-        request.auth.token.role == "pg_owner" ||
-        request.auth.token.role == "room_owner" ||
-        request.auth.token.role == "resale_seller"
-      );
+        &&
+        get(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.role in [
+                    "buyer",
+"property_owner",
+          "hostel_owner",
+          "pg_owner",
+          "room_owner",
+          "resale_seller"
+        ];
     }
 
+    function isDealer() {
+      return isLoggedIn()
+        &&
+        get(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.role == "property_dealer";
+    }
 
 
     // =========================
@@ -38,24 +49,30 @@ service cloud.firestore {
 
       allow read: if true;
 
-
-      allow create: if isAdmin() || (
-        isOwnerRole()
-        &&
-        request.resource.data.ownerId == request.auth.uid
-      );
-
+      allow create: if isAdmin()
+        ||
+        (
+          isOwnerRole()
+          && request.resource.data.ownerId == request.auth.uid
+        )
+        ||
+        (
+          isDealer()
+          && request.resource.data.dealerId == request.auth.uid
+        );
 
       allow update, delete: if isAdmin()
-      ||
-      (
-        isLoggedIn()
-        &&
-        resource.data.ownerId == request.auth.uid
-      );
-
+        ||
+        (
+          isLoggedIn()
+          && resource.data.ownerId == request.auth.uid
+        )
+        ||
+        (
+          isDealer()
+          && resource.data.dealerId == request.auth.uid
+        );
     }
-
 
 
     // =========================
@@ -66,25 +83,24 @@ service cloud.firestore {
 
       allow create: if isLoggedIn();
 
-
       allow read, update: if isAdmin()
-      ||
-      (
-        isLoggedIn()
-        &&
+        ||
         (
-          resource.data.ownerId == request.auth.uid
-          ||
-          resource.data.buyerId == request.auth.uid
+          isLoggedIn()
+          &&
+          (
+            resource.data.ownerId == request.auth.uid ||
+            resource.data.buyerId == request.auth.uid
+          )
         )
-      );
-
+        ||
+        (
+          isDealer()
+          && resource.data.dealerId == request.auth.uid
+        );
 
       allow delete: if isAdmin();
-
     }
-
-
 
 
     // =========================
@@ -95,25 +111,24 @@ service cloud.firestore {
 
       allow create: if isLoggedIn();
 
-
       allow read, update: if isAdmin()
-      ||
-      (
-        isLoggedIn()
-        &&
+        ||
         (
-          resource.data.ownerId == request.auth.uid
-          ||
-          resource.data.buyerId == request.auth.uid
+          isLoggedIn()
+          &&
+          (
+            resource.data.ownerId == request.auth.uid ||
+            resource.data.buyerId == request.auth.uid
+          )
         )
-      );
-
+        ||
+        (
+          isDealer()
+          && resource.data.dealerId == request.auth.uid
+        );
 
       allow delete: if isAdmin();
-
     }
-
-
 
 
     // =========================
@@ -124,15 +139,17 @@ service cloud.firestore {
 
       allow read: if true;
 
+      allow create: if isLoggedIn()
+        && request.resource.data.propertyId == viewId
+        && request.resource.data.views == 1;
 
-      allow create: if isLoggedIn();
+      allow update: if isLoggedIn()
+        && resource.data.propertyId == viewId
+        && request.resource.data.propertyId == resource.data.propertyId
+        && request.resource.data.views == resource.data.views + 1;
 
-
-      allow update, delete: if false;
-
+      allow delete: if false;
     }
-
-
 
 
     // =========================
@@ -141,34 +158,52 @@ service cloud.firestore {
 
     match /users/{userId} {
 
-
+      // User can read own profile.
+      // Admin can read all profiles.
       allow read: if isAdmin()
-      ||
-      (
-        isLoggedIn()
-        &&
-        request.auth.uid == userId
-      );
+        ||
+        (
+          isLoggedIn()
+          && request.auth.uid == userId
+        );
 
+      // New users can create only their own profile.
+      // Self-registration is limited to non-admin application roles.
+      allow create: if isLoggedIn()
+        && request.auth.uid == userId
+        && request.resource.data.role in [
+          "buyer",
+          "property_owner",
+          "hostel_owner",
+          "pg_owner",
+          "room_owner",
+          "resale_seller",
+          "property_dealer"
+        ];
 
-      allow create: if isLoggedIn();
-
-
+      // Admin can change anything.
+      // Normal user can update own profile,
+      // but CANNOT change their role.
       allow update: if isAdmin()
-      ||
-      (
-        isLoggedIn()
-        &&
-        request.auth.uid == userId
-      );
-
+        ||
+        (
+          isLoggedIn()
+          && request.auth.uid == userId
+          && request.resource.data.role == resource.data.role
+        );
 
       allow delete: if isAdmin();
 
+  // =========================
+  // USER FAVORITES
+  // =========================
+
+  match /favorites/{propertyId} {
+
+    allow read, create, delete: if isLoggedIn()
+      && request.auth.uid == userId;
+  }
     }
-
-
-
 
 
     // =========================
@@ -177,41 +212,35 @@ service cloud.firestore {
 
     match /notifications/{notificationId} {
 
-
       allow read: if isAdmin()
-      ||
-      (
-        isLoggedIn()
-        &&
+        ||
         (
-          resource.data.ownerId == request.auth.uid
-          ||
-          resource.data.buyerId == request.auth.uid
-        )
-      );
-
+          isLoggedIn()
+          &&
+          (
+            resource.data.ownerId == request.auth.uid ||
+            resource.data.buyerId == request.auth.uid ||
+            resource.data.dealerId == request.auth.uid
+          )
+        );
 
       allow create: if isLoggedIn();
 
-
       allow update: if isAdmin()
-      ||
-      (
-        isLoggedIn()
-        &&
-        resource.data.ownerId == request.auth.uid
-      );
-
+        ||
+        (
+          isLoggedIn()
+          &&
+          (
+            resource.data.ownerId == request.auth.uid ||
+            resource.data.dealerId == request.auth.uid
+          )
+        );
 
       allow delete: if isAdmin();
-
     }
 
 
-
-
-
-    
     // =========================
     // WISHLIST
     // =========================
@@ -219,27 +248,66 @@ service cloud.firestore {
     match /wishlist/{wishlistId} {
 
       allow read: if isLoggedIn()
-      &&
-      resource.data.buyerId == request.auth.uid;
+        && resource.data.buyerId == request.auth.uid;
 
       allow create: if isLoggedIn()
-      &&
-      request.auth.uid == request.resource.data.buyerId;
+        && request.auth.uid == request.resource.data.buyerId;
 
       allow delete: if isLoggedIn()
-      &&
-      resource.data.buyerId == request.auth.uid;
-
+        && resource.data.buyerId == request.auth.uid;
     }
 
 
-    match /{document=**} {
+    // =========================
+    // LOAN APPLICATIONS
+    // =========================
 
+    match /loanApplications/{applicationId} {
+
+      // Customer can submit a new loan requirement.
+      // Partner, sanction, disbursement and commission fields
+      // are locked to their initial values at creation.
+      allow create: if
+        request.resource.data.status == "new"
+        && request.resource.data.source == "propertyhub"
+        && request.resource.data.partnerId == ""
+        && request.resource.data.partnerName == ""
+        && request.resource.data.externalApplicationId == ""
+        && request.resource.data.sanctionedAmount == 0
+        && request.resource.data.disbursedAmount == 0
+        && request.resource.data.commissionPercent == 0
+        && request.resource.data.commissionAmount == 0
+        && request.resource.data.commissionStatus == "not_connected"
+        && request.resource.data.customerName is string
+        && request.resource.data.customerPhone is string
+        && request.resource.data.requiredLoanAmount is number
+        && request.resource.data.estimatedEligibleAmount is number;
+
+      allow read: if isAdmin()
+        ||
+        (
+          isLoggedIn()
+          && resource.data.buyerId == request.auth.uid
+        );
+
+      allow update: if isAdmin();
+
+      allow delete: if isAdmin();
+    }
+
+
+    // =========================
+    // DEFAULT DENY
+    // =========================
+
+    
+// =========================
+// FAVORITES
+// =========================
+
+
+match /{document=**} {
       allow read, write: if false;
-
     }
-
-
   }
-
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/components/AuthProvider";
@@ -9,15 +10,18 @@ interface Props {
   propertyId: string;
   propertyTitle: string;
   ownerId: string;
+  dealerId?: string;
 }
 
 export default function SiteVisitForm({
   propertyId,
   propertyTitle,
   ownerId,
+  dealerId,
 }: Props) {
 
   const {user}=useAuth();
+  const router = useRouter();
 
   const [name,setName] = useState("");
   const [phone,setPhone] = useState("");
@@ -30,6 +34,16 @@ export default function SiteVisitForm({
   async function handleSubmit(e:React.FormEvent){
 
     e.preventDefault();
+
+    if (!user) {
+      router.push(
+        `/buyer-login?redirect=${encodeURIComponent(
+          `/properties/${propertyId}`
+        )}`
+      );
+
+      return;
+    }
 
     try{
 
@@ -49,6 +63,7 @@ export default function SiteVisitForm({
         propertyId,
         propertyTitle,
         ownerId,
+        dealerId: dealerId || "",
 
         buyerId:user?.uid || "",
 
@@ -138,7 +153,7 @@ placeholder="Your Name"
 value={name}
 onChange={(e)=>setName(e.target.value)}
 required
-className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white"
+className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-[#60A5FA] focus:bg-white"
 />
 
 
@@ -148,7 +163,7 @@ placeholder="Mobile Number"
 value={phone}
 onChange={(e)=>setPhone(e.target.value)}
 required
-className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white"
+className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-[#60A5FA] focus:bg-white"
 />
 
 
@@ -157,7 +172,7 @@ type="date"
 value={date}
 onChange={(e)=>setDate(e.target.value)}
 required
-className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white"
+className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-[#60A5FA] focus:bg-white"
 />
 
 
@@ -165,7 +180,7 @@ className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-
 value={time}
 onChange={(e)=>setTime(e.target.value)}
 required
-className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white"
+className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-[#60A5FA] focus:bg-white"
 >
 
 <option value="">
@@ -192,14 +207,15 @@ Evening (4 PM - 7 PM)
 placeholder="Message (Optional)"
 value={message}
 onChange={(e)=>setMessage(e.target.value)}
-className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-blue-500 focus:bg-white"
+className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-inner outline-none transition focus:border-[#60A5FA] focus:bg-white"
 />
 
 
 
 <button
+type="submit"
 disabled={loading}
-className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-4 font-black text-white shadow-xl transition hover:scale-[1.02]"
+className="w-full rounded-xl bg-[#D4A855] py-4 font-black text-[#080C15] shadow-xl transition hover:bg-[#E5C27A] hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
 >
 
 {

@@ -74,7 +74,7 @@ export default function DealerLogin() {
 
       <div className="bg-white w-full max-w-md rounded-2xl shadow-xl p-8">
 
-        <h1 className="text-3xl font-bold text-center text-blue-700">
+        <h1 className="text-3xl font-bold text-center text-[#3B82F6]">
           Dealer Login
         </h1>
 
@@ -117,12 +117,12 @@ export default function DealerLogin() {
             disabled={loading}
             className="
             w-full
-            bg-blue-700
+            bg-[#3B82F6]
             text-white
             py-3
             rounded-lg
             font-semibold
-            hover:bg-blue-800
+            hover:bg-[#60A5FA]
             "
           >
             {loading ? "Logging in..." : "Login"}
@@ -133,7 +133,7 @@ export default function DealerLogin() {
             New dealer?{" "}
             <a
               href="/dealer-signup"
-              className="text-blue-700 font-semibold"
+              className="text-[#3B82F6] font-semibold"
             >
               Create Account
             </a>

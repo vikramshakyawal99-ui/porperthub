@@ -78,7 +78,7 @@ Loading Enquiries...
 
 return(
 
-<div className="min-h-screen bg-zinc-950 text-white p-8">
+<div className="min-h-screen bg-slate-50 text-slate-900 p-8">
 
 
 <div className="max-w-5xl mx-auto">
@@ -93,7 +93,7 @@ return(
 {
 leads.length===0 ?
 
-<div className="bg-zinc-900 p-6 rounded-xl">
+<div className="bg-white p-6 rounded-xl">
 No enquiries found
 </div>
 
@@ -108,7 +108,7 @@ leads.map((lead)=>(
 
 <div
 key={lead.id}
-className="bg-zinc-900 p-6 rounded-2xl"
+className="bg-white p-6 rounded-2xl"
 >
 
 
@@ -119,7 +119,7 @@ className="bg-zinc-900 p-6 rounded-2xl"
 
 <p className="mt-3">
 Status:
-<span className="ml-2 bg-blue-600 px-3 py-1 rounded-full">
+<span className="ml-2 bg-green-600 px-3 py-1 rounded-full">
 {lead.status || "New"}
 </span>
 </p>

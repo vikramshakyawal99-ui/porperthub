@@ -66,9 +66,9 @@ priority:9
 
 {
 name:"Amar Jain Hospital",
-address:"Mansarovar Jaipur",
-lat:26.8720,
-lng:75.8010,
+address:"Chaura Rasta, Jaipur",
+lat:26.9204054,
+lng:75.8214140,
 priority:9
 },
 

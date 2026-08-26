@@ -1,5 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/AuthProvider";
+
 type Props = {
   propertyTitle: string;
 };
@@ -7,21 +10,42 @@ type Props = {
 export default function WhatsAppButton({
   propertyTitle,
 }: Props) {
+  const { user } = useAuth();
+  const router = useRouter();
 
-  const message = encodeURIComponent(
-    `Hello, I am interested in ${propertyTitle}`
-  );
+  function openWhatsApp() {
+    if (!user) {
+      const returnPath =
+        window.location.pathname +
+        window.location.search;
 
-  const whatsappUrl =
-    `https://wa.me/?text=${message}`;
+      router.push(
+        `/buyer-login?redirect=${encodeURIComponent(
+          returnPath
+        )}`
+      );
+
+      return;
+    }
+
+    const message = encodeURIComponent(
+      `Hello, I am interested in ${propertyTitle}`
+    );
+
+    window.open(
+      `https://wa.me/?text=${message}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  }
 
   return (
-    <a
-      href={whatsappUrl}
-      target="_blank"
-      className="rounded-xl bg-green-600 px-6 py-3 font-bold text-white hover:bg-green-700"
+    <button
+      type="button"
+      onClick={openWhatsApp}
+      className="rounded-xl bg-[#16A34A] px-6 py-3 font-bold text-white transition hover:bg-[#15803D]"
     >
       💬 WhatsApp Enquiry
-    </a>
+    </button>
   );
 }

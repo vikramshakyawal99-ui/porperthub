@@ -120,7 +120,7 @@ className="mb-4 h-52 w-full rounded-xl object-cover"
                     Rejected
                   </span>
                 ) : (
-                  <span className="rounded bg-yellow-500 px-3 py-1 text-black">
+                  <span className="rounded bg-[#d4a855] px-3 py-1 text-black">
                     Pending
                   </span>
                 )}
@@ -131,7 +131,7 @@ className="mb-4 h-52 w-full rounded-xl object-cover"
                   onClick={() =>
                     router.push(`/owner/edit-property/${item.id}`)
                   }
-                  className="rounded bg-blue-600 px-4 py-2"
+                  className="rounded bg-[#60A5FA] px-4 py-2"
                 >
                   Edit
                 </button>

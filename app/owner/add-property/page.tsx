@@ -39,7 +39,7 @@ title:"",
 
 propertyType:"flat",
 
-purpose:"buy",
+purpose:"new",
 
 location:"",
 
@@ -160,7 +160,7 @@ ownerId:user.uid,
 
 ownerEmail:user.email,
 
-status:"pending",
+status:"approved",
 
 createdAt:serverTimestamp()
 
@@ -173,7 +173,7 @@ createdAt:serverTimestamp()
 alert("Listing Added Successfully");
 
 
-router.push("/owner/listings");
+router.push("/owner/my-properties");
 
 
 }
@@ -194,12 +194,12 @@ setLoading(false);
 
 return (
 
-<div className="min-h-screen bg-zinc-950 text-white p-10">
+<div className="min-h-screen bg-[#F4FAF6] px-4 py-10 text-[#102A1A] sm:px-6">
 
-<div className="mx-auto max-w-3xl bg-zinc-900 rounded-2xl p-8">
+<div className="mx-auto max-w-3xl rounded-3xl border border-[#DCE9DF] bg-white p-6 shadow-[0_20px_60px_rgba(16,42,26,0.10)] sm:p-8">
 
 
-<h1 className="text-3xl font-bold mb-6">
+<h1 className="mb-8 text-3xl font-black text-[#102A1A]">
 ➕ Add New Listing
 </h1>
 
@@ -212,8 +212,168 @@ name="title"
 placeholder="Property Title"
 value={form.title}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 />
+
+<div className="rounded-2xl border border-dashed border-[#8BC99A] bg-[#F1FAF3] p-5">
+  <div className="mb-4">
+    <h2 className="text-lg font-black text-[#102A1A]">
+      Property Images
+    </h2>
+
+    <p className="mt-1 text-sm text-[#64756A]">
+      Upload up to 10 JPG, PNG or WebP images. Maximum 10 MB each.
+    </p>
+  </div>
+
+  <label
+    htmlFor="owner-property-images"
+    className="flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-xl border border-[#B8D9C0] bg-white px-5 py-6 text-center transition hover:border-[#16A34A] hover:bg-[#F7FCF8]"
+  >
+    <span className="text-3xl">
+      📷
+    </span>
+
+    <span className="mt-2 font-extrabold text-[#15803D]">
+      Choose Property Images
+    </span>
+
+    <span className="mt-1 text-xs text-[#7A897F]">
+      First image will be used as the cover
+    </span>
+  </label>
+
+  <input
+    id="owner-property-images"
+    type="file"
+    accept="image/jpeg,image/png,image/webp,image/avif"
+    multiple
+    className="sr-only"
+    onChange={(event) => {
+      const selected = Array.from(
+        event.target.files || []
+      );
+
+      const allowedTypes = new Set([
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+  "image/avif",
+      ]);
+
+      if (selected.length > 10) {
+        alert(
+          "You can upload a maximum of 10 images."
+        );
+        event.target.value = "";
+        return;
+      }
+
+      const invalidFile = selected.find(
+        (file) =>
+          !allowedTypes.has(file.type) ||
+          file.size <= 0 ||
+          file.size > 10 * 1024 * 1024
+      );
+
+      if (invalidFile) {
+        alert(
+          "Only JPG, PNG or WebP images under 10 MB are allowed."
+        );
+        event.target.value = "";
+        return;
+      }
+
+      previewImages.forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
+
+      setImages(selected);
+      setPreviewImages(
+        selected.map((file) =>
+          URL.createObjectURL(file)
+        )
+      );
+    }}
+  />
+
+  {previewImages.length > 0 && (
+    <>
+      <div className="mt-4 flex items-center justify-between">
+        <span className="text-sm font-bold text-[#102A1A]">
+          {previewImages.length} image
+          {previewImages.length === 1 ? "" : "s"} selected
+        </span>
+
+        <button
+          type="button"
+          className="text-sm font-bold text-red-600 hover:text-red-700"
+          onClick={() => {
+            previewImages.forEach((url) => {
+              URL.revokeObjectURL(url);
+            });
+
+            setImages([]);
+            setPreviewImages([]);
+          }}
+        >
+          Remove all
+        </button>
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
+        {previewImages.map((imageUrl, index) => (
+          <div
+            key={imageUrl}
+            className="relative overflow-hidden rounded-xl border border-[#DCE9DF] bg-white"
+          >
+            <Image
+              src={imageUrl}
+              alt={`Property preview ${index + 1}`}
+              width={600}
+              height={400}
+              className="h-32 w-full object-cover"
+            />
+
+            {index === 0 && (
+              <span className="absolute left-2 top-2 rounded-full bg-[#16A34A] px-2.5 py-1 text-xs font-bold text-white">
+                Cover
+              </span>
+            )}
+
+            <button
+              type="button"
+              aria-label={`Remove image ${index + 1}`}
+              className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/70 text-sm font-bold text-white"
+              onClick={() => {
+                URL.revokeObjectURL(
+                  previewImages[index]
+                );
+
+                setImages((current) =>
+                  current.filter(
+                    (_, itemIndex) =>
+                      itemIndex !== index
+                  )
+                );
+
+                setPreviewImages((current) =>
+                  current.filter(
+                    (_, itemIndex) =>
+                      itemIndex !== index
+                  )
+                );
+              }}
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
+    </>
+  )}
+</div>
+
 
 
 
@@ -221,11 +381,11 @@ className="w-full p-3 rounded text-black"
 name="purpose"
 value={form.purpose}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 >
 
-<option value="buy">
-Buy
+<option value="new">
+New
 </option>
 
 <option value="rent">
@@ -245,7 +405,7 @@ Resale
 name="propertyType"
 value={form.propertyType}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 >
 
 
@@ -269,6 +429,30 @@ Plot
 Room Rent
 </option>
 
+<option value="shop">
+Shop
+</option>
+
+<option value="warehouse">
+Warehouse
+</option>
+
+<option value="office_space">
+Office Space
+</option>
+
+<option value="showroom">
+Showroom
+</option>
+
+<option value="commercial_building">
+Commercial Building
+</option>
+
+<option value="industrial_space">
+Industrial Space
+</option>
+
 <option value="pg">
 PG
 </option>
@@ -285,7 +469,7 @@ Hostel
 name="parking"
 value={form.parking}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 >
 
 <option value="">
@@ -319,7 +503,7 @@ No
 name="furnished"
 value={form.furnished}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 >
 
 <option value="">
@@ -349,7 +533,7 @@ name="location"
 placeholder="Location"
 value={form.location}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 />
 
 <LocationPicker
@@ -367,14 +551,14 @@ longitude:String(data.longitude)
 readOnly
 value={locationData.latitude}
 placeholder="Latitude"
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 />
 
 <input
 readOnly
 value={locationData.longitude}
 placeholder="Longitude"
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 />
 
 </div>
@@ -383,7 +567,7 @@ className="w-full p-3 rounded text-black"
 
 
 {
-(form.propertyType==="rent" ||
+(form.purpose==="rent" ||
 form.propertyType==="room_rent" ||
 form.propertyType==="pg" ||
 form.propertyType==="hostel") ? (
@@ -393,7 +577,7 @@ name="rent"
 placeholder="Rent"
 value={form.rent}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 />
 
 ) : (
@@ -403,7 +587,7 @@ name="price"
 placeholder="Price"
 value={form.price}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 />
 
 )
@@ -422,7 +606,7 @@ name="bedrooms"
 placeholder="Bedrooms"
 value={form.bedrooms}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 />
 
 }
@@ -431,20 +615,23 @@ className="w-full p-3 rounded text-black"
 
 
 {
-(form.propertyType==="flat" ||
-form.propertyType==="villa" ||
-form.propertyType==="house" ||
-form.propertyType==="plot") &&
+form.purpose !== "rent" &&
+![
+  "pg",
+  "hostel",
+  "room_rent",
+  "plot",
+].includes(form.propertyType) && (
 
 <input
 name="area"
-placeholder="Area"
+placeholder="Area / Size"
 value={form.area}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 />
 
-}
+)}
 
 
 
@@ -459,7 +646,7 @@ name="society"
 placeholder="Society / JDA"
 value={form.society}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 />
 
 
@@ -468,7 +655,7 @@ name="plotSize"
 placeholder="Plot Size"
 value={form.plotSize}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 />
 
 </>
@@ -495,7 +682,7 @@ form.propertyType==="hostel"
 name="roomType"
 value={form.roomType}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 >
 
 <option value="">
@@ -522,7 +709,7 @@ Private Room
 name="sharingType"
 value={form.sharingType}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 >
 
 <option value="">
@@ -553,7 +740,7 @@ Sharing
 name="ac"
 value={form.ac}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 >
 
 <option value="">
@@ -574,7 +761,7 @@ Non AC
 name="kitchen"
 value={form.kitchen}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 >
 
 <option value="">
@@ -598,7 +785,7 @@ No Kitchen
 name="food"
 value={form.food}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 >
 
 <option value="">
@@ -622,7 +809,7 @@ Non Food
 name="suitableFor"
 value={form.suitableFor}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 >
 
 <option value="">
@@ -664,7 +851,7 @@ form.purpose==="rent" &&
 name="suitableFor"
 value={form.suitableFor}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 >
 
 <option value="">
@@ -700,7 +887,7 @@ name="contact"
 placeholder="Contact Number"
 value={form.contact}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 />
 
 
@@ -710,62 +897,8 @@ name="description"
 placeholder="Description"
 value={form.description}
 onChange={handleChange}
-className="w-full p-3 rounded text-black"
+className="w-full rounded-xl border border-[#C9DACE] bg-white px-4 py-3 text-[#102A1A] outline-none transition placeholder:text-[#7A897F] focus:border-[#16A34A] focus:ring-4 focus:ring-[#16A34A]/10"
 />
-
-
-
-<input
-type="file"
-accept="image/*"
-multiple
-onChange={(e)=>{
-
-if(e.target.files){
-
-const files = Array.from(e.target.files);
-
-setImages(files);
-
-setPreviewImages(
-files.map(file => URL.createObjectURL(file))
-);
-
-}
-
-}}
-className="w-full p-3 bg-white text-black rounded"
-/>
-
-{previewImages.length > 0 && (
-
-<div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-
-{previewImages.map((img,index)=>(
-
-<div key={index} className="relative">
-
-<Image
-src={img}
-alt={""}
-width={600}
-height={400}
-className="h-32 w-full rounded-xl object-cover"
-/>
-
-{index===0 && (
-<span className="absolute left-2 top-2 rounded bg-blue-600 px-2 py-1 text-xs text-white">
-Cover
-</span>
-)}
-
-</div>
-
-))}
-
-</div>
-
-)}
 
 
 
@@ -774,54 +907,91 @@ Cover
 <div className="mt-5">
 
 <h3 className="font-bold mb-3">
-⭐ Premium Amenities
+⭐ Amenities
 </h3>
-
 
 <div className="grid grid-cols-2 gap-3">
 
-{[
-"Food",
-"AC",
+{(
+form.propertyType === "room_rent"
+? [
 "WiFi",
-"CCTV",
-"Washing Machine",
+"CCTV / Security",
 "Parking",
-"Garden",
-"Terrace",
-"Modular Kitchen",
+"Power Backup",
+"AC",
+"Attached Bathroom",
+"Kitchen",
+"Geyser",
+"Bed",
+"Wardrobe",
+"Study Table",
+]
+: form.propertyType === "pg"
+? [
+"WiFi",
+"CCTV / Security",
+"Food",
+"Laundry",
+"Cleaning",
+"Parking",
+"Power Backup",
+"AC",
+"Geyser",
+"Bed",
+"Wardrobe",
+"Study Table",
+]
+: form.propertyType === "hostel"
+? [
+"WiFi",
+"CCTV / Security",
+"Laundry",
+"Cleaning",
+"Parking",
+"Food / Mess",
+"Power Backup",
+"Bed",
+"Wardrobe",
+"Study Table",
+"Common Area",
+]
+: [
+"Parking",
 "Lift",
-"Power Backup"
-].map((item)=>(
+"24x7 Security",
+"Power Backup",
+"Swimming Pool",
+"Gym",
+"Garden",
+"Kids Play Area",
+"Sports Court",
+"Club House",
+"High Speed WiFi",
+]
+).map((item) => (
 
-<label key={item} className="flex gap-2">
+<label
+key={item}
+className="flex items-center gap-2"
+>
 
 <input
-
 type="checkbox"
-
 checked={form.amenities.includes(item)}
-
-onChange={(e)=>{
+onChange={(e) => {
 
 setForm({
-
 ...form,
 
-amenities:e.target.checked
-
-?
-
-[...form.amenities,item]
-
-:
-
-form.amenities.filter((x:string)=>x!==item)
-
-})
+amenities: e.target.checked
+? [...form.amenities, item]
+: form.amenities.filter(
+(x: string) => x !== item
+),
+});
 
 }}
-
 />
 
 {item}
@@ -836,7 +1006,7 @@ form.amenities.filter((x:string)=>x!==item)
 
 <button
 disabled={loading}
-className="w-full bg-blue-600 p-3 rounded font-bold"
+className="w-full bg-[#60A5FA] p-3 rounded font-bold"
 >
 {loading ? "Adding..." : "Add Listing"}
 </button>

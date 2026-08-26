@@ -10,6 +10,8 @@ export const properties = [
 
     builder: "Manglam Group",
     type: "Apartment",
+    purpose: "new",
+    propertyCondition: "new",
     bedrooms: 3,
     bathrooms: 2,
     area: "1650 sq.ft.",
@@ -34,6 +36,8 @@ export const properties = [
 
     builder: "Mahima Group",
     type: "Villa",
+    purpose: "new",
+    propertyCondition: "new",
     bedrooms: 4,
     bathrooms: 4,
     area: "3200 sq.ft.",
@@ -58,6 +62,8 @@ export const properties = [
 
     builder: "Ashiana Housing",
     type: "Flat",
+    purpose: "new",
+    propertyCondition: "new",
     bedrooms: 2,
     bathrooms: 2,
     area: "1180 sq.ft.",
@@ -82,6 +88,8 @@ export const properties = [
 
     builder: "Unique Builders",
     type: "Penthouse",
+    purpose: "new",
+    propertyCondition: "new",
     bedrooms: 4,
     bathrooms: 4,
     area: "4200 sq.ft.",

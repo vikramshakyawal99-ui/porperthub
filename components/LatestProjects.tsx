@@ -1,4 +1,6 @@
 import Image from "next/image";
+import Link from "next/link";
+
 const projects = [
   {
     id: 1,
@@ -6,8 +8,7 @@ const projects = [
     location: "Jagatpura, Jaipur",
     price: "Starting ₹65 Lac",
     builder: "Mahima Group",
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800",
+    image: "/hero-integrated.png",
   },
   {
     id: 2,
@@ -15,8 +16,7 @@ const projects = [
     location: "Ajmer Road, Jaipur",
     price: "Starting ₹72 Lac",
     builder: "Vatika Group",
-    image:
-      "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800",
+    image: "/hero-property.jpg",
   },
   {
     id: 3,
@@ -24,67 +24,88 @@ const projects = [
     location: "Vaishali Nagar, Jaipur",
     price: "Starting ₹58 Lac",
     builder: "Manglam Group",
-    image:
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800",
+    image: "/og-image.jpg",
   },
 ];
 
 export default function LatestProjects() {
   return (
-    <section className="bg-gradient-to-b from-white via-blue-50 to-slate-50 py-24">
-      <div className="mx-auto max-w-7xl px-6">
+    <section className="relative overflow-hidden bg-[#fbfaf8] py-20">
+      <div className="pointer-events-none absolute left-1/2 top-10 h-72 w-72 -translate-x-1/2 rounded-full bg-green-100/50 blur-3xl" />
+
+      <div className="relative mx-auto max-w-7xl px-5 sm:px-6">
         <div className="mb-12 text-center">
-
-          <p className="inline-block rounded-full bg-blue-100 px-5 py-2 text-sm font-black text-blue-700">
+          <span className="inline-flex rounded-full border border-green-200 bg-green-50 px-5 py-2 text-xs font-black uppercase tracking-[0.14em] text-green-700">
             New Launches
-          </p>
+          </span>
 
-          <h2 className="mt-4 text-5xl font-black tracking-tight text-slate-900">
-            Latest Projects
+          <h2 className="mt-5 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
+            Discover Latest{" "}
+            <span className="text-green-700">
+              Projects
+            </span>
           </h2>
 
-          <p className="mt-4 text-slate-600">
-            Discover upcoming premium residential projects.
+          <p className="mx-auto mt-4 max-w-2xl leading-7 text-slate-600">
+            Explore upcoming premium residential projects from trusted builders.
           </p>
-
         </div>
 
-        <div className="grid gap-8 md:grid-cols-3">
+        <div className="grid gap-7 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
-            <div
+            <article
               key={project.id}
-              className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl transition-all duration-300 hover:-translate-y-3 hover:shadow-2xl"
+              className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_12px_35px_rgba(15,23,42,0.07)] transition duration-300 hover:-translate-y-2 hover:border-green-200 hover:shadow-[0_20px_45px_rgba(22,163,74,0.12)]"
             >
-              <Image
-src={project.image}
-alt={project.name}
-width={600}
-height={400}
-className="h-60 w-full object-cover transition duration-500 group-hover:scale-110"
-/>
+              <div className="relative h-64 overflow-hidden bg-green-50">
+                <Image
+                  src={project.image}
+                  alt={project.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover transition duration-700 group-hover:scale-105"
+                />
 
-              <div className="p-7">
-                <h3 className="text-xl font-bold">
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/45 via-transparent to-transparent" />
+
+                <span className="absolute left-4 top-4 rounded-full bg-green-600 px-4 py-2 text-[10px] font-black tracking-wide text-white shadow-lg">
+                  NEW PROJECT
+                </span>
+              </div>
+
+              <div className="p-6">
+                <h3 className="text-xl font-black text-slate-950">
                   {project.name}
                 </h3>
 
-                <p className="mt-3 text-slate-600">
+                <p className="mt-3 text-sm text-slate-600">
                   📍 {project.location}
                 </p>
 
-                <p className="mt-2 font-semibold text-green-600">
+                <p className="mt-4 text-xl font-black text-green-700">
                   {project.price}
                 </p>
 
-                <p className="mt-3 text-sm text-slate-600">
-                  Builder: {project.builder}
-                </p>
+                <div className="mt-5 border-t border-slate-100 pt-5">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    Builder
+                  </p>
 
-                <button className="mt-6 w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3 font-black text-white shadow-lg transition hover:scale-[1.02]">
-                  View Details
-                </button>
+                  <p className="mt-2 font-bold text-slate-800">
+                    {project.builder}
+                  </p>
+                </div>
+
+                <Link
+                  href={`/properties?builder=${encodeURIComponent(
+                    project.builder
+                  )}`}
+                  className="mt-6 flex w-full items-center justify-center rounded-xl border border-green-600 bg-white px-5 py-3 font-black text-green-700 transition hover:bg-green-600 hover:text-white"
+                >
+                  View Details →
+                </Link>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </div>

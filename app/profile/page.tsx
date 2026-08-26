@@ -75,7 +75,7 @@ export default function ProfilePage() {
 
           href="/login"
 
-          className="bg-blue-600 text-white px-6 py-3 rounded-xl"
+          className="bg-green-600 text-slate-900 px-6 py-3 rounded-xl"
 
         >
 
@@ -119,10 +119,10 @@ export default function ProfilePage() {
   return (
 
 
-    <div className="min-h-screen bg-zinc-950 text-white p-10">
+    <div className="min-h-screen bg-slate-50 text-slate-900 p-10">
 
 
-      <div className="max-w-3xl mx-auto bg-zinc-900 rounded-2xl p-8 shadow-xl">
+      <div className="max-w-3xl mx-auto bg-white rounded-2xl p-8 shadow-xl">
 
 
 
@@ -139,9 +139,9 @@ export default function ProfilePage() {
 
 
 
-          <div className="border border-white/10 rounded-xl p-4">
+          <div className="border border-slate-200/10 rounded-xl p-4">
 
-            <p className="text-gray-400">
+            <p className="text-slate-500">
               Name
             </p>
 
@@ -157,10 +157,10 @@ export default function ProfilePage() {
 
 
 
-          <div className="border border-white/10 rounded-xl p-4">
+          <div className="border border-slate-200/10 rounded-xl p-4">
 
 
-            <p className="text-gray-400">
+            <p className="text-slate-500">
               Email
             </p>
 
@@ -177,10 +177,10 @@ export default function ProfilePage() {
 
 
 
-          <div className="border border-white/10 rounded-xl p-4">
+          <div className="border border-slate-200/10 rounded-xl p-4">
 
 
-            <p className="text-gray-400">
+            <p className="text-slate-500">
               Account Type
             </p>
 
@@ -230,7 +230,7 @@ export default function ProfilePage() {
 
                 href="/buyer/dashboard"
 
-                className="bg-purple-600 p-5 rounded-xl text-center"
+                className="bg-green-600 p-5 rounded-xl text-center"
 
               >
 
@@ -247,7 +247,7 @@ export default function ProfilePage() {
 
               href="/properties"
 
-              className="bg-blue-600 p-5 rounded-xl text-center"
+              className="bg-green-600 p-5 rounded-xl text-center"
 
             >
 

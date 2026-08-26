@@ -15,21 +15,36 @@ import HomeLoan from "../components/HomeLoan";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-950">
+    <main className="min-h-screen bg-white text-slate-900">
+
       <Navbar />
+
       <Hero />
+
       <CityBar />
+
       <PropertyCategories />
+
       <FeaturedProjects />
+
       <TopBuilders />
+
       <PropertyDealers />
-      <PopularCities />
+
       <FeaturedProperties />
+
       <PropertyComparison />
-      <HomeLoan />
+
+      <PopularCities />
+
       <WhyChooseUs />
+
       <LatestProjects />
+
+      <HomeLoan />
+
       <Testimonials />
+
     </main>
   );
 }

@@ -107,7 +107,7 @@ export default function EMICalculator() {
 
         <div className="grid gap-5 md:grid-cols-3">
 
-          <div className="rounded-2xl bg-blue-600 p-5 text-white">
+          <div className="rounded-2xl bg-[#60A5FA] p-5 text-white">
             <p>Monthly EMI</p>
             <h3 className="text-3xl font-bold">
               ₹ {Math.round(emi).toLocaleString()}
