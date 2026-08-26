@@ -197,7 +197,7 @@ export default function Hero() {
         <div
           className={`relative overflow-hidden bg-[#fbfaf8] ${
             activeAd
-              ? "min-h-[480px] sm:min-h-[460px]"
+              ? "min-h-[430px] sm:min-h-[350px]"
               : "min-h-[620px]"
           }`}
         >
@@ -238,7 +238,7 @@ export default function Hero() {
           <div
             className={`relative z-10 flex max-w-[650px] flex-col justify-center ${
               activeAd
-                ? "min-h-[480px] p-6 sm:min-h-[460px] sm:p-8 lg:p-10"
+                ? "min-h-[430px] p-6 sm:min-h-[350px] sm:p-7 lg:p-8"
                 : "min-h-[620px] p-7 sm:p-10 lg:p-14"
             }`}
           >
@@ -252,7 +252,7 @@ export default function Hero() {
                   {activeAd.sponsorName}
                 </p>
 
-                <h1 className="mt-2 max-w-lg text-3xl font-black leading-[1.05] tracking-[-0.04em] text-white sm:text-4xl lg:text-[46px]">
+                <h1 className="mt-2 max-w-lg text-3xl font-black leading-[1.05] tracking-[-0.04em] text-white sm:text-[34px] lg:text-[38px]">
                   {activeAd.title}
                 </h1>
 
@@ -281,7 +281,7 @@ export default function Hero() {
                         ? "noopener noreferrer sponsored"
                         : undefined
                     }
-                    className="mt-5 inline-flex min-h-12 w-fit items-center justify-center gap-2 rounded-xl bg-green-600 px-6 text-sm font-black text-white shadow-[0_10px_24px_rgba(22,163,74,0.30)] transition hover:-translate-y-0.5 hover:bg-green-700"
+                    className="mt-4 inline-flex min-h-11 w-fit items-center justify-center gap-2 rounded-xl bg-green-600 px-5 text-sm font-black text-white shadow-[0_10px_24px_rgba(22,163,74,0.30)] transition hover:-translate-y-0.5 hover:bg-green-700"
                   >
                     {activeAd.ctaLabel || "Explore Project"}
                     <span>→</span>
@@ -393,7 +393,7 @@ export default function Hero() {
 
         </div>
 
-        <div className="relative z-10 mx-5 -mt-1 mb-5 rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_14px_35px_rgba(15,23,42,0.10)] sm:mx-8 lg:mx-10 lg:-mt-10">
+        <div className="relative z-20 mx-5 -mt-1 mb-5 rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_14px_35px_rgba(15,23,42,0.10)] sm:mx-8 lg:mx-10 lg:-mt-10">
           <div className="grid gap-3 md:grid-cols-[1.2fr_1fr_0.8fr_auto]">
             <label className="rounded-xl bg-slate-50 px-4 py-3">
               <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
