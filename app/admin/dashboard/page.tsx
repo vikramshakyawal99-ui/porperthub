@@ -145,13 +145,21 @@ export default function AdminDashboard() {
 
   return (
   <>
-    <div className="flex justify-end border-b border-green-100 bg-white px-8 py-4">
+    <div className="flex items-center justify-between border-b border-green-100 bg-white px-5 py-4 sm:px-8">
+      <Link
+        href="/"
+        className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 text-sm font-black text-green-800 transition hover:border-green-400 hover:bg-green-100"
+      >
+        <span>🏠</span>
+        Homepage
+      </Link>
+
       <button
         onClick={async () => {
           await signOut(auth);
           window.location.href = "/control-x9p-admin-8472";
         }}
-        className="rounded-lg bg-red-600 px-4 py-2 text-slate-900 hover:bg-red-700"
+        className="min-h-11 rounded-xl bg-red-600 px-5 text-sm font-black text-white transition hover:bg-red-700"
       >
         Logout
       </button>
@@ -160,7 +168,7 @@ export default function AdminDashboard() {
     <main className="min-h-screen bg-slate-50 p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
 
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-col items-stretch justify-between lg:flex-row lg:items-start">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-slate-950">
               🏢 Admin Dashboard
@@ -272,12 +280,23 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <Link
-            href="/admin/add-property"
-            className="rounded-xl bg-green-600 px-6 py-3 font-semibold text-slate-900 shadow-sm transition hover:bg-green-700 hover:shadow-md"
-          >
-            + Add Property
-          </Link>
+          <div className="ml-0 mt-5 flex w-full flex-col gap-3 sm:w-auto lg:ml-6 lg:mt-0 lg:min-w-[260px]">
+            <Link
+              href="/admin/sponsored-ads"
+              className="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-green-600 px-5 text-center text-sm font-black text-white shadow-lg shadow-green-600/20 transition hover:-translate-y-0.5 hover:bg-green-700"
+            >
+              <span>📢</span>
+              Sponsored Advertisements
+            </Link>
+
+            <Link
+              href="/admin/add-property"
+              className="flex min-h-14 items-center justify-center gap-2 rounded-xl border border-green-600 bg-white px-5 text-center text-sm font-black text-green-700 transition hover:-translate-y-0.5 hover:bg-green-50"
+            >
+              <span>＋</span>
+              Add Property
+            </Link>
+          </div>
         </div>
 
         {loading ? (
