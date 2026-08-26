@@ -17,8 +17,16 @@ import {
 
 import { auth, db } from "@/lib/firebase";
 
+type AdSlide = {
+  id: string;
+  image: string;
+  title: string;
+  description: string;
+};
+
 type SponsoredAd = {
   id: string;
+  slides?: AdSlide[];
   sponsorName: string;
   title: string;
   subtitle: string;
@@ -50,6 +58,14 @@ const emptyForm = {
   endDate: "",
   priority: "1",
   active: true,
+  slides: [
+    {
+      id: "slide-1",
+      image: "",
+      title: "",
+      description: "",
+    },
+  ] as AdSlide[],
 };
 
 const inputClass =
@@ -60,9 +76,8 @@ export default function SponsoredAdsPage() {
   const [form, setForm] = useState(emptyForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState<
-    "" | "desktopImage" | "mobileImage"
-  >("");
+  const [uploading, setUploading] =
+    useState<string>("");
 
   async function fetchAds() {
     try {
@@ -149,6 +164,144 @@ export default function SponsoredAdsPage() {
     }
   }
 
+  function addSlide() {
+    setForm((current) => ({
+      ...current,
+      slides: [
+        ...current.slides,
+        {
+          id: `slide-${Date.now()}`,
+          image: "",
+          title: "",
+          description: "",
+        },
+      ],
+    }));
+  }
+
+  function updateSlide(
+    id: string,
+    field: "title" | "description",
+    value: string
+  ) {
+    setForm((current) => ({
+      ...current,
+      slides: current.slides.map((slide) =>
+        slide.id === id
+          ? { ...slide, [field]: value }
+          : slide
+      ),
+    }));
+  }
+
+  function removeSlide(id: string) {
+    setForm((current) => ({
+      ...current,
+      slides:
+        current.slides.length <= 1
+          ? current.slides
+          : current.slides.filter(
+              (slide) => slide.id !== id
+            ),
+    }));
+  }
+
+  function moveSlide(
+    index: number,
+    direction: -1 | 1
+  ) {
+    setForm((current) => {
+      const nextIndex = index + direction;
+
+      if (
+        nextIndex < 0 ||
+        nextIndex >= current.slides.length
+      ) {
+        return current;
+      }
+
+      const slides = [...current.slides];
+      const currentSlide = slides[index];
+
+      slides[index] = slides[nextIndex];
+      slides[nextIndex] = currentSlide;
+
+      return {
+        ...current,
+        slides,
+      };
+    });
+  }
+
+  async function uploadSlideImage(
+    event: ChangeEvent<HTMLInputElement>,
+    slideId: string
+  ) {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    const user = auth.currentUser;
+
+    if (!user) {
+      alert("Admin login required.");
+      return;
+    }
+
+    const uploadKey = `slide-${slideId}`;
+
+    try {
+      setUploading(uploadKey);
+
+      const idToken = await user.getIdToken();
+      const data = new FormData();
+
+      data.append("file", file);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: data,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.secure_url) {
+        throw new Error(
+          result.error || "Slide image upload failed."
+        );
+      }
+
+      setForm((current) => ({
+        ...current,
+        slides: current.slides.map((slide) =>
+          slide.id === slideId
+            ? {
+                ...slide,
+                image: result.secure_url,
+              }
+            : slide
+        ),
+      }));
+    } catch (error) {
+      console.error(
+        "SLIDE IMAGE UPLOAD ERROR:",
+        error
+      );
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Slide image upload failed."
+      );
+    } finally {
+      setUploading("");
+      event.target.value = "";
+    }
+  }
+
   async function createAd() {
     if (
       !form.sponsorName.trim() ||
@@ -182,6 +335,18 @@ export default function SponsoredAdsPage() {
         priority:
           Number(form.priority) || 1,
         active: form.active,
+        slides: form.slides
+          .filter((slide) => Boolean(slide.image))
+          .map((slide, index) => ({
+            id: slide.id,
+            image: slide.image,
+            title:
+              slide.title.trim() ||
+              `Project View ${index + 1}`,
+            description:
+              slide.description.trim(),
+            order: index,
+          })),
         impressions: 0,
         clicks: 0,
         createdAt: serverTimestamp(),
@@ -508,6 +673,150 @@ export default function SponsoredAdsPage() {
             </div>
           </div>
 
+          <section className="mt-7 rounded-2xl border border-green-100 bg-green-50/40 p-4 sm:p-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-lg font-black text-slate-950">
+                  Project Media Slides
+                </h3>
+
+                <p className="mt-1 text-xs leading-5 text-slate-600">
+                  Add any project images: villa, plots, building,
+                  rooms, park, temple, clubhouse or amenities.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={addSlide}
+                className="rounded-xl bg-green-600 px-4 py-3 text-sm font-black text-white hover:bg-green-700"
+              >
+                ＋ Add New Slide
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-4">
+              {form.slides.map((slide, index) => (
+                <article
+                  key={slide.id}
+                  className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                >
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-wider text-green-700">
+                        Slide {index + 1}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Display order: {index + 1}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={index === 0}
+                        onClick={() => moveSlide(index, -1)}
+                        className="rounded-lg border px-3 py-2 font-black disabled:opacity-30"
+                        title="Move slide up"
+                      >
+                        ↑
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={
+                          index === form.slides.length - 1
+                        }
+                        onClick={() => moveSlide(index, 1)}
+                        className="rounded-lg border px-3 py-2 font-black disabled:opacity-30"
+                        title="Move slide down"
+                      >
+                        ↓
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={form.slides.length === 1}
+                        onClick={() =>
+                          removeSlide(slide.id)
+                        }
+                        className="rounded-lg border border-red-200 px-3 py-2 text-sm font-black text-red-600 disabled:opacity-30"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-[220px_1fr]">
+                    <div>
+                      <label className="flex aspect-[4/3] cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-green-300 bg-green-50 text-center text-xs font-black text-green-700">
+                        {slide.image ? (
+                          <img
+                            src={slide.image}
+                            alt={slide.title || `Slide ${index + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : uploading ===
+                          `slide-${slide.id}` ? (
+                          "Uploading..."
+                        ) : (
+                          "Upload Slide Image"
+                        )}
+
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/avif"
+                          className="hidden"
+                          disabled={!!uploading}
+                          onChange={(event) =>
+                            uploadSlideImage(
+                              event,
+                              slide.id
+                            )
+                          }
+                        />
+                      </label>
+                    </div>
+
+                    <div className="space-y-4">
+                      <label className="block text-sm font-bold">
+                        Slide Title
+                        <input
+                          className={inputClass}
+                          value={slide.title}
+                          onChange={(event) =>
+                            updateSlide(
+                              slide.id,
+                              "title",
+                              event.target.value
+                            )
+                          }
+                          placeholder="Example: Premium Villa Exterior"
+                        />
+                      </label>
+
+                      <label className="block text-sm font-bold">
+                        Short Description
+                        <textarea
+                          className={`${inputClass} min-h-24 resize-y`}
+                          value={slide.description}
+                          onChange={(event) =>
+                            updateSlide(
+                              slide.id,
+                              "description",
+                              event.target.value
+                            )
+                          }
+                          placeholder="Optional details about this view"
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
           <label className="mt-5 flex items-center gap-3 rounded-xl bg-slate-50 p-4 text-sm font-bold">
             <input
               type="checkbox"
@@ -596,6 +905,10 @@ export default function SponsoredAdsPage() {
 
                     <p className="mt-3 text-sm text-slate-600">
                       {ad.subtitle || "No subtitle"}
+                    </p>
+
+                    <p className="mt-2 text-xs font-bold text-green-700">
+                      {(ad.slides || []).length} media slides
                     </p>
 
                     <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "./AuthProvider";
+import SponsoredMediaSlider from "./SponsoredMediaSlider";
 import {
   collection,
   getDocs,
@@ -13,8 +14,17 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
+type AdSlide = {
+  id?: string;
+  image: string;
+  title?: string;
+  description?: string;
+  order?: number;
+};
+
 type HomepageAd = {
   id: string;
+  slides?: AdSlide[];
   sponsorName: string;
   title: string;
   subtitle: string;
@@ -147,7 +157,7 @@ export default function Hero() {
       setActiveAdIndex((currentIndex) =>
         (currentIndex + 1) % activeAds.length
       );
-    }, 5000);
+    }, 30000);
 
     return () => {
       window.clearInterval(rotationTimer);
@@ -225,38 +235,24 @@ export default function Hero() {
           }`}
         >
           {activeAd ? (
-            <picture key={activeAd.id}>
-              {activeAd.mobileImage && (
-                <source
-                  media="(max-width: 639px)"
-                  srcSet={activeAd.mobileImage}
-                />
-              )}
-
-              <img
-                src={activeAd.desktopImage}
-                alt={activeAd.title || "Sponsored project"}
-                className="absolute inset-0 h-full w-full object-cover object-center"
-              />
-            </picture>
-          ) : (
-            <Image
-              src="/hero-integrated.png"
-              alt="Premium modern home"
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover object-center"
+            <SponsoredMediaSlider
+              key={activeAd.id}
+              ad={activeAd}
             />
-          )}
+          ) : (
+            <>
+              <Image
+                src="/hero-integrated.png"
+                alt="Premium modern home"
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover object-center"
+              />
 
-          <div
-            className={`absolute inset-0 ${
-              activeAd
-                ? "bg-gradient-to-r from-slate-950/90 via-slate-950/60 via-55% to-slate-950/10"
-                : "bg-gradient-to-r from-[#fbfaf8] via-[#fbfaf8]/95 via-45% to-transparent"
-            }`}
-          />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#fbfaf8] via-[#fbfaf8]/95 via-45% to-transparent" />
+            </>
+          )}
 
           <div
             className={`relative z-10 flex max-w-[650px] flex-col justify-center ${
