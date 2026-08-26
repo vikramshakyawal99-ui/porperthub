@@ -189,8 +189,18 @@ export default function Hero() {
 
   return (
     <section className="bg-[#fbfaf8] px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
-      <div className="mx-auto max-w-7xl overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-        <div className="relative min-h-[620px] overflow-hidden bg-[#fbfaf8]">
+      <div
+        className={`mx-auto overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)] ${
+          activeAd ? "max-w-6xl" : "max-w-7xl"
+        }`}
+      >
+        <div
+          className={`relative overflow-hidden bg-[#fbfaf8] ${
+            activeAd
+              ? "min-h-[480px] sm:min-h-[460px]"
+              : "min-h-[620px]"
+          }`}
+        >
           {activeAd ? (
             <picture>
               {activeAd.mobileImage && (
@@ -225,29 +235,35 @@ export default function Hero() {
             }`}
           />
 
-          <div className="relative z-10 flex min-h-[620px] max-w-[650px] flex-col justify-center p-7 sm:p-10 lg:p-14">
+          <div
+            className={`relative z-10 flex max-w-[650px] flex-col justify-center ${
+              activeAd
+                ? "min-h-[480px] p-6 sm:min-h-[460px] sm:p-8 lg:p-10"
+                : "min-h-[620px] p-7 sm:p-10 lg:p-14"
+            }`}
+          >
             {activeAd ? (
               <>
                 <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-black/30 px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-white backdrop-blur">
                   Sponsored
                 </div>
 
-                <p className="mt-5 text-xs font-black uppercase tracking-[0.18em] text-green-300">
+                <p className="mt-4 text-[11px] font-black uppercase tracking-[0.18em] text-green-300">
                   {activeAd.sponsorName}
                 </p>
 
-                <h1 className="mt-3 max-w-xl text-4xl font-black leading-[1.05] tracking-[-0.04em] text-white sm:text-5xl lg:text-[58px]">
+                <h1 className="mt-2 max-w-lg text-3xl font-black leading-[1.05] tracking-[-0.04em] text-white sm:text-4xl lg:text-[46px]">
                   {activeAd.title}
                 </h1>
 
                 {activeAd.subtitle && (
-                  <p className="mt-5 max-w-lg text-base leading-7 text-slate-200">
+                  <p className="mt-3 max-w-md text-sm leading-6 text-slate-200">
                     {activeAd.subtitle}
                   </p>
                 )}
 
                 {activeAd.startingPrice && (
-                  <p className="mt-4 text-lg font-black text-green-300 sm:text-xl">
+                  <p className="mt-3 text-base font-black text-green-300 sm:text-lg">
                     Starting Price: {activeAd.startingPrice}
                   </p>
                 )}
@@ -265,14 +281,14 @@ export default function Hero() {
                         ? "noopener noreferrer sponsored"
                         : undefined
                     }
-                    className="mt-7 inline-flex min-h-14 w-fit items-center justify-center gap-3 rounded-xl bg-green-600 px-7 text-sm font-black text-white shadow-[0_12px_28px_rgba(22,163,74,0.35)] transition hover:-translate-y-0.5 hover:bg-green-700"
+                    className="mt-5 inline-flex min-h-12 w-fit items-center justify-center gap-2 rounded-xl bg-green-600 px-6 text-sm font-black text-white shadow-[0_10px_24px_rgba(22,163,74,0.30)] transition hover:-translate-y-0.5 hover:bg-green-700"
                   >
                     {activeAd.ctaLabel || "Explore Project"}
                     <span>→</span>
                   </a>
                 )}
 
-                <p className="mt-5 text-[10px] font-semibold uppercase tracking-wider text-white/60">
+                <p className="mt-3 text-[9px] font-semibold uppercase tracking-wider text-white/60">
                   Advertisement · PropertyHub
                 </p>
               </>
