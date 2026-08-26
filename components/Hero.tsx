@@ -52,8 +52,13 @@ export default function Hero() {
   const [location, setLocation] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [budget, setBudget] = useState("");
-  const [activeAd, setActiveAd] =
-    useState<HomepageAd | null>(null);
+  const [activeAds, setActiveAds] =
+    useState<HomepageAd[]>([]);
+  const [activeAdIndex, setActiveAdIndex] =
+    useState(0);
+
+  const activeAd =
+    activeAds[activeAdIndex] || null;
 
   useEffect(() => {
     let mounted = true;
@@ -110,7 +115,8 @@ export default function Hero() {
           );
 
         if (mounted) {
-          setActiveAd(eligibleCampaigns[0] || null);
+          setActiveAds(eligibleCampaigns);
+          setActiveAdIndex(0);
         }
       } catch (error) {
         console.error(
@@ -119,7 +125,8 @@ export default function Hero() {
         );
 
         if (mounted) {
-          setActiveAd(null);
+          setActiveAds([]);
+          setActiveAdIndex(0);
         }
       }
     }
@@ -130,6 +137,22 @@ export default function Hero() {
       mounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (activeAds.length <= 1) {
+      return;
+    }
+
+    const rotationTimer = window.setInterval(() => {
+      setActiveAdIndex((currentIndex) =>
+        (currentIndex + 1) % activeAds.length
+      );
+    }, 5000);
+
+    return () => {
+      window.clearInterval(rotationTimer);
+    };
+  }, [activeAds.length]);
 
   function getPostPropertyLink() {
     if (!user) {
@@ -202,7 +225,7 @@ export default function Hero() {
           }`}
         >
           {activeAd ? (
-            <picture>
+            <picture key={activeAd.id}>
               {activeAd.mobileImage && (
                 <source
                   media="(max-width: 639px)"
