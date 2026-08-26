@@ -118,7 +118,38 @@ export default function Hero() {
               Search verified homes, plots and rental properties in Jaipur.
             </p>
 
-            <div className="mt-7 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+            <Link
+              href={getPostPropertyLink()}
+              className="mt-7 flex min-h-16 w-full max-w-[470px] items-center justify-between rounded-2xl border border-green-700 bg-green-600 px-5 py-3 text-white shadow-[0_12px_28px_rgba(22,163,74,0.28)] transition hover:-translate-y-0.5 hover:bg-green-700 hover:shadow-[0_16px_34px_rgba(22,163,74,0.34)]"
+            >
+              <span className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/25 bg-white/15 text-xl font-black">
+                  ＋
+                </span>
+
+                <span>
+                  <span className="block text-sm font-black sm:text-base">
+                    Post Your Property
+                  </span>
+
+                  <span className="mt-0.5 block text-[11px] font-medium text-green-100">
+                    Reach genuine buyers and tenants
+                  </span>
+                </span>
+              </span>
+
+              <span className="flex items-center gap-3">
+                <span className="rounded-lg bg-white px-2.5 py-1.5 text-[10px] font-black tracking-wide text-green-700">
+                  FREE
+                </span>
+
+                <span className="text-xl font-black">
+                  →
+                </span>
+              </span>
+            </Link>
+
+            <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
               {tabs.map((tab) => (
                 <button
                   key={tab.label}
@@ -138,18 +169,7 @@ export default function Hero() {
                 </button>
               ))}
 
-              <Link
-                href={getPostPropertyLink()}
-                className="col-span-2 flex min-h-12 items-center justify-center gap-2 rounded-xl border border-green-200 bg-white px-4 text-sm font-black text-slate-800 shadow-sm transition hover:border-green-500 hover:bg-green-50 hover:text-green-700 sm:col-auto sm:ml-2"
-              >
-                <span>＋</span>
 
-                <span>Post Property</span>
-
-                <span className="rounded-md bg-green-600 px-2 py-1 text-[9px] font-black tracking-wide text-white">
-                  FREE
-                </span>
-              </Link>
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
