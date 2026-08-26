@@ -12,6 +12,7 @@ const menu = [
   { name: "Site Visits", href: "/admin/site-visits" },
   { name: "Leads", href: "/admin/leads" },
   { name: "Loan Applications", href: "/admin/loan-applications" },
+  { name: "Sponsored Ads", href: "/admin/sponsored-ads" },
 ];
 
 export default function AdminSidebar() {

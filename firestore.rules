@@ -297,6 +297,21 @@ service cloud.firestore {
 
 
     // =========================
+    // HOMEPAGE SPONSORED ADS
+    // =========================
+
+    match /homepageAds/{adId} {
+
+      // Public users may only read active campaigns.
+      // Admin can view active and paused campaigns.
+      allow read: if isAdmin()
+        || resource.data.active == true;
+
+      allow create, update, delete: if isAdmin();
+    }
+
+
+    // =========================
     // DEFAULT DENY
     // =========================
 
