@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "./AuthProvider";
-import SponsoredMediaSlider from "./SponsoredMediaSlider";
 import {
   collection,
   getDocs,
@@ -24,6 +23,7 @@ type AdSlide = {
 
 type HomepageAd = {
   id: string;
+  adType?: "banner" | "showcase";
   slides?: AdSlide[];
   sponsorName: string;
   title: string;
@@ -111,7 +111,12 @@ export default function Hero() {
             const notExpired =
               !endDate || endDate >= today;
 
+            const bannerType =
+              !campaign.adType ||
+              campaign.adType === "banner";
+
             return (
+              bannerType &&
               placementMatch &&
               started &&
               notExpired &&
@@ -157,7 +162,7 @@ export default function Hero() {
       setActiveAdIndex((currentIndex) =>
         (currentIndex + 1) % activeAds.length
       );
-    }, 30000);
+    }, 5000);
 
     return () => {
       window.clearInterval(rotationTimer);
@@ -235,10 +240,25 @@ export default function Hero() {
           }`}
         >
           {activeAd ? (
-            <SponsoredMediaSlider
-              key={activeAd.id}
-              ad={activeAd}
-            />
+            <picture key={activeAd.id}>
+              {activeAd.mobileImage && (
+                <source
+                  media="(max-width: 639px)"
+                  srcSet={activeAd.mobileImage}
+                />
+              )}
+
+              <img
+                src={activeAd.desktopImage}
+                alt={
+                  activeAd.title ||
+                  "Sponsored project"
+                }
+                className="absolute inset-0 h-full w-full object-cover object-center"
+              />
+
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 via-55% to-slate-950/10" />
+            </picture>
           ) : (
             <>
               <Image

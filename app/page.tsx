@@ -1,5 +1,6 @@
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
+import ProjectShowcaseAd from "../components/ProjectShowcaseAd";
 import CityBar from "../components/CityBar";
 import PropertyCategories from "../components/PropertyCategories";
 import PopularCities from "../components/PopularCities";
@@ -22,6 +23,8 @@ export default function Home() {
       <Hero />
 
       <CityBar />
+
+      <ProjectShowcaseAd />
 
       <PropertyCategories />
 

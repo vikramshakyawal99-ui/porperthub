@@ -26,6 +26,7 @@ type AdSlide = {
 
 type SponsoredAd = {
   id: string;
+  adType?: "banner" | "showcase";
   slides?: AdSlide[];
   sponsorName: string;
   title: string;
@@ -45,6 +46,7 @@ type SponsoredAd = {
 };
 
 const emptyForm = {
+  adType: "banner" as "banner" | "showcase",
   sponsorName: "",
   title: "",
   subtitle: "",
@@ -303,15 +305,41 @@ export default function SponsoredAdsPage() {
   }
 
   async function createAd() {
-    if (
+    const completedSlides =
+      form.slides.filter((slide) =>
+        Boolean(slide.image)
+      );
+
+    const baseFieldsMissing =
       !form.sponsorName.trim() ||
       !form.title.trim() ||
-      !form.desktopImage ||
-      !form.mobileImage ||
-      !form.targetUrl.trim()
-    ) {
+      !form.targetUrl.trim();
+
+    const bannerImagesMissing =
+      form.adType === "banner" &&
+      (!form.desktopImage || !form.mobileImage);
+
+    const showcaseSlidesMissing =
+      form.adType === "showcase" &&
+      completedSlides.length === 0;
+
+    if (baseFieldsMissing) {
       alert(
-        "Sponsor, title, both images and target link are required."
+        "Sponsor, title and target link are required."
+      );
+      return;
+    }
+
+    if (bannerImagesMissing) {
+      alert(
+        "Desktop and mobile banner images are required."
+      );
+      return;
+    }
+
+    if (showcaseSlidesMissing) {
+      alert(
+        "Add at least one Project Showcase slide."
       );
       return;
     }
@@ -320,6 +348,7 @@ export default function SponsoredAdsPage() {
       setSaving(true);
 
       await addDoc(collection(db, "homepageAds"), {
+        adType: form.adType,
         sponsorName: form.sponsorName.trim(),
         title: form.title.trim(),
         subtitle: form.subtitle.trim(),
@@ -335,9 +364,13 @@ export default function SponsoredAdsPage() {
         priority:
           Number(form.priority) || 1,
         active: form.active,
-        slides: form.slides
-          .filter((slide) => Boolean(slide.image))
-          .map((slide, index) => ({
+        slides:
+          form.adType === "showcase"
+            ? form.slides
+                .filter((slide) =>
+                  Boolean(slide.image)
+                )
+                .map((slide, index) => ({
             id: slide.id,
             image: slide.image,
             title:
@@ -345,8 +378,9 @@ export default function SponsoredAdsPage() {
               `Project View ${index + 1}`,
             description:
               slide.description.trim(),
-            order: index,
-          })),
+                  order: index,
+                }))
+            : [],
         impressions: 0,
         clicks: 0,
         createdAt: serverTimestamp(),
@@ -442,6 +476,70 @@ export default function SponsoredAdsPage() {
             <span className="rounded-full bg-green-50 px-3 py-2 text-[10px] font-black uppercase tracking-wider text-green-700">
               Admin Only
             </span>
+          </div>
+
+          <div className="mb-6 rounded-2xl border border-green-100 bg-green-50/50 p-4">
+            <p className="text-sm font-black text-slate-950">
+              Advertisement Type
+            </p>
+
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() =>
+                  setForm((current) => ({
+                    ...current,
+                    adType: "banner",
+                  }))
+                }
+                className={`rounded-xl border p-4 text-left transition ${
+                  form.adType === "banner"
+                    ? "border-green-600 bg-green-600 text-white shadow-lg shadow-green-600/15"
+                    : "border-slate-200 bg-white text-slate-700 hover:border-green-300"
+                }`}
+              >
+                <span className="block font-black">
+                  🖼 Homepage Banner Ad
+                </span>
+                <span
+                  className={`mt-1 block text-xs ${
+                    form.adType === "banner"
+                      ? "text-green-50"
+                      : "text-slate-500"
+                  }`}
+                >
+                  Compact banner displayed inside the main Hero.
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setForm((current) => ({
+                    ...current,
+                    adType: "showcase",
+                  }))
+                }
+                className={`rounded-xl border p-4 text-left transition ${
+                  form.adType === "showcase"
+                    ? "border-green-600 bg-green-600 text-white shadow-lg shadow-green-600/15"
+                    : "border-slate-200 bg-white text-slate-700 hover:border-green-300"
+                }`}
+              >
+                <span className="block font-black">
+                  ✨ Project Showcase Ad
+                </span>
+                <span
+                  className={`mt-1 block text-xs ${
+                    form.adType === "showcase"
+                      ? "text-green-50"
+                      : "text-slate-500"
+                  }`}
+                >
+                  Premium project information with media slides.
+                </span>
+              </button>
+            </div>
           </div>
 
           <div className="grid gap-5 md:grid-cols-2">
@@ -608,7 +706,13 @@ export default function SponsoredAdsPage() {
               />
             </label>
 
-            <div>
+            <div
+              className={
+                form.adType === "banner"
+                  ? "block"
+                  : "hidden"
+              }
+            >
               <p className="text-sm font-bold">
                 Desktop Banner *
               </p>
@@ -640,7 +744,13 @@ export default function SponsoredAdsPage() {
               )}
             </div>
 
-            <div>
+            <div
+              className={
+                form.adType === "banner"
+                  ? "block"
+                  : "hidden"
+              }
+            >
               <p className="text-sm font-bold">
                 Mobile Banner *
               </p>
@@ -673,6 +783,7 @@ export default function SponsoredAdsPage() {
             </div>
           </div>
 
+          {form.adType === "showcase" && (
           <section className="mt-7 rounded-2xl border border-green-100 bg-green-50/40 p-4 sm:p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
@@ -816,6 +927,7 @@ export default function SponsoredAdsPage() {
               ))}
             </div>
           </section>
+          )}
 
           <label className="mt-5 flex items-center gap-3 rounded-xl bg-slate-50 p-4 text-sm font-bold">
             <input
@@ -885,6 +997,10 @@ export default function SponsoredAdsPage() {
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <p className="text-[10px] font-black uppercase tracking-wider text-green-700">
+                          {ad.adType === "showcase"
+                            ? "PROJECT SHOWCASE"
+                            : "HOMEPAGE BANNER"}
+                          {" · "}
                           {ad.sponsorName}
                         </p>
                         <h3 className="mt-1 text-lg font-black">
