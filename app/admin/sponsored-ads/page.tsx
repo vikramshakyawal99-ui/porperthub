@@ -45,7 +45,7 @@ const emptyForm = {
   mobileImage: "",
   ctaLabel: "Explore Project",
   targetUrl: "",
-  placement: "both" as const,
+  placement: "both" as "website" | "app" | "both",
   startDate: "",
   endDate: "",
   priority: "1",
