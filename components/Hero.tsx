@@ -197,7 +197,7 @@ export default function Hero() {
         <div
           className={`relative overflow-hidden bg-[#fbfaf8] ${
             activeAd
-              ? "min-h-[430px] sm:min-h-[350px]"
+              ? "min-h-[400px] sm:min-h-[300px]"
               : "min-h-[620px]"
           }`}
         >
@@ -238,7 +238,7 @@ export default function Hero() {
           <div
             className={`relative z-10 flex max-w-[650px] flex-col justify-center ${
               activeAd
-                ? "min-h-[430px] p-6 sm:min-h-[350px] sm:p-7 lg:p-8"
+                ? "min-h-[400px] p-6 sm:min-h-[300px] sm:p-6 lg:p-7"
                 : "min-h-[620px] p-7 sm:p-10 lg:p-14"
             }`}
           >
@@ -393,7 +393,7 @@ export default function Hero() {
 
         </div>
 
-        <div className="relative z-20 mx-5 -mt-1 mb-5 rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_14px_35px_rgba(15,23,42,0.10)] sm:mx-8 lg:mx-10 lg:-mt-10">
+        <div className="relative z-20 mx-auto -mt-1 mb-5 w-[calc(100%-2.5rem)] max-w-5xl rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_14px_35px_rgba(15,23,42,0.10)] sm:w-[calc(100%-4rem)] lg:-mt-9 lg:w-[calc(100%-5rem)]">
           <div className="grid gap-3 md:grid-cols-[1.2fr_1fr_0.8fr_auto]">
             <label className="rounded-xl bg-slate-50 px-4 py-3">
               <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
