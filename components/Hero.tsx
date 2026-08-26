@@ -191,7 +191,7 @@ export default function Hero() {
     <section className="bg-[#fbfaf8] px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
       <div
         className={`mx-auto overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)] ${
-          activeAd ? "max-w-6xl" : "max-w-7xl"
+          activeAd ? "max-w-5xl" : "max-w-7xl"
         }`}
       >
         <div
