@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import useProperties from "@/hooks/useProperties";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyFilters from "@/components/PropertyFilters";
+import Hero from "@/components/Hero";
 import Navbar from "@/components/Navbar";
 
 
@@ -677,7 +678,12 @@ return(
 <Navbar/>
 
 
-<main className="min-h-screen bg-slate-50 py-10">
+<main className="min-h-screen bg-slate-50 py-4">
+
+
+<div className="mx-auto mb-8 w-full max-w-[1500px] px-4 sm:px-6">
+<Hero adOnly />
+</div>
 
 
 <div className="mx-auto max-w-7xl px-6">

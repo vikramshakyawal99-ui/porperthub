@@ -10,6 +10,7 @@ import Amenities from "../../../components/Amenities";
 import PropertyAreaInsights from "../../../components/PropertyAreaInsights";
 import PropertyConfigurations from "../../../components/PropertyConfigurations";
 import PropertyHomeLoanPanel from "../../../components/PropertyHomeLoanPanel";
+import ProjectShowcaseAd from "../../../components/ProjectShowcaseAd";
 
 
 
@@ -191,6 +192,13 @@ const isPurchaseProperty =
       <main className="min-h-screen bg-slate-50 py-10">
 
         <div className="mx-auto max-w-7xl px-6">
+
+          {/* SPONSORED PROJECT SHOWCASE - NEW / RESALE ONLY */}
+          {isPurchaseProperty && (
+            <div className="mb-8">
+              <ProjectShowcaseAd />
+            </div>
+          )}
 
           <div className="overflow-hidden rounded-3xl bg-white shadow-xl border border-slate-100">
 

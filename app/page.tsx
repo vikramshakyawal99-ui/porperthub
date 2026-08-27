@@ -1,5 +1,4 @@
 import Navbar from "../components/Navbar";
-import Hero from "../components/Hero";
 import ProjectShowcaseAd from "../components/ProjectShowcaseAd";
 import CityBar from "../components/CityBar";
 import PropertyCategories from "../components/PropertyCategories";
@@ -20,11 +19,10 @@ export default function Home() {
 
       <Navbar />
 
-      <Hero />
+      <ProjectShowcaseAd />
 
       <CityBar />
 
-      <ProjectShowcaseAd />
 
       <PropertyCategories />
 

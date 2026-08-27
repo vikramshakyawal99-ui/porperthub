@@ -22,6 +22,13 @@ type AdSlide = {
   image: string;
   title: string;
   description: string;
+  category?:
+    | "overview"
+    | "floorplan"
+    | "amenity"
+    | "location"
+    | "investment"
+    | "interior";
 };
 
 type SponsoredAd = {
@@ -29,9 +36,24 @@ type SponsoredAd = {
   adType?: "banner" | "showcase";
   slides?: AdSlide[];
   sponsorName: string;
+  builderLogo?: string;
+  builderContact?: string;
+  projectName?: string;
   title: string;
   subtitle: string;
   startingPrice: string;
+  location?: string;
+  configuration?: string;
+  landArea?: string;
+  towers?: string;
+  totalUnits?: string;
+  clubhouse?: string;
+  openArea?: string;
+  possession?: string;
+  reraStatus?: string;
+  appreciation?: string;
+  projectHighlights?: string;
+  whyInvest?: string;
   desktopImage: string;
   mobileImage: string;
   ctaLabel: string;
@@ -48,9 +70,24 @@ type SponsoredAd = {
 const emptyForm = {
   adType: "banner" as "banner" | "showcase",
   sponsorName: "",
+  builderLogo: "",
+  builderContact: "",
+  projectName: "",
   title: "",
   subtitle: "",
   startingPrice: "",
+  location: "",
+  configuration: "",
+  landArea: "",
+  towers: "",
+  totalUnits: "",
+  clubhouse: "",
+  openArea: "",
+  possession: "",
+  reraStatus: "",
+  appreciation: "",
+  projectHighlights: "",
+  whyInvest: "",
   desktopImage: "",
   mobileImage: "",
   ctaLabel: "Explore Project",
@@ -66,6 +103,7 @@ const emptyForm = {
       image: "",
       title: "",
       description: "",
+      category: "overview" as const,
     },
   ] as AdSlide[],
 };
@@ -176,6 +214,7 @@ export default function SponsoredAdsPage() {
           image: "",
           title: "",
           description: "",
+          category: "overview",
         },
       ],
     }));
@@ -183,7 +222,7 @@ export default function SponsoredAdsPage() {
 
   function updateSlide(
     id: string,
-    field: "title" | "description",
+    field: "title" | "description" | "category",
     value: string
   ) {
     setForm((current) => ({
@@ -350,9 +389,24 @@ export default function SponsoredAdsPage() {
       await addDoc(collection(db, "homepageAds"), {
         adType: form.adType,
         sponsorName: form.sponsorName.trim(),
+        builderLogo: form.builderLogo.trim(),
+        builderContact: form.builderContact.trim(),
+        projectName: form.projectName.trim(),
         title: form.title.trim(),
         subtitle: form.subtitle.trim(),
         startingPrice: form.startingPrice.trim(),
+        location: form.location.trim(),
+        configuration: form.configuration.trim(),
+        landArea: form.landArea.trim(),
+        towers: form.towers.trim(),
+        totalUnits: form.totalUnits.trim(),
+        clubhouse: form.clubhouse.trim(),
+        openArea: form.openArea.trim(),
+        possession: form.possession.trim(),
+        reraStatus: form.reraStatus.trim(),
+        appreciation: form.appreciation.trim(),
+        projectHighlights: form.projectHighlights.trim(),
+        whyInvest: form.whyInvest.trim(),
         desktopImage: form.desktopImage,
         mobileImage: form.mobileImage,
         ctaLabel:
@@ -378,6 +432,8 @@ export default function SponsoredAdsPage() {
               `Project View ${index + 1}`,
             description:
               slide.description.trim(),
+            category:
+              slide.category || "overview",
                   order: index,
                 }))
             : [],
@@ -555,6 +611,36 @@ export default function SponsoredAdsPage() {
                   }))
                 }
                 placeholder="Example: Manglam Group"
+              />
+            </label>
+
+            <label className="text-sm font-bold">
+              Builder Logo URL
+              <input
+                className={inputClass}
+                value={form.builderLogo}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    builderLogo: event.target.value,
+                  }))
+                }
+                placeholder="https://.../manglam-logo.png"
+              />
+            </label>
+
+            <label className="text-sm font-bold">
+              Builder Contact Number
+              <input
+                className={inputClass}
+                value={form.builderContact}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    builderContact: event.target.value,
+                  }))
+                }
+                placeholder="Example: +91 9876543210"
               />
             </label>
 
@@ -781,9 +867,250 @@ export default function SponsoredAdsPage() {
                 />
               )}
             </div>
+
           </div>
 
           {form.adType === "showcase" && (
+            <section className="mt-7 rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
+              <div className="mb-5">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-600">
+                  Project Information
+                </p>
+                <h3 className="mt-1 text-xl font-black text-slate-900">
+                  Left Panel Details
+                </h3>
+                <p className="mt-1 text-sm text-slate-500">
+                  Ye information final Project Showcase ke left panel me dikhegi.
+                </p>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="text-sm font-bold">
+                  Project Name
+                  <input
+                    className={inputClass}
+                    value={form.projectName}
+                    onChange={(e) =>
+                      setForm((c) => ({
+                        ...c,
+                        projectName: e.target.value,
+                      }))
+                    }
+                    placeholder="The Grand Residences"
+                  />
+                </label>
+
+                <label className="text-sm font-bold">
+                  Project Location
+                  <input
+                    className={inputClass}
+                    value={form.location}
+                    onChange={(e) =>
+                      setForm((c) => ({
+                        ...c,
+                        location: e.target.value,
+                      }))
+                    }
+                    placeholder="Jagatpura, Jaipur"
+                  />
+                </label>
+
+                <label className="text-sm font-bold">
+                  Configuration
+                  <input
+                    className={inputClass}
+                    value={form.configuration}
+                    onChange={(e) =>
+                      setForm((c) => ({
+                        ...c,
+                        configuration: e.target.value,
+                      }))
+                    }
+                    placeholder="2, 3 & 4 BHK"
+                  />
+                </label>
+
+                <label className="text-sm font-bold">
+                  Land Area
+                  <input
+                    className={inputClass}
+                    value={form.landArea}
+                    onChange={(e) =>
+                      setForm((c) => ({
+                        ...c,
+                        landArea: e.target.value,
+                      }))
+                    }
+                    placeholder="18 Acres"
+                  />
+                </label>
+
+                <label className="text-sm font-bold">
+                  Towers
+                  <input
+                    className={inputClass}
+                    value={form.towers}
+                    onChange={(e) =>
+                      setForm((c) => ({
+                        ...c,
+                        towers: e.target.value,
+                      }))
+                    }
+                    placeholder="12 Towers"
+                  />
+                </label>
+
+                <label className="text-sm font-bold">
+                  Total Units
+                  <input
+                    className={inputClass}
+                    value={form.totalUnits}
+                    onChange={(e) =>
+                      setForm((c) => ({
+                        ...c,
+                        totalUnits: e.target.value,
+                      }))
+                    }
+                    placeholder="840 Units"
+                  />
+                </label>
+
+                <label className="text-sm font-bold">
+                  Clubhouse Size
+                  <input
+                    className={inputClass}
+                    value={form.clubhouse}
+                    onChange={(e) =>
+                      setForm((c) => ({
+                        ...c,
+                        clubhouse: e.target.value,
+                      }))
+                    }
+                    placeholder="35,000 sq.ft."
+                  />
+                </label>
+
+                <label className="text-sm font-bold">
+                  Open Area
+                  <input
+                    className={inputClass}
+                    value={form.openArea}
+                    onChange={(e) =>
+                      setForm((c) => ({
+                        ...c,
+                        openArea: e.target.value,
+                      }))
+                    }
+                    placeholder="72% Open Green Area"
+                  />
+                </label>
+
+                <label className="text-sm font-bold">
+                  Possession
+                  <input
+                    className={inputClass}
+                    value={form.possession}
+                    onChange={(e) =>
+                      setForm((c) => ({
+                        ...c,
+                        possession: e.target.value,
+                      }))
+                    }
+                    placeholder="Dec 2028"
+                  />
+                </label>
+
+                <label className="text-sm font-bold">
+                  RERA Status
+                  <input
+                    className={inputClass}
+                    value={form.reraStatus}
+                    onChange={(e) =>
+                      setForm((c) => ({
+                        ...c,
+                        reraStatus: e.target.value,
+                      }))
+                    }
+                    placeholder="RERA Approved"
+                  />
+                </label>
+
+                <label className="text-sm font-bold">
+                  Market Appreciation
+                  <input
+                    className={inputClass}
+                    value={form.appreciation}
+                    onChange={(e) =>
+                      setForm((c) => ({
+                        ...c,
+                        appreciation: e.target.value,
+                      }))
+                    }
+                    placeholder="18% YoY Growth"
+                  />
+                </label>
+              </div>
+            </section>
+          )}
+
+          {form.adType === "showcase" && (
+            <section className="mt-7 rounded-2xl border border-emerald-800 bg-slate-950 p-5 text-white shadow-sm sm:p-6">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-400">
+                  Showcase Intelligence
+                </p>
+
+                <h3 className="mt-1 text-xl font-black">
+                  Project Highlights & Why Invest
+                </h3>
+
+                <p className="mt-2 text-xs leading-5 text-slate-400">
+                  Har point ko new line me likho. Homepage par inhe automatically separate points me show kiya jayega.
+                </p>
+              </div>
+
+              <div className="mt-5 grid gap-5 md:grid-cols-2">
+                <label className="text-sm font-bold">
+                  Project Highlights
+                  <textarea
+                    className="mt-2 min-h-40 w-full resize-y rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm font-semibold text-white outline-none placeholder:text-slate-500 focus:border-emerald-500"
+                    value={form.projectHighlights}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        projectHighlights: event.target.value,
+                      }))
+                    }
+                    placeholder={`Premium clubhouse
+72% open green area
+Low-density development
+Smart security system`}
+                  />
+                </label>
+
+                <label className="text-sm font-bold">
+                  Why Invest?
+                  <textarea
+                    className="mt-2 min-h-40 w-full resize-y rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm font-semibold text-white outline-none placeholder:text-slate-500 focus:border-emerald-500"
+                    value={form.whyInvest}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        whyInvest: event.target.value,
+                      }))
+                    }
+                    placeholder={`High-growth location
+Strong rental demand
+Excellent connectivity
+Trusted developer`}
+                  />
+                </label>
+              </div>
+            </section>
+          )}
+
+          {form.adType === "showcase" && (
+
           <section className="mt-7 rounded-2xl border border-green-100 bg-green-50/40 p-4 sm:p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
@@ -890,6 +1217,40 @@ export default function SponsoredAdsPage() {
                     </div>
 
                     <div className="space-y-4">
+                      <label className="block text-sm font-bold">
+                        Slide Category
+                        <select
+                          className={inputClass}
+                          value={slide.category || "overview"}
+                          onChange={(event) =>
+                            updateSlide(
+                              slide.id,
+                              "category",
+                              event.target.value
+                            )
+                          }
+                        >
+                          <option value="overview">
+                            🏙 Project Overview
+                          </option>
+                          <option value="floorplan">
+                            📐 Floor Plan
+                          </option>
+                          <option value="amenity">
+                            🏊 Amenity
+                          </option>
+                          <option value="interior">
+                            🛋 Interior
+                          </option>
+                          <option value="location">
+                            📍 Location
+                          </option>
+                          <option value="investment">
+                            📈 Investment
+                          </option>
+                        </select>
+                      </label>
+
                       <label className="block text-sm font-bold">
                         Slide Title
                         <input
