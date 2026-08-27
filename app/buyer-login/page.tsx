@@ -94,6 +94,79 @@ export default function BuyerLogin() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Hidden staff keyboard shortcut
+  // Mac + Windows: Shift + A + R
+  useEffect(() => {
+    const pressedStaffKeys = new Set<string>();
+
+    function handleStaffKeyDown(
+      event: KeyboardEvent
+    ) {
+      pressedStaffKeys.add(
+        event.key.toLowerCase()
+      );
+
+      const shiftPressed = event.shiftKey;
+      const aPressed = pressedStaffKeys.has("a");
+      const rPressed = pressedStaffKeys.has("r");
+
+      if (
+        shiftPressed &&
+        aPressed &&
+        rPressed
+      ) {
+        event.preventDefault();
+        pressedStaffKeys.clear();
+
+        window.location.href = "/staff-login";
+      }
+    }
+
+    function handleStaffKeyUp(
+      event: KeyboardEvent
+    ) {
+      pressedStaffKeys.delete(
+        event.key.toLowerCase()
+      );
+    }
+
+    function clearStaffKeys() {
+      pressedStaffKeys.clear();
+    }
+
+    window.addEventListener(
+      "keydown",
+      handleStaffKeyDown
+    );
+
+    window.addEventListener(
+      "keyup",
+      handleStaffKeyUp
+    );
+
+    window.addEventListener(
+      "blur",
+      clearStaffKeys
+    );
+
+    return () => {
+      window.removeEventListener(
+        "keydown",
+        handleStaffKeyDown
+      );
+
+      window.removeEventListener(
+        "keyup",
+        handleStaffKeyUp
+      );
+
+      window.removeEventListener(
+        "blur",
+        clearStaffKeys
+      );
+    };
+  }, []);
+
   // Hidden staff access:
   // /buyer-login#staff → /staff-login
   useEffect(() => {
