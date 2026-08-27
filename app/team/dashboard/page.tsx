@@ -62,7 +62,7 @@ export default function TeamDashboard() {
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
-          <Link
+          <a
             href="/team/add-property"
             className="rounded-2xl border border-green-200 bg-green-50/40 p-5 transition hover:border-green-400 hover:bg-green-50 hover:shadow-sm"
           >
@@ -77,7 +77,7 @@ export default function TeamDashboard() {
             <p className="mt-2 text-sm leading-6 text-slate-500">
               Add a PropertyHub listing and send it for admin approval.
             </p>
-          </Link>
+          </a>
           <div className="rounded-2xl border border-slate-200 bg-white p-5">
             <p className="text-lg font-black text-slate-900">
               🎨 UI Tasks
