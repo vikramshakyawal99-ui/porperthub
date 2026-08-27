@@ -94,6 +94,32 @@ export default function BuyerLogin() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Hidden staff access:
+  // /buyer-login#staff → /staff-login
+  useEffect(() => {
+    function openStaffAccess() {
+      if (
+        window.location.hash.toLowerCase() === "#staff"
+      ) {
+        window.location.replace("/staff-login");
+      }
+    }
+
+    openStaffAccess();
+
+    window.addEventListener(
+      "hashchange",
+      openStaffAccess
+    );
+
+    return () => {
+      window.removeEventListener(
+        "hashchange",
+        openStaffAccess
+      );
+    };
+  }, []);
+
   useEffect(() => {
     const params = new URLSearchParams(
       window.location.search
