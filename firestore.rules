@@ -40,6 +40,14 @@ service cloud.firestore {
         ).data.role == "property_dealer";
     }
 
+    function isTeamMember() {
+      return isLoggedIn()
+        &&
+        get(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.role == "team_member";
+    }
+
 
     // =========================
     // PROPERTIES
@@ -59,6 +67,15 @@ service cloud.firestore {
         (
           isDealer()
           && request.resource.data.dealerId == request.auth.uid
+        )
+        ||
+        (
+          isTeamMember()
+          && request.resource.data.addedByUid == request.auth.uid
+          && request.resource.data.addedByRole == "team_member"
+          && request.resource.data.source == "propertyhub_team"
+          && request.resource.data.status == "pending"
+          && request.resource.data.featured == false
         );
 
       allow update, delete: if isAdmin()
