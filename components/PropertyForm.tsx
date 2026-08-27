@@ -206,7 +206,8 @@ export default function PropertyForm({
 }: PropertyFormProps) {
   const isRent = purpose === "rent";
   const isResale = propertyCondition === "resale";
-  const isNew = !isRent && !isResale;
+  const isCommercial = purpose === "commercial";
+  const isNew = purpose === "new";
 
   const isResidential =
     propertyType === "flat" ||
@@ -293,6 +294,8 @@ export default function PropertyForm({
             ? "Rent"
             : isResale
             ? "Resale"
+            : isCommercial
+            ? "Commercial"
             : "New"
         }
         onChange={(value) => {
@@ -300,17 +303,29 @@ export default function PropertyForm({
             setPurpose("rent");
             setPropertyCondition("new");
             setPropertyType("flat");
+
           } else if (value === "Resale") {
             setPurpose("resale");
             setPropertyCondition("resale");
             setPropertyType("flat");
+
+          } else if (value === "Commercial") {
+            setPurpose("commercial");
+            setPropertyCondition("new");
+            setPropertyType("shop");
+
           } else {
             setPurpose("new");
             setPropertyCondition("new");
             setPropertyType("flat");
           }
         }}
-        options={["New", "Resale", "Rent"]}
+        options={[
+          "New",
+          "Resale",
+          "Rent",
+          "Commercial",
+        ]}
       />
 
       <SearchableSelect
@@ -318,9 +333,30 @@ export default function PropertyForm({
         value={propertyType}
         onChange={setPropertyType}
         options={
-          isRent
-            ? ["flat", "house", "villa", "room", "pg", "hostel"]
-            : ["flat", "house", "villa", "plot"]
+          isCommercial
+            ? [
+                "shop",
+                "warehouse",
+                "office space",
+                "showroom",
+                "commercial building",
+                "industrial space",
+              ]
+            : isRent
+            ? [
+                "flat",
+                "house",
+                "villa",
+                "room",
+                "pg",
+                "hostel",
+              ]
+            : [
+                "flat",
+                "house",
+                "villa",
+                "plot",
+              ]
         }
       />
 

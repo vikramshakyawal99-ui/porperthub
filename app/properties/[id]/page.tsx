@@ -181,6 +181,33 @@ const isPurchaseProperty =
   normalizedPropertyType === "resale";
 
 
+const propertySource = String(
+  property.source || ""
+).toLowerCase();
+
+const isPropertyHubManaged =
+  propertySource === "propertyhub_team" ||
+  propertySource === "propertyhub_admin";
+
+const contactOwnerId =
+  isPropertyHubManaged
+    ? String(
+        property.contactHandlerUid ||
+        property.addedByUid ||
+        ""
+      )
+    : String(property.ownerId || "");
+
+const contactOwnerEmail =
+  isPropertyHubManaged
+    ? String(
+        property.contactHandlerEmail ||
+        property.addedByEmail ||
+        ""
+      )
+    : String(property.ownerEmail || "");
+
+
   return (
     <>
       <PropertyViewTracker
@@ -521,7 +548,11 @@ const isPurchaseProperty =
                 <>
                   <BuilderCard
                     builder={property.builder}
-                    builderContact={property.builderContact}
+                    builderContact={
+                      isPropertyHubManaged
+                        ? undefined
+                        : property.builderContact
+                    }
                     projectName={property.projectName}
                     reraNumber={property.reraNumber}
                   />
@@ -693,7 +724,10 @@ className="bg-[#F8FAFC] px-3 py-2 rounded-lg text-[#60A5FA]"
               <div className="mt-10 flex flex-wrap gap-5">
 
 
-                {!isRental && !isResale && property.builderContact && (
+                {!isPropertyHubManaged &&
+                  !isRental &&
+                  !isResale &&
+                  property.builderContact && (
 <a
                   href={`tel:${property.builderContact}`}
                   className="rounded-xl bg-[#60A5FA] px-8 py-4 font-bold text-white"
@@ -725,7 +759,12 @@ className="bg-[#F8FAFC] px-3 py-2 rounded-lg text-[#60A5FA]"
                 <PropertyActions
                   propertyId={property.id}
                   propertyTitle={property.title}
-                  ownerId={property.ownerId || ""}
+                  ownerId={contactOwnerId}
+                  dealerId={
+                    isPropertyHubManaged
+                      ? undefined
+                      : property.dealerId
+                  }
                 />
 
 
@@ -780,16 +819,26 @@ className="bg-[#F8FAFC] px-3 py-2 rounded-lg text-[#60A5FA]"
                 <SiteVisitForm
                   propertyId={property.id}
                   propertyTitle={property.title}
-                  ownerId={property.ownerId}
-                  dealerId={property.dealerId}
+                  ownerId={contactOwnerId}
+                  dealerId={
+                    isPropertyHubManaged
+                      ? undefined
+                      : property.dealerId
+                  }
                 />
               )}
 
               <LeadForm
                 propertyId={property.id}
                 propertyTitle={property.title}
-                ownerId={property.ownerId}
-                dealerId={property.dealerId}
+                ownerId={contactOwnerId}
+                dealerId={
+                  isPropertyHubManaged
+                    ? undefined
+                    : property.dealerId
+                }
+                ownerEmail={contactOwnerEmail}
+                propertyType={property.propertyType}
               />
 
               {isPurchaseProperty && (

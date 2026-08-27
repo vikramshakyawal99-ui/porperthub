@@ -83,7 +83,7 @@ export default function SponsoredMediaSlider({
       setActiveIndex((current) =>
         (current + 1) % slides.length
       );
-    }, 5000);
+    }, 5500);
 
     return () => {
       window.clearInterval(timer);
@@ -136,15 +136,14 @@ export default function SponsoredMediaSlider({
           ad.title ||
           "Sponsored project"
         }
-        className="absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-500"
+        className="absolute inset-0 h-full w-full object-cover object-center"
       />
 
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 via-55% to-slate-950/10" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-black/30" />
 
       {slides.length > 1 && (
         <>
-          {/* TOP PROGRESS INDICATORS */}
-          <div className="absolute left-1/2 top-4 z-20 flex w-[min(330px,60%)] -translate-x-1/2 gap-1.5">
+          <div className="absolute right-5 top-5 z-20 flex items-center gap-2 rounded-full border border-white/25 bg-black/25 px-3 py-2 backdrop-blur-md sm:right-7 sm:top-7">
             {slides.map((slide, index) => (
               <button
                 key={
@@ -154,56 +153,20 @@ export default function SponsoredMediaSlider({
                 type="button"
                 aria-label={`Open slide ${index + 1}`}
                 onClick={() => goToSlide(index)}
-                className="h-1 flex-1 overflow-hidden rounded-full bg-white/35"
-              >
-                <span
-                  className={`block h-full rounded-full transition-all duration-300 ${
-                    activeIndex === index
-                      ? "w-full bg-green-400"
-                      : index < activeIndex
-                        ? "w-full bg-white/80"
-                        : "w-0"
-                  }`}
-                />
-              </button>
-            ))}
-          </div>
-
-          {/* DESKTOP SIDE THUMBNAILS */}
-          <div className="absolute right-4 top-1/2 z-20 hidden max-h-[250px] -translate-y-1/2 flex-col gap-2 overflow-y-auto rounded-2xl border border-white/15 bg-slate-950/55 p-2 backdrop-blur-md sm:flex">
-            {slides.map((slide, index) => (
-              <button
-                key={
-                  slide.id ||
-                  `${slide.image}-${index}`
-                }
-                type="button"
-                onClick={() => goToSlide(index)}
-                className={`group relative h-12 w-16 overflow-hidden rounded-lg border-2 transition ${
+                className={`h-2.5 rounded-full transition-all duration-300 ${
                   activeIndex === index
-                    ? "border-green-400 shadow-[0_0_0_2px_rgba(74,222,128,0.20)]"
-                    : "border-white/20 hover:border-white/70"
+                    ? "w-7 bg-white"
+                    : "w-2.5 bg-white/50 hover:bg-white/80"
                 }`}
-                title={
-                  slide.title ||
-                  `Slide ${index + 1}`
-                }
-              >
-                <img
-                  src={slide.image}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
-              </button>
+              />
             ))}
           </div>
 
-          {/* PREVIOUS / NEXT ARROWS */}
           <button
             type="button"
             onClick={showPrevious}
             aria-label="Previous project image"
-            className="absolute left-[52%] top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-black/40 text-2xl font-black text-white backdrop-blur transition hover:bg-green-600 sm:flex"
+            className="absolute left-4 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-black/30 text-2xl font-black text-white backdrop-blur-md transition hover:bg-emerald-600 sm:flex"
           >
             ‹
           </button>
@@ -212,13 +175,44 @@ export default function SponsoredMediaSlider({
             type="button"
             onClick={showNext}
             aria-label="Next project image"
-            className="absolute right-24 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-black/40 text-2xl font-black text-white backdrop-blur transition hover:bg-green-600 sm:flex"
+            className="absolute right-4 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-black/30 text-2xl font-black text-white backdrop-blur-md transition hover:bg-emerald-600 sm:flex"
           >
             ›
           </button>
 
-          {/* MOBILE THUMBNAILS */}
-          <div className="absolute bottom-3 left-3 right-3 z-20 flex gap-2 overflow-x-auto rounded-xl bg-black/45 p-2 backdrop-blur sm:hidden">
+          <div className="absolute bottom-5 right-5 z-20 hidden max-w-[46%] gap-2 rounded-2xl border border-white/25 bg-black/25 p-2.5 backdrop-blur-md md:flex lg:bottom-7 lg:right-7">
+            {slides.slice(0, 6).map(
+              (slide, index) => (
+                <button
+                  key={
+                    slide.id ||
+                    `${slide.image}-${index}`
+                  }
+                  type="button"
+                  onClick={() =>
+                    goToSlide(index)
+                  }
+                  className={`group relative h-14 w-20 overflow-hidden rounded-xl border-2 transition ${
+                    activeIndex === index
+                      ? "border-white shadow-md"
+                      : "border-white/25 hover:border-white/70"
+                  }`}
+                  title={
+                    slide.title ||
+                    `Slide ${index + 1}`
+                  }
+                >
+                  <img
+                    src={slide.image}
+                    alt=""
+                    className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                  />
+                </button>
+              )
+            )}
+          </div>
+
+          <div className="absolute bottom-4 left-4 right-4 z-20 flex gap-2 overflow-x-auto rounded-xl bg-black/30 p-2 backdrop-blur md:hidden">
             {slides.map((slide, index) => (
               <button
                 key={
@@ -227,9 +221,9 @@ export default function SponsoredMediaSlider({
                 }
                 type="button"
                 onClick={() => goToSlide(index)}
-                className={`h-11 min-w-14 overflow-hidden rounded-lg border-2 ${
+                className={`h-11 min-w-16 overflow-hidden rounded-lg border-2 ${
                   activeIndex === index
-                    ? "border-green-400"
+                    ? "border-white"
                     : "border-white/30"
                 }`}
               >
@@ -246,15 +240,15 @@ export default function SponsoredMediaSlider({
 
       {(activeSlide.title ||
         activeSlide.description) && (
-        <div className="absolute bottom-4 right-24 z-10 hidden max-w-sm rounded-xl border border-white/15 bg-black/55 px-4 py-3 text-white backdrop-blur sm:block">
+        <div className="absolute right-7 top-20 z-10 hidden max-w-xs rounded-2xl border border-white/25 bg-black/30 px-4 py-3 text-white backdrop-blur-md lg:block">
           {activeSlide.title && (
-            <p className="text-sm font-black">
+            <p className="text-sm font-extrabold">
               {activeSlide.title}
             </p>
           )}
 
           {activeSlide.description && (
-            <p className="mt-1 line-clamp-2 text-xs leading-5 text-white/75">
+            <p className="mt-1 line-clamp-2 text-xs leading-5 text-white/80">
               {activeSlide.description}
             </p>
           )}

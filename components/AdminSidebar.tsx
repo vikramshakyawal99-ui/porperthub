@@ -7,12 +7,11 @@ const menu = [
   { name: "Dashboard", href: "/admin" },
   { name: "Add Property", href: "/admin/add-property" },
   { name: "Manage Properties", href: "/admin/properties" },
-  { name: "Builders", href: "/admin/builders" },
-  { name: "Enquiries", href: "/admin/enquiries" },
+  { name: "All Leads & Enquiries", href: "/admin/leads" },
   { name: "Site Visits", href: "/admin/site-visits" },
-  { name: "Leads", href: "/admin/leads" },
   { name: "Loan Applications", href: "/admin/loan-applications" },
   { name: "Sponsored Ads", href: "/admin/sponsored-ads" },
+  { name: "Users & Team", href: "/admin/users" },
 ];
 
 export default function AdminSidebar() {

@@ -320,11 +320,13 @@ service cloud.firestore {
     match /homepageAds/{adId} {
 
       // Public users may only read active campaigns.
-      // Admin can view active and paused campaigns.
+      // Admin and PropertyHub team can manage all campaigns.
       allow read: if isAdmin()
+        || isTeamMember()
         || resource.data.active == true;
 
-      allow create, update, delete: if isAdmin();
+      allow create, update, delete:
+        if isAdmin() || isTeamMember();
     }
 
 

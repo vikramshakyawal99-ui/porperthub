@@ -9,12 +9,14 @@ type Props = {
   propertyId: string;
   propertyTitle: string;
   ownerId: string;
+  dealerId?: string;
 };
 
 export default function PropertyActions({
   propertyId,
   propertyTitle,
   ownerId,
+  dealerId,
 }: Props) {
 
   const {user}=useAuth();
@@ -224,6 +226,8 @@ export default function PropertyActions({
           propertyTitle,
 
           ownerId,
+
+          dealerId: dealerId || "",
 
           buyerId:user?.uid || "",
           buyerEmail:user?.email || "",

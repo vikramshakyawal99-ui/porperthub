@@ -22,6 +22,10 @@ export default function Navbar() {
   function getDashboardLink() {
     if (role === "admin") return "/admin";
 
+    if (role === "team_member") {
+      return "/team/dashboard";
+    }
+
     if (role === "property_dealer") {
       return "/dealer/dashboard";
     }
@@ -96,7 +100,11 @@ export default function Navbar() {
               href={getDashboardLink()}
               className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-green-50 hover:text-green-700"
             >
-              {role === "admin" ? "🛠 Admin Panel" : "Dashboard"}
+              {role === "admin"
+                ? "🛠 Admin Panel"
+                : role === "team_member"
+                ? "👥 Team Dashboard"
+                : "Dashboard"}
             </Link>
           )}
 
@@ -141,12 +149,14 @@ export default function Navbar() {
               </div>
             </div>
           ) : (
-            <Link
-              href="/buyer-login"
-              className="text-sm font-bold text-slate-700 hover:text-green-700"
-            >
-              Sign in
-            </Link>
+            <>
+              <Link
+                href="/buyer-login"
+                className="text-sm font-bold text-slate-700 hover:text-green-700"
+              >
+                Sign in
+              </Link>
+            </>
           )}
 
           <Link
@@ -187,8 +197,24 @@ export default function Navbar() {
                 onClick={() => setMenuOpen(false)}
                 className="rounded-xl px-4 py-3 text-sm font-bold text-slate-700 hover:bg-green-50 hover:text-green-700"
               >
-                {role === "admin" ? "🛠 Admin Panel" : "Dashboard"}
+                {role === "admin"
+                  ? "🛠 Admin Panel"
+                  : role === "team_member"
+                  ? "👥 Team Dashboard"
+                  : "Dashboard"}
               </Link>
+            )}
+
+            {!user && (
+              <>
+                <Link
+                  href="/buyer-login"
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-xl px-4 py-3 text-sm font-bold text-slate-700 hover:bg-green-50 hover:text-green-700"
+                >
+                  Sign in
+                </Link>
+              </>
             )}
 
             <Link

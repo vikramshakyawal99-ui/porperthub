@@ -116,6 +116,10 @@ export default function SponsoredAdsPage() {
   const [form, setForm] = useState(emptyForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const [editingAdId, setEditingAdId] =
+    useState<string | null>(null);
+
   const [uploading, setUploading] =
     useState<string>("");
 
@@ -386,7 +390,7 @@ export default function SponsoredAdsPage() {
     try {
       setSaving(true);
 
-      await addDoc(collection(db, "homepageAds"), {
+      const adData = {
         adType: form.adType,
         sponsorName: form.sponsorName.trim(),
         builderLogo: form.builderLogo.trim(),
@@ -405,19 +409,24 @@ export default function SponsoredAdsPage() {
         possession: form.possession.trim(),
         reraStatus: form.reraStatus.trim(),
         appreciation: form.appreciation.trim(),
-        projectHighlights: form.projectHighlights.trim(),
-        whyInvest: form.whyInvest.trim(),
+        projectHighlights:
+          form.projectHighlights.trim(),
+        whyInvest:
+          form.whyInvest.trim(),
         desktopImage: form.desktopImage,
         mobileImage: form.mobileImage,
         ctaLabel:
-          form.ctaLabel.trim() || "Explore Project",
-        targetUrl: form.targetUrl.trim(),
+          form.ctaLabel.trim() ||
+          "Explore Project",
+        targetUrl:
+          form.targetUrl.trim(),
         placement: form.placement,
         startDate: form.startDate,
         endDate: form.endDate,
         priority:
           Number(form.priority) || 1,
         active: form.active,
+
         slides:
           form.adType === "showcase"
             ? form.slides
@@ -425,28 +434,64 @@ export default function SponsoredAdsPage() {
                   Boolean(slide.image)
                 )
                 .map((slide, index) => ({
-            id: slide.id,
-            image: slide.image,
-            title:
-              slide.title.trim() ||
-              `Project View ${index + 1}`,
-            description:
-              slide.description.trim(),
-            category:
-              slide.category || "overview",
+                  id: slide.id,
+                  image: slide.image,
+                  title:
+                    slide.title.trim() ||
+                    `Project View ${index + 1}`,
+                  description:
+                    slide.description.trim(),
+                  category:
+                    slide.category ||
+                    "overview",
                   order: index,
                 }))
             : [],
-        impressions: 0,
-        clicks: 0,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
 
+        updatedAt:
+          serverTimestamp(),
+      };
+
+      if (editingAdId) {
+
+        await updateDoc(
+          doc(
+            db,
+            "homepageAds",
+            editingAdId
+          ),
+          adData
+        );
+
+        alert(
+          "✅ Sponsored advertisement updated."
+        );
+
+      } else {
+
+        await addDoc(
+          collection(
+            db,
+            "homepageAds"
+          ),
+          {
+            ...adData,
+            impressions: 0,
+            clicks: 0,
+            createdAt:
+              serverTimestamp(),
+          }
+        );
+
+        alert(
+          "✅ Sponsored advertisement created."
+        );
+      }
+
+      setEditingAdId(null);
       setForm(emptyForm);
-      await fetchAds();
 
-      alert("✅ Sponsored advertisement created.");
+      await fetchAds();
     } catch (error) {
       console.error("CREATE AD ERROR:", error);
       alert("Unable to create advertisement.");
@@ -454,6 +499,147 @@ export default function SponsoredAdsPage() {
       setSaving(false);
     }
   }
+
+  function startEdit(ad: SponsoredAd) {
+
+    setEditingAdId(ad.id);
+
+    setForm({
+      adType:
+        ad.adType || "banner",
+
+      sponsorName:
+        ad.sponsorName || "",
+
+      builderLogo:
+        ad.builderLogo || "",
+
+      builderContact:
+        ad.builderContact || "",
+
+      projectName:
+        ad.projectName || "",
+
+      title:
+        ad.title || "",
+
+      subtitle:
+        ad.subtitle || "",
+
+      startingPrice:
+        ad.startingPrice || "",
+
+      location:
+        ad.location || "",
+
+      configuration:
+        ad.configuration || "",
+
+      landArea:
+        ad.landArea || "",
+
+      towers:
+        ad.towers || "",
+
+      totalUnits:
+        ad.totalUnits || "",
+
+      clubhouse:
+        ad.clubhouse || "",
+
+      openArea:
+        ad.openArea || "",
+
+      possession:
+        ad.possession || "",
+
+      reraStatus:
+        ad.reraStatus || "",
+
+      appreciation:
+        ad.appreciation || "",
+
+      projectHighlights:
+        ad.projectHighlights || "",
+
+      whyInvest:
+        ad.whyInvest || "",
+
+      desktopImage:
+        ad.desktopImage || "",
+
+      mobileImage:
+        ad.mobileImage || "",
+
+      ctaLabel:
+        ad.ctaLabel ||
+        "Explore Project",
+
+      targetUrl:
+        ad.targetUrl || "",
+
+      placement:
+        ad.placement || "both",
+
+      startDate:
+        ad.startDate || "",
+
+      endDate:
+        ad.endDate || "",
+
+      priority:
+        String(ad.priority || 1),
+
+      active:
+        ad.active !== false,
+
+      slides:
+        ad.slides?.length
+          ? ad.slides.map(
+              (slide, index) => ({
+                id:
+                  slide.id ||
+                  `slide-${index + 1}`,
+                image:
+                  slide.image || "",
+                title:
+                  slide.title || "",
+                description:
+                  slide.description || "",
+                category:
+                  slide.category ||
+                  "overview",
+              })
+            )
+          : [
+              {
+                id: "slide-1",
+                image: "",
+                title: "",
+                description: "",
+                category:
+                  "overview" as const,
+              },
+            ],
+    });
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }
+
+
+  function cancelEdit() {
+    setEditingAdId(null);
+    setForm(emptyForm);
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }
+
 
   async function toggleAd(ad: SponsoredAd) {
     try {
@@ -1312,9 +1498,24 @@ Trusted developer`}
             className="mt-5 w-full rounded-xl bg-green-600 px-5 py-4 text-sm font-black text-white shadow-lg shadow-green-600/20 hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving
-              ? "Creating Advertisement..."
-              : "Create Sponsored Advertisement"}
+              ? editingAdId
+                ? "Updating Advertisement..."
+                : "Creating Advertisement..."
+              : editingAdId
+                ? "Update Sponsored Advertisement"
+                : "Create Sponsored Advertisement"}
           </button>
+
+          {editingAdId && (
+            <button
+              type="button"
+              onClick={cancelEdit}
+              disabled={saving || !!uploading}
+              className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+            >
+              Cancel Edit
+            </button>
+          )}
         </section>
 
         <section className="mt-8">
@@ -1348,11 +1549,32 @@ Trusted developer`}
                   key={ad.id}
                   className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
                 >
-                  <img
-                    src={ad.desktopImage}
-                    alt={ad.title}
-                    className="aspect-[16/6] w-full object-cover"
-                  />
+                  {(() => {
+                    const previewImage =
+                      ad.desktopImage ||
+                      ad.slides?.find(
+                        (slide) =>
+                          Boolean(
+                            slide.image?.trim()
+                          )
+                      )?.image ||
+                      "";
+
+                    return previewImage ? (
+                      <img
+                        src={previewImage}
+                        alt={
+                          ad.title ||
+                          "Sponsored advertisement"
+                        }
+                        className="aspect-[16/6] w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex aspect-[16/6] w-full items-center justify-center bg-slate-100 text-sm font-bold text-slate-400">
+                        No advertisement image
+                      </div>
+                    );
+                  })()}
 
                   <div className="p-5">
                     <div className="flex items-start justify-between gap-4">
@@ -1417,22 +1639,40 @@ Trusted developer`}
                       </div>
                     </div>
 
-                    <div className="mt-5 flex gap-3">
+                    <div className="mt-5 flex flex-wrap gap-3">
+
                       <button
                         type="button"
-                        onClick={() => toggleAd(ad)}
-                        className="flex-1 rounded-xl border border-green-600 px-4 py-3 text-sm font-black text-green-700 hover:bg-green-50"
+                        onClick={() =>
+                          startEdit(ad)
+                        }
+                        className="flex-1 rounded-xl bg-slate-900 px-4 py-3 text-sm font-black text-white hover:bg-slate-800"
                       >
-                        {ad.active ? "Pause" : "Activate"}
+                        ✎ Edit
                       </button>
 
                       <button
                         type="button"
-                        onClick={() => removeAd(ad.id)}
+                        onClick={() =>
+                          toggleAd(ad)
+                        }
+                        className="flex-1 rounded-xl border border-green-600 px-4 py-3 text-sm font-black text-green-700 hover:bg-green-50"
+                      >
+                        {ad.active
+                          ? "Pause"
+                          : "Activate"}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          removeAd(ad.id)
+                        }
                         className="rounded-xl border border-red-200 px-4 py-3 text-sm font-black text-red-600 hover:bg-red-50"
                       >
                         Delete
                       </button>
+
                     </div>
                   </div>
                 </article>

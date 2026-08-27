@@ -8,8 +8,11 @@ import PropertyConfigurationsField, {
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { uploadToCloudinary } from "@/lib/cloudinary";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function AddPropertyPage() {
+
+  const { user } = useAuth();
 
   const [title,setTitle]=useState("");
   const [featured,setFeatured]=useState(false);
@@ -69,6 +72,11 @@ async function handleSubmit(e:React.FormEvent){
 e.preventDefault();
 
 try{
+
+if (!user) {
+  alert("Admin login required");
+  return;
+}
 
 setLoading(true);
 
@@ -185,6 +193,20 @@ image:imageUrls[0] || "",
 images:imageUrls,
 
 status:"approved",
+
+source:"propertyhub_admin",
+
+addedByUid:user.uid,
+
+addedByEmail:user.email || "",
+
+addedByRole:"admin",
+
+contactHandlerUid:"BZDtfkXPjifJiMKdB1SEVjmtkK53",
+
+contactHandlerEmail:"devanshubhardwaj@gmail.com",
+
+contactHandlerRole:"team_member",
 
 createdAt:new Date()
 

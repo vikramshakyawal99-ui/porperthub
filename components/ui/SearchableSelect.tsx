@@ -1,6 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 interface SearchableSelectProps {
   label: string;
@@ -15,43 +19,119 @@ export default function SearchableSelect({
   onChange,
   options,
 }: SearchableSelectProps) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] =
+    useState(false);
 
-  const filtered = options.filter((item) =>
-    item.toLowerCase().includes(value.toLowerCase())
-  );
+  const [search, setSearch] =
+    useState("");
+
+  const wrapperRef =
+    useRef<HTMLDivElement>(null);
+
+  const filteredOptions =
+    options.filter((item) =>
+      item
+        .toLowerCase()
+        .includes(
+          search.trim().toLowerCase()
+        )
+    );
+
+  useEffect(() => {
+    function handleOutsideClick(
+      event: MouseEvent
+    ) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(
+          event.target as Node
+        )
+      ) {
+        setOpen(false);
+        setSearch("");
+      }
+    }
+
+    document.addEventListener(
+      "mousedown",
+      handleOutsideClick
+    );
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleOutsideClick
+      );
+    };
+  }, []);
 
   return (
-    <div className="relative">
-      <label className="block mb-2 font-medium">
+    <div
+      ref={wrapperRef}
+      className="relative"
+    >
+      <label className="mb-2 block font-medium text-slate-900">
         {label}
       </label>
 
       <input
-        className="w-full rounded-xl border p-3"
-        value={value}
-        onFocus={() => setOpen(true)}
-        onChange={(e) => {
-          onChange(e.target.value);
+        value={
+          open
+            ? search
+            : value
+        }
+        onFocus={() => {
+          setOpen(true);
+          setSearch("");
+        }}
+        onChange={(event) => {
+          setSearch(
+            event.target.value
+          );
+
           setOpen(true);
         }}
-        placeholder={`Enter ${label}`}
+        placeholder={`Select ${label}`}
+        autoComplete="off"
+        className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none transition focus:border-green-500 focus:ring-4 focus:ring-green-100"
       />
 
-      {open && filtered.length > 0 && (
-        <div className="absolute z-10 mt-1 w-full rounded-xl border bg-zinc-900 shadow">
-          {filtered.map((item) => (
-            <div
-              key={item}
-              className="cursor-pointer p-3 hover:bg-zinc-950"
-              onClick={() => {
-                onChange(item);
-                setOpen(false);
-              }}
-            >
-              {item}
+      {open && (
+        <div className="absolute z-30 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-xl">
+
+          {filteredOptions.length >
+          0 ? (
+            filteredOptions.map(
+              (item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onMouseDown={(
+                    event
+                  ) =>
+                    event.preventDefault()
+                  }
+                  onClick={() => {
+                    onChange(item);
+                    setSearch("");
+                    setOpen(false);
+                  }}
+                  className={`block w-full rounded-lg px-3 py-3 text-left text-sm font-semibold transition ${
+                    value === item
+                      ? "bg-green-50 text-green-700"
+                      : "text-slate-800 hover:bg-green-50 hover:text-green-700"
+                  }`}
+                >
+                  {item}
+                </button>
+              )
+            )
+          ) : (
+            <div className="px-3 py-4 text-sm text-slate-500">
+              No options found
             </div>
-          ))}
+          )}
+
         </div>
       )}
     </div>

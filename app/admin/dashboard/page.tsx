@@ -23,11 +23,16 @@ export default function AdminDashboard() {
   const [leadCount, setLeadCount] = useState(0);
   const [visitCount, setVisitCount] = useState(0);
   const [loanApplicationCount, setLoanApplicationCount] = useState(0);
+
   const [followUpCount, setFollowUpCount] = useState(0);
   const [pendingLeadCount, setPendingLeadCount] = useState(0);
   const [conversionRate, setConversionRate] = useState(0);
   const [viewCount, setViewCount] = useState(0);
   const [mostViewedProperty, setMostViewedProperty] = useState("N/A");
+
+  const [userCount, setUserCount] = useState(0);
+  const [teamMemberCount, setTeamMemberCount] = useState(0);
+  const [sponsoredAdsCount, setSponsoredAdsCount] = useState(0);
 
   const [recentLeads, setRecentLeads] = useState<any[]>([]);
   const [recentVisits, setRecentVisits] = useState<any[]>([]);
@@ -51,6 +56,14 @@ export default function AdminDashboard() {
       const loanApplicationsSnap = await getDocs(
         collection(db, "loanApplications")
       );
+
+        const usersSnap = await getDocs(
+          collection(db, "users")
+        );
+
+        const sponsoredAdsSnap = await getDocs(
+          collection(db, "homepageAds")
+        );
 
       const leadData = leadsSnap.docs.map(doc => ({
         id: doc.id,
@@ -91,6 +104,19 @@ export default function AdminDashboard() {
       setLeadCount(leadData.length);
       setVisitCount(visitData.length);
       setLoanApplicationCount(loanApplicationsSnap.size);
+
+      setUserCount(usersSnap.size);
+
+      setTeamMemberCount(
+        usersSnap.docs.filter(
+          (item) =>
+            item.data().role === "team_member"
+        ).length
+      );
+
+      setSponsoredAdsCount(
+        sponsoredAdsSnap.size
+      );
 
       const followUps = leadData.filter(
         (lead:any)=> lead.followUpDate
@@ -186,26 +212,46 @@ export default function AdminDashboard() {
                 </p>
               </Link>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+              <Link
+                href="/admin/builders"
+                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-green-200"
+              >
                 <h3 className="text-slate-500">Builders</h3>
                 <p className="text-3xl font-bold text-slate-950">
-                  {new Set(properties.map((p: any) => p.builder)).size}
+                  {
+                    new Set(
+                      properties
+                        .map((p: any) =>
+                          String(p.builder || "").trim()
+                        )
+                        .filter(Boolean)
+                        .map((name: string) =>
+                          name.toLowerCase()
+                        )
+                    ).size
+                  }
                 </p>
-              </div>
+              </Link>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+              <Link
+                href="/admin/properties"
+                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-green-200 hover:shadow-md"
+              >
                 <h3 className="text-slate-500">Locations</h3>
                 <p className="text-3xl font-bold text-slate-950">
                   {new Set(properties.map((p: any) => p.location)).size}
                 </p>
-              </div>
+              </Link>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+              <Link
+                href="/admin/properties"
+                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-green-200 hover:shadow-md"
+              >
                 <h3 className="text-slate-500">Types</h3>
                 <p className="text-3xl font-bold text-slate-950">
                   {new Set(properties.map((p: any) => p.propertyType)).size}
                 </p>
-              </div>
+              </Link>
 
               <Link
                 href="/admin/leads"
@@ -228,6 +274,51 @@ export default function AdminDashboard() {
               </Link>
 
               <Link
+                href="/admin/users"
+                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-green-200"
+              >
+                <h3 className="text-slate-500">Users</h3>
+                <p className="text-3xl font-bold text-green-700">
+                  {userCount}
+                </p>
+              </Link>
+
+              <Link
+                href="/admin/users?role=team_member"
+                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-green-200"
+              >
+                <h3 className="text-slate-500">Team Members</h3>
+                <p className="text-3xl font-bold text-green-700">
+                  {teamMemberCount}
+                </p>
+              </Link>
+
+              <Link
+                href="/admin/properties"
+                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-green-200"
+              >
+                <h3 className="text-slate-500">Pending Properties</h3>
+                <p className="text-3xl font-bold text-amber-600">
+                  {
+                    properties.filter(
+                      (property: any) =>
+                        property.status === "pending"
+                    ).length
+                  }
+                </p>
+              </Link>
+
+              <Link
+                href="/admin/sponsored-ads"
+                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-green-200"
+              >
+                <h3 className="text-slate-500">Sponsored Ads</h3>
+                <p className="text-3xl font-bold text-green-700">
+                  {sponsoredAdsCount}
+                </p>
+              </Link>
+
+              <Link
                 href="/admin/loan-applications"
                 className="rounded-2xl border border-green-100 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-green-300 hover:shadow-[0_12px_30px_rgba(22,163,74,0.10)]"
               >
@@ -242,40 +333,55 @@ export default function AdminDashboard() {
                 </p>
               </Link>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+              <Link
+                href="/admin/leads"
+                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-green-200 hover:shadow-md"
+              >
                 <h3 className="text-slate-500">Follow Ups</h3>
                 <p className="text-3xl font-bold text-green-700">
                   {followUpCount}
                 </p>
-              </div>
+              </Link>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+              <Link
+                href="/admin/leads"
+                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-green-200 hover:shadow-md"
+              >
                 <h3 className="text-slate-500">Pending Leads</h3>
                 <p className="text-3xl font-bold text-green-700">
                   {pendingLeadCount}
                 </p>
-              </div>
+              </Link>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+              <Link
+                href="/admin/leads"
+                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-green-200 hover:shadow-md"
+              >
                 <h3 className="text-slate-500">Conversion Rate</h3>
                 <p className="text-3xl font-bold text-green-700">
                   {conversionRate}%
                 </p>
-              </div>
+              </Link>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+              <Link
+                href="/admin/properties"
+                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-green-200 hover:shadow-md"
+              >
                 <h3 className="text-slate-500">Property Views</h3>
                 <p className="text-3xl font-bold text-green-700">
                   {viewCount}
                 </p>
-              </div>
+              </Link>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+              <Link
+                href="/admin/properties"
+                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-green-200 hover:shadow-md"
+              >
                 <h3 className="text-slate-500">Most Viewed</h3>
                 <p className="mt-2 font-bold text-green-700">
                   {mostViewedProperty}
                 </p>
-              </div>
+              </Link>
 
             </div>
           </div>
