@@ -373,9 +373,9 @@ export default function DealerAddPropertyPage() {
     event:
       React.ChangeEvent<HTMLInputElement>
   ) {
-    const selected = Array.from(
+    const picked = Array.from(
       event.target.files || []
-    ).slice(0, 10);
+    );
 
     const allowedTypes = new Set([
       "image/jpeg",
@@ -385,7 +385,7 @@ export default function DealerAddPropertyPage() {
     ]);
 
     const invalidFile =
-      selected.find(
+      picked.find(
         (file) =>
           !allowedTypes.has(file.type) ||
           file.size >
@@ -400,16 +400,41 @@ export default function DealerAddPropertyPage() {
       return;
     }
 
-    previewImages.forEach((url) =>
-      URL.revokeObjectURL(url)
-    );
+    const remainingSlots =
+      Math.max(0, 10 - images.length);
 
-    setImages(selected);
-    setPreviewImages(
-      selected.map((file) =>
+    if (remainingSlots === 0) {
+      alert("Maximum 10 property images are allowed.");
+      event.target.value = "";
+      return;
+    }
+
+    const selected =
+      picked.slice(0, remainingSlots);
+
+    if (picked.length > remainingSlots) {
+      alert(
+        `Only ${remainingSlots} more image${
+          remainingSlots === 1 ? "" : "s"
+        } can be added. Maximum is 10.`
+      );
+    }
+
+    setImages((current) => [
+      ...current,
+      ...selected,
+    ]);
+
+    setPreviewImages((current) => [
+      ...current,
+      ...selected.map((file) =>
         URL.createObjectURL(file)
-      )
-    );
+      ),
+    ]);
+
+    // Allows selecting the same file again
+    // after removing it.
+    event.target.value = "";
   }
 
   function removeImage(index: number) {
@@ -590,8 +615,8 @@ export default function DealerAddPropertyPage() {
 
           possession,
 
-          featured:
-            isNew && featured,
+          // Featured placement is controlled by PropertyHub/Admin.
+          featured: false,
 
           latitude:
             Number(
@@ -1390,6 +1415,33 @@ export default function DealerAddPropertyPage() {
                     </div>
                   )
                 )}
+
+                {previewImages.length < 10 && (
+                  <label
+                    htmlFor="dealer-property-images"
+                    className="flex aspect-[4/3] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#8BC99A] bg-white text-center transition hover:border-[#16A34A] hover:bg-[#F7FFF9]"
+                  >
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#16A34A] text-2xl font-black text-[#16A34A]">
+                      +
+                    </span>
+
+                    <span className="mt-3 font-black text-[#15803D]">
+                      Add Next Image
+                    </span>
+
+                    <span className="mt-1 text-xs text-[#7A897F]">
+                      {previewImages.length} / 10 uploaded
+                    </span>
+                  </label>
+                )}
+              </div>
+            )}
+
+            {previewImages.length > 0 && (
+              <div className="mt-4 rounded-xl bg-white px-4 py-3 text-sm">
+                <span className="font-bold text-[#15803D]">
+                  ✓ {previewImages.length} / 10 images uploaded
+                </span>
               </div>
             )}
           </section>

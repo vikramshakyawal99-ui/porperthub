@@ -23,8 +23,7 @@ service cloud.firestore {
         get(
           /databases/$(database)/documents/users/$(request.auth.uid)
         ).data.role in [
-                    "buyer",
-"property_owner",
+          "property_owner",
           "hostel_owner",
           "pg_owner",
           "room_owner",
@@ -55,40 +54,119 @@ service cloud.firestore {
 
     match /properties/{propertyId} {
 
-      allow read: if true;
-
-      allow create: if isAdmin()
-        ||
-        (
+      // PUBLIC / PRIVATE PROPERTY READ
+      // Public visitors may read approved listings only.
+      // Admin may read every listing.
+      // Owners, dealers and team members may read their own listings
+      // regardless of approval status.
+      allow read: if
+        resource.data.get("status", "") == "approved"
+        || isAdmin()
+        || (
           isOwnerRole()
-          && request.resource.data.ownerId == request.auth.uid
+          && resource.data.get("ownerId", "") == request.auth.uid
         )
-        ||
-        (
+        || (
           isDealer()
-          && request.resource.data.dealerId == request.auth.uid
+          && resource.data.get("dealerId", "") == request.auth.uid
         )
-        ||
-        (
+        || (
           isTeamMember()
-          && request.resource.data.addedByUid == request.auth.uid
-          && request.resource.data.addedByRole == "team_member"
-          && request.resource.data.source == "propertyhub_team"
-          && request.resource.data.status == "pending"
-          && request.resource.data.featured == false
+          && resource.data.get("addedByUid", "") == request.auth.uid
         );
 
-      allow update, delete: if isAdmin()
-        ||
-        (
-          isLoggedIn()
-          && resource.data.ownerId == request.auth.uid
-        )
-        ||
-        (
-          isDealer()
-          && resource.data.dealerId == request.auth.uid
-        );
+      // ADMIN
+      // Admin keeps full property control.
+      allow create, update, delete: if isAdmin();
+
+      // PROPERTY OWNER CREATE
+      // Direct approval remains enabled.
+      // Owner can create only under their own UID and cannot
+      // inject dealer/team/admin routing or Featured metadata.
+      allow create: if isOwnerRole()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.status == "approved"
+        && request.resource.data.get("featured", false) == false
+        && request.resource.data.get("dealerId", "") == ""
+        && request.resource.data.get("role", "") == ""
+        && request.resource.data.get("source", "") == ""
+        && request.resource.data.get("addedByUid", "") == ""
+        && request.resource.data.get("addedByRole", "") == ""
+        && request.resource.data.get("contactHandlerUid", "") == ""
+        && request.resource.data.get("contactHandlerEmail", "") == "";
+
+      // DEALER CREATE
+      // Direct approval remains enabled.
+      // Dealer owns both routing IDs, cannot self-feature,
+      // and cannot impersonate PropertyHub managed listings.
+      allow create: if isDealer()
+        && request.resource.data.dealerId == request.auth.uid
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.role == "property_dealer"
+        && request.resource.data.status == "approved"
+        && request.resource.data.get("featured", false) == false
+        && request.resource.data.get("source", "") == ""
+        && request.resource.data.get("addedByUid", "") == ""
+        && request.resource.data.get("addedByRole", "") == ""
+        && request.resource.data.get("contactHandlerUid", "") == ""
+        && request.resource.data.get("contactHandlerEmail", "") == "";
+
+      // TEAM CREATE
+      // Team workflow remains pending for admin review.
+      // PropertyHub routing must stay bound to the logged-in team member.
+      allow create: if isTeamMember()
+        && request.resource.data.addedByUid == request.auth.uid
+        && request.resource.data.addedByRole == "team_member"
+        && request.resource.data.source == "propertyhub_team"
+        && request.resource.data.status == "pending"
+        && request.resource.data.featured == false
+        && request.resource.data.contactHandlerUid == request.auth.uid
+        && request.resource.data.get("contactHandlerRole", "") == "team_member"
+        && request.resource.data.get("dealerId", "") == "";
+
+      // OWNER UPDATE
+      // Normal property details may be edited, but ownership,
+      // routing and privileged metadata cannot be changed.
+      allow update: if isOwnerRole()
+        && resource.data.ownerId == request.auth.uid
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          "ownerId",
+          "dealerId",
+          "role",
+          "source",
+          "addedByUid",
+          "addedByRole",
+          "contactHandlerUid",
+          "contactHandlerEmail",
+          "featured"
+        ])
+        && request.resource.data.status == "approved";
+
+      // DEALER UPDATE
+      // Dealer can edit normal listing details only.
+      allow update: if isDealer()
+        && resource.data.dealerId == request.auth.uid
+        && resource.data.ownerId == request.auth.uid
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          "ownerId",
+          "dealerId",
+          "role",
+          "source",
+          "addedByUid",
+          "addedByRole",
+          "contactHandlerUid",
+          "contactHandlerEmail",
+          "featured",
+          "status"
+        ]);
+
+      // OWNER / DEALER may remove only their own listing.
+      allow delete: if isOwnerRole()
+        && resource.data.ownerId == request.auth.uid;
+
+      allow delete: if isDealer()
+        && resource.data.dealerId == request.auth.uid
+        && resource.data.ownerId == request.auth.uid;
     }
 
 
@@ -98,9 +176,78 @@ service cloud.firestore {
 
     match /leads/{leadId} {
 
-      allow create: if isLoggedIn();
+      // Logged-in customer may create only a lead
+      // belonging to their own Firebase account.
+      allow create: if isLoggedIn()
+        && request.resource.data.buyerId == request.auth.uid
+        && request.resource.data.propertyId is string
+        && request.resource.data.propertyId != ""
+        && request.resource.data.status == "New"
 
-      allow read, update: if isAdmin()
+        // The referenced property must actually exist.
+        && exists(
+          /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+        )
+
+        // ownerId must match the real property contact handler.
+        && (
+          (
+            get(
+              /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+            ).data.get("source", "") in [
+              "propertyhub_team",
+              "propertyhub_admin"
+            ]
+            &&
+            (
+              request.resource.data.get("ownerId", "") ==
+                get(
+                  /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+                ).data.get("contactHandlerUid", "")
+              ||
+              (
+                get(
+                  /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+                ).data.get("contactHandlerUid", "") == ""
+                &&
+                request.resource.data.get("ownerId", "") ==
+                  get(
+                    /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+                  ).data.get("addedByUid", "")
+              )
+            )
+          )
+          ||
+          (
+            !(
+              get(
+                /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+              ).data.get("source", "") in [
+                "propertyhub_team",
+                "propertyhub_admin"
+              ]
+            )
+            &&
+            request.resource.data.get("ownerId", "") ==
+              get(
+                /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+              ).data.get("ownerId", "")
+          )
+        )
+
+        // dealerId may be blank, otherwise it must match the property.
+        && (
+          request.resource.data.get("dealerId", "") == ""
+          ||
+          request.resource.data.get("dealerId", "") ==
+            get(
+              /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+            ).data.get("dealerId", "")
+        );
+
+      // Admin, assigned owner/team/dealer and the buyer
+      // may read the lead.
+      allow read: if isAdmin()
         ||
         (
           isLoggedIn()
@@ -114,6 +261,29 @@ service cloud.firestore {
         (
           isDealer()
           && resource.data.dealerId == request.auth.uid
+        );
+
+      // Buyer cannot modify CRM/routing data.
+      // Assigned owner/team/dealer can update CRM fields,
+      // but cannot reassign the lead or buyer/property identity.
+      allow update: if isAdmin()
+        ||
+        (
+          isLoggedIn()
+          && resource.data.ownerId == request.auth.uid
+          && request.resource.data.ownerId == resource.data.ownerId
+          && request.resource.data.dealerId == resource.data.dealerId
+          && request.resource.data.buyerId == resource.data.buyerId
+          && request.resource.data.propertyId == resource.data.propertyId
+        )
+        ||
+        (
+          isDealer()
+          && resource.data.dealerId == request.auth.uid
+          && request.resource.data.ownerId == resource.data.ownerId
+          && request.resource.data.dealerId == resource.data.dealerId
+          && request.resource.data.buyerId == resource.data.buyerId
+          && request.resource.data.propertyId == resource.data.propertyId
         );
 
       allow delete: if isAdmin();
@@ -126,9 +296,77 @@ service cloud.firestore {
 
     match /siteVisits/{visitId} {
 
-      allow create: if isLoggedIn();
+      // Visit request must belong to the signed-in buyer.
+      allow create: if isLoggedIn()
+        && request.resource.data.buyerId == request.auth.uid
+        && request.resource.data.propertyId is string
+        && request.resource.data.propertyId != ""
+        && request.resource.data.status == "Pending"
 
-      allow read, update: if isAdmin()
+        // The referenced property must actually exist.
+        && exists(
+          /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+        )
+
+        // ownerId must match the real property contact handler.
+        && (
+          (
+            get(
+              /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+            ).data.get("source", "") in [
+              "propertyhub_team",
+              "propertyhub_admin"
+            ]
+            &&
+            (
+              request.resource.data.get("ownerId", "") ==
+                get(
+                  /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+                ).data.get("contactHandlerUid", "")
+              ||
+              (
+                get(
+                  /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+                ).data.get("contactHandlerUid", "") == ""
+                &&
+                request.resource.data.get("ownerId", "") ==
+                  get(
+                    /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+                  ).data.get("addedByUid", "")
+              )
+            )
+          )
+          ||
+          (
+            !(
+              get(
+                /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+              ).data.get("source", "") in [
+                "propertyhub_team",
+                "propertyhub_admin"
+              ]
+            )
+            &&
+            request.resource.data.get("ownerId", "") ==
+              get(
+                /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+              ).data.get("ownerId", "")
+          )
+        )
+
+        // dealerId may be blank, otherwise it must match the property.
+        && (
+          request.resource.data.get("dealerId", "") == ""
+          ||
+          request.resource.data.get("dealerId", "") ==
+            get(
+              /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+            ).data.get("dealerId", "")
+        );
+
+      // Buyer can read their own request.
+      // Assigned owner/team/dealer can also read it.
+      allow read: if isAdmin()
         ||
         (
           isLoggedIn()
@@ -142,6 +380,28 @@ service cloud.firestore {
         (
           isDealer()
           && resource.data.dealerId == request.auth.uid
+        );
+
+      // Only Admin or assigned business handler can update.
+      // Routing and ownership fields remain immutable.
+      allow update: if isAdmin()
+        ||
+        (
+          isLoggedIn()
+          && resource.data.ownerId == request.auth.uid
+          && request.resource.data.ownerId == resource.data.ownerId
+          && request.resource.data.dealerId == resource.data.dealerId
+          && request.resource.data.buyerId == resource.data.buyerId
+          && request.resource.data.propertyId == resource.data.propertyId
+        )
+        ||
+        (
+          isDealer()
+          && resource.data.dealerId == request.auth.uid
+          && request.resource.data.ownerId == resource.data.ownerId
+          && request.resource.data.dealerId == resource.data.dealerId
+          && request.resource.data.buyerId == resource.data.buyerId
+          && request.resource.data.propertyId == resource.data.propertyId
         );
 
       allow delete: if isAdmin();
@@ -229,6 +489,7 @@ service cloud.firestore {
 
     match /notifications/{notificationId} {
 
+      // Only the intended recipient/business handler may read.
       allow read: if isAdmin()
         ||
         (
@@ -241,8 +502,125 @@ service cloud.firestore {
           )
         );
 
-      allow create: if isLoggedIn();
+      // Admin may create any legitimate system notification.
+      //
+      // Customer-created property notifications:
+      // sender must identify themselves as buyerId and provide
+      // a real propertyId.
+      //
+      // Owner/team/dealer CRM notifications:
+      // may only be created from the sender's own business account.
+      allow create: if isAdmin()
+        ||
+        (
+          isLoggedIn()
+          && request.resource.data.buyerId == request.auth.uid
+          && request.resource.data.propertyId is string
+          && request.resource.data.propertyId != ""
+          && exists(
+            /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+          )
 
+          // Notification must be routed to the real handler
+          // stored on the referenced property.
+          &&
+          (
+            (
+              get(
+                /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+              ).data.get("source", "") in [
+                "propertyhub_team",
+                "propertyhub_admin"
+              ]
+              &&
+              (
+                request.resource.data.ownerId ==
+                  get(
+                    /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+                  ).data.get("contactHandlerUid", "")
+                ||
+                request.resource.data.ownerId ==
+                  get(
+                    /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+                  ).data.get("addedByUid", "")
+              )
+            )
+            ||
+            (
+              !(
+                get(
+                  /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+                ).data.get("source", "") in [
+                  "propertyhub_team",
+                  "propertyhub_admin"
+                ]
+              )
+              &&
+              request.resource.data.ownerId ==
+                get(
+                  /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+                ).data.get("ownerId", "")
+            )
+          )
+
+          // If dealerId is supplied, it must match the property.
+          &&
+          (
+            !("dealerId" in request.resource.data)
+            ||
+            request.resource.data.dealerId == ""
+            ||
+            request.resource.data.dealerId ==
+              get(
+                /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+              ).data.get("dealerId", "")
+          )
+        )
+        ||
+        (
+          isLoggedIn()
+          && request.resource.data.ownerId == request.auth.uid
+          && (
+            isOwnerRole() ||
+            isTeamMember()
+          )
+        )
+        ||
+        (
+          isDealer()
+          && request.resource.data.dealerId == request.auth.uid
+        )
+        ||
+        (
+          isLoggedIn()
+          && request.resource.data.leadId is string
+          && request.resource.data.leadId != ""
+          && exists(
+            /databases/$(database)/documents/leads/$(request.resource.data.leadId)
+          )
+          &&
+          (
+            get(
+              /databases/$(database)/documents/leads/$(request.resource.data.leadId)
+            ).data.get("ownerId", "") == request.auth.uid
+            ||
+            (
+              isDealer()
+              &&
+              get(
+                /databases/$(database)/documents/leads/$(request.resource.data.leadId)
+              ).data.get("dealerId", "") == request.auth.uid
+            )
+          )
+          &&
+          request.resource.data.buyerId ==
+            get(
+              /databases/$(database)/documents/leads/$(request.resource.data.leadId)
+            ).data.buyerId
+        );
+
+      // Recipient may only change notification state.
+      // Routing/identity fields cannot be reassigned.
       allow update: if isAdmin()
         ||
         (
@@ -250,8 +628,13 @@ service cloud.firestore {
           &&
           (
             resource.data.ownerId == request.auth.uid ||
+            resource.data.buyerId == request.auth.uid ||
             resource.data.dealerId == request.auth.uid
           )
+          && request.resource.data
+            .diff(resource.data)
+            .affectedKeys()
+            .hasOnly(["read"])
         );
 
       allow delete: if isAdmin();
@@ -285,7 +668,9 @@ service cloud.firestore {
       // Partner, sanction, disbursement and commission fields
       // are locked to their initial values at creation.
       allow create: if
-        request.resource.data.status == "new"
+        isLoggedIn()
+        && request.resource.data.buyerId == request.auth.uid
+        && request.resource.data.status == "new"
         && request.resource.data.source == "propertyhub"
         && request.resource.data.partnerId == ""
         && request.resource.data.partnerName == ""
@@ -295,10 +680,25 @@ service cloud.firestore {
         && request.resource.data.commissionPercent == 0
         && request.resource.data.commissionAmount == 0
         && request.resource.data.commissionStatus == "not_connected"
+        && request.resource.data.consentAccepted == true
         && request.resource.data.customerName is string
+        && request.resource.data.customerName.size() >= 2
+        && request.resource.data.customerName.size() <= 100
         && request.resource.data.customerPhone is string
+        && request.resource.data.customerPhone.size() >= 10
+        && request.resource.data.customerPhone.size() <= 15
+        && request.resource.data.customerEmail is string
+        && request.resource.data.customerEmail.size() <= 254
         && request.resource.data.requiredLoanAmount is number
-        && request.resource.data.estimatedEligibleAmount is number;
+        && request.resource.data.requiredLoanAmount > 0
+        && request.resource.data.estimatedEligibleAmount is number
+        && request.resource.data.estimatedEligibleAmount >= 0
+        && request.resource.data.monthlyIncome is number
+        && request.resource.data.monthlyIncome >= 0
+        && request.resource.data.tenureYears is number
+        && request.resource.data.tenureYears > 0
+        && request.resource.data.estimatedEmi is number
+        && request.resource.data.estimatedEmi >= 0;
 
       allow read: if isAdmin()
         ||

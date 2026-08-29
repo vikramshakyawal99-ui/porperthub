@@ -32,7 +32,9 @@ export default async function RoomsPage() {
 
     where("location", "==", "Mansarovar"),
 
-    where("type", "==", "room_rent")
+    where("type", "==", "room_rent"),
+
+    where("status", "==", "approved")
 
   );
 

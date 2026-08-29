@@ -329,6 +329,8 @@ collection(db,"notifications"),
 {
 buyerId:updatedLead.buyerId,
 
+leadId:id,
+
 title:"📢 Enquiry Update",
 
 message:`Your enquiry status changed to ${status}`,

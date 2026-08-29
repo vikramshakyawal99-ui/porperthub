@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 const baseUrl = "https://propertyhub.com";
@@ -23,16 +23,17 @@ function slugify(value: string) {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const snapshot = await getDocs(collection(db, "properties"));
+  const snapshot = await getDocs(
+    query(
+      collection(db, "properties"),
+      where("status", "==", "approved")
+    )
+  );
 
-  const properties = snapshot.docs.map((doc) => ({
+  const approvedProperties = snapshot.docs.map((doc) => ({
     id: doc.id,
     ...(doc.data() as any),
   }));
-
-  const approvedProperties = properties.filter(
-    (property) => property.status === "approved"
-  );
 
   const propertyUrls = approvedProperties.map((property) => ({
     url: `${baseUrl}/properties/${property.id}`,

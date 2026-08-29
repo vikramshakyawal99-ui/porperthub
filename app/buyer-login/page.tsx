@@ -100,11 +100,22 @@ export default function BuyerLogin() {
     const pressedStaffKeys = new Set<string>();
 
     function handleStaffKeyDown(
-      event: KeyboardEvent
+      event?: KeyboardEvent
     ) {
-      pressedStaffKeys.add(
-        event.key.toLowerCase()
-      );
+      if (!event) {
+        return;
+      }
+
+      const key =
+        typeof event.key === "string"
+          ? event.key.toLowerCase()
+          : "";
+
+      if (!key) {
+        return;
+      }
+
+      pressedStaffKeys.add(key);
 
       const shiftPressed = event.shiftKey;
       const aPressed = pressedStaffKeys.has("a");
@@ -123,11 +134,22 @@ export default function BuyerLogin() {
     }
 
     function handleStaffKeyUp(
-      event: KeyboardEvent
+      event?: KeyboardEvent
     ) {
-      pressedStaffKeys.delete(
-        event.key.toLowerCase()
-      );
+      if (!event) {
+        return;
+      }
+
+      const key =
+        typeof event.key === "string"
+          ? event.key.toLowerCase()
+          : "";
+
+      if (!key) {
+        return;
+      }
+
+      pressedStaffKeys.delete(key);
     }
 
     function clearStaffKeys() {
@@ -408,8 +430,13 @@ export default function BuyerLogin() {
           )
         : "buyer";
 
+      const hasExplicitRedirect =
+        new URLSearchParams(
+          window.location.search
+        ).has("redirect");
+
       window.location.href =
-        role === "buyer"
+        hasExplicitRedirect
           ? redirectPath
           : getDashboard(role);
     } catch (verifyError) {
@@ -536,8 +563,13 @@ export default function BuyerLogin() {
 
       const destination = getDashboard(role);
 
+      const hasExplicitRedirect =
+        new URLSearchParams(
+          window.location.search
+        ).has("redirect");
+
       window.location.href =
-        role === "buyer"
+        hasExplicitRedirect
           ? redirectPath
           : destination;
     } catch (submitError) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -30,15 +30,180 @@ export default function SiteVisitForm({
   const [message,setMessage] = useState("");
   const [loading,setLoading] = useState(false);
 
+  useEffect(() => {
+    if (!user) return;
+
+    const buyerUid = user.uid;
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    if (
+      params.get("resumeSiteVisit") !== "1"
+    ) {
+      return;
+    }
+
+    const raw =
+      sessionStorage.getItem(
+        "propertyhub_pending_site_visit"
+      );
+
+    if (!raw) {
+      return;
+    }
+
+    try {
+      const pending = JSON.parse(raw);
+
+      if (
+        String(pending.propertyId || "") !==
+        String(propertyId)
+      ) {
+        return;
+      }
+
+      setName(String(pending.name || ""));
+      setPhone(String(pending.phone || ""));
+      setDate(String(pending.date || ""));
+      setTime(String(pending.time || ""));
+      setMessage(String(pending.message || ""));
+
+      async function resumeBooking() {
+        try {
+          setLoading(true);
+
+          await addDoc(
+            collection(db,"siteVisits"),
+            {
+              name:
+                String(pending.name || ""),
+              phone:
+                String(pending.phone || ""),
+              date:
+                String(pending.date || ""),
+              time:
+                String(pending.time || ""),
+              message:
+                String(pending.message || ""),
+
+              propertyId,
+              propertyTitle,
+              ownerId,
+              dealerId:
+                dealerId || "",
+
+              buyerId:buyerUid,
+
+              status:"Pending",
+
+              createdAt:serverTimestamp()
+            }
+          );
+
+          await addDoc(
+            collection(db,"notifications"),
+            {
+              ownerId,
+
+              buyerId:buyerUid,
+
+              title:
+                "New Site Visit Request",
+
+              message:
+                `${String(
+                  pending.name || ""
+                )} requested a visit for ${propertyTitle}`,
+
+              propertyId,
+
+              propertyTitle,
+
+              read:false,
+
+              createdAt:serverTimestamp()
+            }
+          );
+
+          sessionStorage.removeItem(
+            "propertyhub_pending_site_visit"
+          );
+
+          window.history.replaceState(
+            {},
+            "",
+            `/properties/${propertyId}#site-visit`
+          );
+
+          alert(
+            "Site Visit Booked Successfully ✅"
+          );
+
+          setName("");
+          setPhone("");
+          setDate("");
+          setTime("");
+          setMessage("");
+        } catch (error) {
+          console.error(
+            "Resume Site Visit failed:",
+            error
+          );
+
+          alert(
+            "Site Visit booking complete nahi ho payi. Please dobara submit karein."
+          );
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      resumeBooking();
+    } catch (error) {
+      console.error(
+        "Pending Site Visit parse failed:",
+        error
+      );
+
+      sessionStorage.removeItem(
+        "propertyhub_pending_site_visit"
+      );
+    }
+  }, [
+    user,
+    propertyId,
+    propertyTitle,
+    ownerId,
+    dealerId,
+  ]);
+
 
   async function handleSubmit(e:React.FormEvent){
 
     e.preventDefault();
 
     if (!user) {
+      sessionStorage.setItem(
+        "propertyhub_pending_site_visit",
+        JSON.stringify({
+          propertyId,
+          propertyTitle,
+          ownerId,
+          dealerId: dealerId || "",
+          name,
+          phone,
+          date,
+          time,
+          message,
+        })
+      );
+
       router.push(
         `/buyer-login?redirect=${encodeURIComponent(
-          `/properties/${propertyId}`
+          `/properties/${propertyId}?resumeSiteVisit=1#site-visit`
         )}`
       );
 

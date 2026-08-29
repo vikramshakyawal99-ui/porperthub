@@ -110,7 +110,13 @@ export default function ProfilePage() {
 
 
 
-  const isOwner = ownerRoles.includes(profile?.role);
+  const role = profile?.role || "buyer";
+
+  const isOwner = ownerRoles.includes(role);
+  const isBuyer = role === "buyer";
+  const isDealer = role === "property_dealer";
+  const isTeamMember = role === "team_member";
+  const isAdmin = role === "admin";
 
 
 
@@ -224,7 +230,7 @@ export default function ProfilePage() {
 
 
 
-            {!isOwner && (
+            {isBuyer && (
 
               <Link
 
@@ -235,6 +241,57 @@ export default function ProfilePage() {
               >
 
                 👤 Buyer Dashboard
+
+              </Link>
+
+            )}
+
+
+            {isTeamMember && (
+
+              <Link
+
+                href="/team/dashboard"
+
+                className="bg-green-600 p-5 rounded-xl text-center"
+
+              >
+
+                👥 Team Dashboard
+
+              </Link>
+
+            )}
+
+
+            {isDealer && (
+
+              <Link
+
+                href="/dealer/dashboard"
+
+                className="bg-green-600 p-5 rounded-xl text-center"
+
+              >
+
+                🏢 Dealer Dashboard
+
+              </Link>
+
+            )}
+
+
+            {isAdmin && (
+
+              <Link
+
+                href="/admin/dashboard"
+
+                className="bg-green-600 p-5 rounded-xl text-center"
+
+              >
+
+                🛡️ Admin Panel
 
               </Link>
 

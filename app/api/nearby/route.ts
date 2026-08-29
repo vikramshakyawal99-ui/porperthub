@@ -1,4 +1,8 @@
+import { createHash } from "crypto";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { NextResponse } from "next/server";
+
+import { adminDb } from "@/lib/firebase-admin";
 
 type Category =
   | "hospital"
@@ -24,6 +28,108 @@ const OVERPASS_URL =
 
 const RADIUS_METERS = 5000;
 const MAX_RESULTS = 5;
+
+const NEARBY_RATE_WINDOW_MS = 10 * 60 * 1000;
+const NEARBY_MAX_REQUESTS = 60;
+
+function getClientIp(request: Request) {
+  const forwarded =
+    request.headers.get("x-forwarded-for");
+
+  if (forwarded) {
+    return forwarded.split(",")[0].trim();
+  }
+
+  return (
+    request.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
+function hashClientIp(ip: string) {
+  return createHash("sha256")
+    .update(ip)
+    .digest("hex");
+}
+
+async function consumeNearbyQuota(
+  request: Request
+) {
+  const ipHash = hashClientIp(
+    getClientIp(request)
+  );
+
+  const ref = adminDb
+    .collection("nearbyApiRateLimits")
+    .doc(ipHash);
+
+  return adminDb.runTransaction(
+    async (transaction) => {
+      const snapshot =
+        await transaction.get(ref);
+
+      const now = Date.now();
+
+      if (!snapshot.exists) {
+        transaction.set(ref, {
+          count: 1,
+          windowStartedAt:
+            Timestamp.fromMillis(now),
+          updatedAt:
+            FieldValue.serverTimestamp(),
+        });
+
+        return true;
+      }
+
+      const data = snapshot.data() || {};
+
+      const windowStartedAt =
+        data.windowStartedAt instanceof Timestamp
+          ? data.windowStartedAt.toMillis()
+          : 0;
+
+      const count = Number(
+        data.count || 0
+      );
+
+      if (
+        !windowStartedAt ||
+        now - windowStartedAt >=
+          NEARBY_RATE_WINDOW_MS
+      ) {
+        transaction.set(
+          ref,
+          {
+            count: 1,
+            windowStartedAt:
+              Timestamp.fromMillis(now),
+            updatedAt:
+              FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        );
+
+        return true;
+      }
+
+      if (
+        count >= NEARBY_MAX_REQUESTS
+      ) {
+        return false;
+      }
+
+      transaction.update(ref, {
+        count:
+          FieldValue.increment(1),
+        updatedAt:
+          FieldValue.serverTimestamp(),
+      });
+
+      return true;
+    }
+  );
+}
 
 function distanceKm(
   lat1: number,
@@ -333,7 +439,11 @@ export async function GET(
 
     if (
       !Number.isFinite(lat) ||
-      !Number.isFinite(lng)
+      !Number.isFinite(lng) ||
+      lat < -90 ||
+      lat > 90 ||
+      lng < -180 ||
+      lng > 180
     ) {
       return NextResponse.json(
         {
@@ -341,6 +451,19 @@ export async function GET(
             "Invalid latitude or longitude",
         },
         { status: 400 }
+      );
+    }
+
+    const withinQuota =
+      await consumeNearbyQuota(req);
+
+    if (!withinQuota) {
+      return NextResponse.json(
+        {
+          error:
+            "Too many nearby requests. Please try again later.",
+        },
+        { status: 429 }
       );
     }
 
@@ -394,22 +517,18 @@ export async function GET(
     return NextResponse.json(
       result
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(
-      "Nearby OSM error:",
-      error
+      "NEARBY_API_ERROR",
+      error instanceof Error
+        ? error.name
+        : "UnknownError"
     );
 
     return NextResponse.json(
       {
         error:
-          "Unable to load nearby places",
-        message:
-          error?.name ===
-          "AbortError"
-            ? "Nearby places request timed out"
-            : error?.message ||
-              "Unknown error",
+          "Unable to load nearby places. Please try again later.",
       },
       { status: 500 }
     );

@@ -1,4 +1,4 @@
-import { randomInt } from "crypto";
+import { createHash, randomInt } from "crypto";
 import {
   FieldValue,
   Timestamp,
@@ -9,7 +9,6 @@ import { Resend } from "resend";
 import { adminDb } from "@/lib/firebase-admin";
 import {
   challengeId,
-  corsHeaders,
   hashOtp,
   isValidEmail,
   normalizeEmail,
@@ -19,6 +18,99 @@ import {
 
 export const runtime = "nodejs";
 
+const OTP_IP_WINDOW_MS = 10 * 60 * 1000;
+const OTP_IP_MAX_SENDS = 20;
+
+function getClientIp(request: Request) {
+  const forwarded = request.headers.get("x-forwarded-for");
+
+  if (forwarded) {
+    return forwarded.split(",")[0].trim();
+  }
+
+  return (
+    request.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
+function hashClientIp(ip: string) {
+  return createHash("sha256")
+    .update(ip)
+    .digest("hex");
+}
+
+async function consumeOtpSendQuota(
+  request: Request
+) {
+  const ip = getClientIp(request);
+  const ipHash = hashClientIp(ip);
+
+  const ref = adminDb
+    .collection("emailOtpIpRateLimits")
+    .doc(ipHash);
+
+  return adminDb.runTransaction(
+    async (transaction) => {
+      const snapshot = await transaction.get(ref);
+
+      const now = Date.now();
+
+      if (!snapshot.exists) {
+        transaction.set(ref, {
+          count: 1,
+          windowStartedAt:
+            Timestamp.fromMillis(now),
+          updatedAt:
+            FieldValue.serverTimestamp(),
+        });
+
+        return true;
+      }
+
+      const data = snapshot.data() || {};
+
+      const windowStartedAt =
+        data.windowStartedAt instanceof Timestamp
+          ? data.windowStartedAt.toMillis()
+          : 0;
+
+      const count = Number(data.count || 0);
+
+      if (
+        !windowStartedAt ||
+        now - windowStartedAt >= OTP_IP_WINDOW_MS
+      ) {
+        transaction.set(
+          ref,
+          {
+            count: 1,
+            windowStartedAt:
+              Timestamp.fromMillis(now),
+            updatedAt:
+              FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        );
+
+        return true;
+      }
+
+      if (count >= OTP_IP_MAX_SENDS) {
+        return false;
+      }
+
+      transaction.update(ref, {
+        count: FieldValue.increment(1),
+        updatedAt:
+          FieldValue.serverTimestamp(),
+      });
+
+      return true;
+    }
+  );
+}
+
 function response(
   data: Record<string, unknown>,
   status = 200
@@ -27,16 +119,8 @@ function response(
     data,
     {
       status,
-      headers: corsHeaders,
     }
   );
-}
-
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 204,
-    headers: corsHeaders,
-  });
 }
 
 export async function POST(request: Request) {
@@ -52,6 +136,20 @@ export async function POST(request: Request) {
             "Valid email address enter karein.",
         },
         400
+      );
+    }
+
+    const withinIpQuota =
+      await consumeOtpSendQuota(request);
+
+    if (!withinIpQuota) {
+      return response(
+        {
+          success: false,
+          message:
+            "Bahut zyada OTP requests hui hain. 10 minutes baad try karein.",
+        },
+        429
       );
     }
 

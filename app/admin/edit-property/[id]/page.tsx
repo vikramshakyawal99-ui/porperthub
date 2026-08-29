@@ -8,6 +8,7 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import PropertyForm from "@/components/PropertyForm";
+import LocationPicker from "@/components/LocationPicker";
 import PropertyConfigurationsField, {
   type PropertyConfiguration,
 } from "@/components/PropertyConfigurationsField";
@@ -39,6 +40,12 @@ export default function EditPropertyPage() {
   const [title,setTitle]=useState("");
   const [featured,setFeatured]=useState(false);
   const [location,setLocation]=useState("");
+
+  const [locationData,setLocationData]=useState({
+    latitude:"",
+    longitude:"",
+  });
+
   const [price,setPrice]=useState("");
 
   const [configurations, setConfigurations] =
@@ -97,6 +104,11 @@ setTitle(data.title || "");
 setFeatured(data.featured === true);
 
 setLocation(data.location || "");
+
+setLocationData({
+  latitude: data.latitude ?? "",
+  longitude: data.longitude ?? "",
+});
 
 setPrice(data.price || "");
 
@@ -299,6 +311,9 @@ description,
 images:uploadedImages,
 
 image:uploadedImages[0] || "",
+
+latitude: locationData.latitude,
+longitude: locationData.longitude,
 
 }
 
@@ -526,6 +541,21 @@ setImages={setNewImages}
 
 
 />
+
+<div className="mt-5">
+  <LocationPicker
+    onLocationSelect={(data)=>{
+      setLocationData(data);
+    }}
+  />
+
+  {(locationData.latitude !== "" || locationData.longitude !== "") && (
+    <p className="mt-2 text-sm text-slate-500">
+      📍 Saved coordinates: {String(locationData.latitude)}, {String(locationData.longitude)}
+    </p>
+  )}
+</div>
+
 
 
 

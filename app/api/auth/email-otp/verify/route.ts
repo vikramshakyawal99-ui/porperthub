@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import {
   FieldValue,
   Timestamp,
@@ -10,7 +11,6 @@ import {
 } from "@/lib/firebase-admin";
 import {
   challengeId,
-  corsHeaders,
   hashOtp,
   isValidEmail,
   normalizeEmail,
@@ -20,6 +20,104 @@ import {
 
 export const runtime = "nodejs";
 
+const OTP_VERIFY_IP_WINDOW_MS = 10 * 60 * 1000;
+const OTP_VERIFY_IP_MAX_ATTEMPTS = 50;
+
+function getClientIp(request: Request) {
+  const forwarded = request.headers.get("x-forwarded-for");
+
+  if (forwarded) {
+    return forwarded.split(",")[0].trim();
+  }
+
+  return (
+    request.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
+function hashClientIp(ip: string) {
+  return createHash("sha256")
+    .update(ip)
+    .digest("hex");
+}
+
+async function consumeOtpVerifyQuota(
+  request: Request
+) {
+  const ipHash = hashClientIp(
+    getClientIp(request)
+  );
+
+  const ref = adminDb
+    .collection("emailOtpVerifyIpRateLimits")
+    .doc(ipHash);
+
+  return adminDb.runTransaction(
+    async (transaction) => {
+      const snapshot =
+        await transaction.get(ref);
+
+      const now = Date.now();
+
+      if (!snapshot.exists) {
+        transaction.set(ref, {
+          count: 1,
+          windowStartedAt:
+            Timestamp.fromMillis(now),
+          updatedAt:
+            FieldValue.serverTimestamp(),
+        });
+
+        return true;
+      }
+
+      const data = snapshot.data() || {};
+
+      const windowStartedAt =
+        data.windowStartedAt instanceof Timestamp
+          ? data.windowStartedAt.toMillis()
+          : 0;
+
+      const count = Number(data.count || 0);
+
+      if (
+        !windowStartedAt ||
+        now - windowStartedAt >=
+          OTP_VERIFY_IP_WINDOW_MS
+      ) {
+        transaction.set(
+          ref,
+          {
+            count: 1,
+            windowStartedAt:
+              Timestamp.fromMillis(now),
+            updatedAt:
+              FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        );
+
+        return true;
+      }
+
+      if (
+        count >= OTP_VERIFY_IP_MAX_ATTEMPTS
+      ) {
+        return false;
+      }
+
+      transaction.update(ref, {
+        count: FieldValue.increment(1),
+        updatedAt:
+          FieldValue.serverTimestamp(),
+      });
+
+      return true;
+    }
+  );
+}
+
 function response(
   data: Record<string, unknown>,
   status = 200
@@ -28,16 +126,8 @@ function response(
     data,
     {
       status,
-      headers: corsHeaders,
     }
   );
-}
-
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 204,
-    headers: corsHeaders,
-  });
 }
 
 export async function POST(request: Request) {
@@ -62,14 +152,132 @@ export async function POST(request: Request) {
       );
     }
 
+    const withinIpQuota =
+      await consumeOtpVerifyQuota(request);
+
+    if (!withinIpQuota) {
+      return response(
+        {
+          success: false,
+          message:
+            "Bahut zyada OTP verification attempts hui hain. 10 minutes baad try karein.",
+        },
+        429
+      );
+    }
+
     const challengeRef = adminDb
       .collection("emailOtpChallenges")
       .doc(challengeId(email));
 
-    const challengeSnapshot =
-      await challengeRef.get();
+    const submittedOtpHash =
+      hashOtp(email, otp);
 
-    if (!challengeSnapshot.exists) {
+    const verification =
+      await adminDb.runTransaction(
+        async (transaction) => {
+          const challengeSnapshot =
+            await transaction.get(
+              challengeRef
+            );
+
+          if (!challengeSnapshot.exists) {
+            return {
+              status: "missing",
+            } as const;
+          }
+
+          const challenge =
+            challengeSnapshot.data() || {};
+
+          const expiresAt =
+            challenge.expiresAt instanceof Timestamp
+              ? challenge.expiresAt.toMillis()
+              : 0;
+
+          if (
+            !expiresAt ||
+            Date.now() > expiresAt
+          ) {
+            transaction.delete(
+              challengeRef
+            );
+
+            return {
+              status: "expired",
+            } as const;
+          }
+
+          const attempts =
+            Number(
+              challenge.attempts || 0
+            );
+
+          if (
+            attempts >=
+            OTP_MAX_ATTEMPTS
+          ) {
+            transaction.delete(
+              challengeRef
+            );
+
+            return {
+              status: "locked",
+            } as const;
+          }
+
+          const valid = otpMatches(
+            String(
+              challenge.otpHash || ""
+            ),
+            submittedOtpHash
+          );
+
+          if (!valid) {
+            const nextAttempts =
+              attempts + 1;
+
+            if (
+              nextAttempts >=
+              OTP_MAX_ATTEMPTS
+            ) {
+              transaction.delete(
+                challengeRef
+              );
+            } else {
+              transaction.update(
+                challengeRef,
+                {
+                  attempts:
+                    nextAttempts,
+                }
+              );
+            }
+
+            return {
+              status: "invalid",
+              remaining: Math.max(
+                0,
+                OTP_MAX_ATTEMPTS -
+                  nextAttempts
+              ),
+            } as const;
+          }
+
+          transaction.delete(
+            challengeRef
+          );
+
+          return {
+            status: "valid",
+          } as const;
+        }
+      );
+
+    if (
+      verification.status ===
+      "missing"
+    ) {
       return response(
         {
           success: false,
@@ -80,20 +288,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const challenge =
-      challengeSnapshot.data() || {};
-
-    const expiresAt =
-      challenge.expiresAt instanceof Timestamp
-        ? challenge.expiresAt.toMillis()
-        : 0;
-
     if (
-      !expiresAt ||
-      Date.now() > expiresAt
+      verification.status ===
+      "expired"
     ) {
-      await challengeRef.delete();
-
       return response(
         {
           success: false,
@@ -104,12 +302,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const attempts =
-      Number(challenge.attempts || 0);
-
-    if (attempts >= OTP_MAX_ATTEMPTS) {
-      await challengeRef.delete();
-
+    if (
+      verification.status ===
+      "locked"
+    ) {
       return response(
         {
           success: false,
@@ -120,32 +316,19 @@ export async function POST(request: Request) {
       );
     }
 
-    const valid = otpMatches(
-      String(challenge.otpHash || ""),
-      hashOtp(email, otp)
-    );
-
-    if (!valid) {
-      await challengeRef.update({
-        attempts:
-          FieldValue.increment(1),
-      });
-
+    if (
+      verification.status ===
+      "invalid"
+    ) {
       return response(
         {
           success: false,
           message:
-            `OTP incorrect hai. ${
-              OTP_MAX_ATTEMPTS -
-              attempts -
-              1
-            } attempts remaining.`,
+            `OTP incorrect hai. ${verification.remaining} attempts remaining.`,
         },
         400
       );
     }
-
-    await challengeRef.delete();
 
     let user;
 

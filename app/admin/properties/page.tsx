@@ -7,6 +7,7 @@ import {
   collection,
   getDocs,
   deleteDoc,
+  updateDoc,
   doc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -56,6 +57,34 @@ export default function ManageProperties() {
 
     await deleteDoc(doc(db, "properties", id));
     loadProperties();
+  }
+
+  async function changePropertyStatus(
+    id: string,
+    status: "approved" | "rejected"
+  ) {
+    try {
+      const action = status === "approved" ? "approve" : "reject";
+
+      if (!confirm(`Are you sure you want to ${action} this property?`)) {
+        return;
+      }
+
+      await updateDoc(doc(db, "properties", id), {
+        status,
+      });
+
+      await loadProperties();
+
+      alert(
+        status === "approved"
+          ? "✅ Property approved successfully"
+          : "❌ Property rejected"
+      );
+    } catch (error) {
+      console.error("PROPERTY STATUS UPDATE ERROR:", error);
+      alert("Failed to update property status");
+    }
   }
 
   useEffect(() => {
@@ -189,6 +218,28 @@ export default function ManageProperties() {
                 </div>
 
                 <div className="flex flex-wrap gap-3">
+
+                  {property.status !== "approved" && (
+                    <button
+                      onClick={() =>
+                        changePropertyStatus(property.id, "approved")
+                      }
+                      className="rounded-lg bg-green-600 px-4 py-2 font-semibold text-white"
+                    >
+                      ✅ Approve
+                    </button>
+                  )}
+
+                  {property.status !== "rejected" && (
+                    <button
+                      onClick={() =>
+                        changePropertyStatus(property.id, "rejected")
+                      }
+                      className="rounded-lg bg-red-600 px-4 py-2 font-semibold text-white shadow transition hover:bg-red-700"
+                    >
+                      Reject
+                    </button>
+                  )}
 
                   <Link
                     href={`/admin/edit-property/${property.id}`}

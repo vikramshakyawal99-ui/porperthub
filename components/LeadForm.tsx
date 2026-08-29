@@ -102,6 +102,8 @@ export default function LeadForm({
 
           buyerId:user?.uid || "",
 
+          propertyId,
+
           title:`📞 ${enquiryTitle}`,
           message:`${name} submitted an enquiry`,
           propertyTitle,

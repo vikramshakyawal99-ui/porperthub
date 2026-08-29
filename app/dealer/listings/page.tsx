@@ -155,7 +155,7 @@ export default function DealerListings() {
                     ₹ {property.price}
                   </p>
 
-                  <p className="mt-2 text-sm text-gray-500">
+                  <div className="mt-2 text-sm text-gray-500">
                     {property.propertyType}
 
                     <div className="mt-3">
@@ -175,7 +175,7 @@ export default function DealerListings() {
                           : "Pending Review"}
                       </span>
                     </div>
-                  </p>
+                  </div>
 
                   <div className="flex gap-2 mt-5">
                     <Link
