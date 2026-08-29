@@ -1,18 +1,12 @@
 "use client";
 
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
+import { getActiveHomepageAds } from "@/lib/homepageAds";
 import {
   useEffect,
   useMemo,
   useState,
 } from "react";
 
-import { db } from "@/lib/firebase";
 
 type AdSlide = {
   id?: string;
@@ -88,23 +82,16 @@ export default function ProjectShowcaseAd() {
 
     async function loadCampaigns() {
       try {
-        const snapshot = await getDocs(
-          query(
-            collection(db, "homepageAds"),
-            where("active", "==", true)
-          )
-        );
+        const activeHomepageAds =
+          await getActiveHomepageAds();
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const eligible = snapshot.docs
+        const eligible = activeHomepageAds
           .map(
             (item) =>
-              ({
-                id: item.id,
-                ...item.data(),
-              }) as ShowcaseCampaign
+              item as ShowcaseCampaign
           )
           .filter((item) => {
             const placementMatch =
@@ -189,6 +176,8 @@ export default function ProjectShowcaseAd() {
     if (totalSlides <= 1) return;
 
     const timer = window.setInterval(() => {
+      if (document.hidden) return;
+
       setActiveIndex(
         (current) =>
           (current + 1) % totalSlides
@@ -204,6 +193,8 @@ export default function ProjectShowcaseAd() {
     if (campaigns.length <= 1) return;
 
     const timer = window.setInterval(() => {
+      if (document.hidden) return;
+
       setCampaignIndex(
         (current) =>
           (current + 1) %
@@ -304,6 +295,8 @@ export default function ProjectShowcaseAd() {
                     <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-amber-300/40 bg-white p-2 shadow-[0_0_24px_rgba(252,211,77,0.16)]">
                       <img
                         src={campaign.builderLogo}
+                        loading="lazy"
+                        decoding="async"
                         alt={`${campaign.sponsorName} logo`}
                         className="h-full w-full object-contain"
                       />
@@ -423,6 +416,8 @@ export default function ProjectShowcaseAd() {
               <img
                 key={activeSlide.image}
                 src={activeSlide.image}
+                loading="lazy"
+                decoding="async"
                 alt={
                   activeSlide.title ||
                   campaign.title
@@ -700,6 +695,7 @@ export default function ProjectShowcaseAd() {
 
           <img
             src={activeSlide.image}
+            decoding="async"
             alt={activeSlide.title || campaign.title}
             onClick={(event) => event.stopPropagation()}
             className="max-h-[92vh] max-w-[94vw] object-contain"

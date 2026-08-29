@@ -80,6 +80,8 @@ export default function SponsoredMediaSlider({
     if (slides.length <= 1) return;
 
     const timer = window.setInterval(() => {
+      if (document.hidden) return;
+
       setActiveIndex((current) =>
         (current + 1) % slides.length
       );
@@ -131,6 +133,7 @@ export default function SponsoredMediaSlider({
       <img
         key={activeSlide.image}
         src={activeSlide.image}
+        decoding="async"
         alt={
           activeSlide.title ||
           ad.title ||
@@ -204,6 +207,8 @@ export default function SponsoredMediaSlider({
                 >
                   <img
                     src={slide.image}
+                    loading="lazy"
+                    decoding="async"
                     alt=""
                     className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                   />
@@ -229,6 +234,8 @@ export default function SponsoredMediaSlider({
               >
                 <img
                   src={slide.image}
+                  loading="lazy"
+                  decoding="async"
                   alt=""
                   className="h-full w-full object-cover"
                 />

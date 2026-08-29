@@ -5,13 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "./AuthProvider";
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { getActiveHomepageAds } from "@/lib/homepageAds";
 
 type AdSlide = {
   id?: string;
@@ -83,21 +77,14 @@ export default function Hero({
 
     async function loadSponsoredAd() {
       try {
-        const snapshot = await getDocs(
-          query(
-            collection(db, "homepageAds"),
-            where("active", "==", true)
-          )
-        );
+        const activeHomepageAds =
+          await getActiveHomepageAds();
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const campaigns = snapshot.docs
-          .map((document) => ({
-            id: document.id,
-            ...document.data(),
-          })) as HomepageAd[];
+        const campaigns =
+          activeHomepageAds as HomepageAd[];
 
         const eligibleCampaigns = campaigns
           .filter((campaign) => {
@@ -167,6 +154,8 @@ export default function Hero({
     }
 
     const rotationTimer = window.setInterval(() => {
+      if (document.hidden) return;
+
       setActiveAdIndex((currentIndex) =>
         (currentIndex + 1) % activeAds.length
       );
@@ -258,6 +247,8 @@ export default function Hero({
 
               <img
                 src={activeAd.desktopImage}
+                fetchPriority="high"
+                decoding="async"
                 alt={
                   activeAd.title ||
                   "Sponsored project"
@@ -330,6 +321,8 @@ export default function Hero({
                     <div className="flex h-[82px] w-[82px] shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/70 p-2">
                       <img
                         src={activeAd.builderLogo}
+                        loading="lazy"
+                        decoding="async"
                         alt={`${activeAd.sponsorName} logo`}
                         className="h-full w-full object-contain"
                       />

@@ -1,6 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import {
+  useDeferredValue,
+  useMemo,
+  useState,
+} from "react";
 import useProperties from "../hooks/useProperties";
 import PropertyCard from "./PropertyCard";
 
@@ -12,6 +16,8 @@ export default function PropertySearch() {
   const [type, setType] = useState("All");
   const [budget, setBudget] = useState("All");
 
+  const deferredSearch = useDeferredValue(search);
+
   if (loading) {
     return (
       <section className="mx-auto mt-16 max-w-7xl rounded-3xl bg-zinc-900 p-8 text-center text-white">
@@ -20,49 +26,54 @@ export default function PropertySearch() {
     );
   }
 
-  const filteredProperties = properties.filter((property) => {
+  const filteredProperties = useMemo(() => {
+    const normalizedSearch =
+      deferredSearch.toLowerCase();
 
-    const text =
-      `${property.title || ""} ${property.location || ""} ${property.builder || ""}`
-        .toLowerCase();
+    return properties.filter((property) => {
+      const text =
+        `${property.title || ""} ${property.location || ""} ${property.builder || ""}`
+          .toLowerCase();
 
-    const searchMatch =
-      text.includes(search.toLowerCase());
+      const searchMatch =
+        text.includes(normalizedSearch);
 
+      const bhkMatch =
+        bhk === "All" ||
+        property.propertyType === "pg" ||
+        property.propertyType === "hostel" ||
+        property.propertyType === "room_rent" ||
+        `${property.bedrooms} BHK` === bhk;
 
-    const bhkMatch =
-      bhk === "All" ||
-      property.propertyType === "pg" ||
-      property.propertyType === "hostel" ||
-      property.propertyType === "room_rent" ||
-      `${property.bedrooms} BHK` === bhk;
+      const typeMatch =
+        type === "All" ||
+        property.propertyType === type;
 
+      const price = parseFloat(
+        String(property.price || "")
+          .replace(/[^0-9.]/g, "")
+      );
 
-    const typeMatch =
-      type === "All" ||
-      property.propertyType === type;
+      const budgetMatch =
+        budget === "All" ||
+        (budget === "0-60" && price <= 60) ||
+        (budget === "60-100" && price > 60 && price <= 100) ||
+        (budget === "100+" && price > 100);
 
-
-    const price = parseFloat(
-      String(property.price || "")
-        .replace(/[^0-9.]/g, "")
-    );
-
-
-    const budgetMatch =
-      budget === "All" ||
-      (budget === "0-60" && price <= 60) ||
-      (budget === "60-100" && price > 60 && price <= 100) ||
-      (budget === "100+" && price > 100);
-
-
-    return (
-      searchMatch &&
-      bhkMatch &&
-      typeMatch &&
-      budgetMatch
-    );
-  });
+      return (
+        searchMatch &&
+        bhkMatch &&
+        typeMatch &&
+        budgetMatch
+      );
+    });
+  }, [
+    properties,
+    deferredSearch,
+    bhk,
+    type,
+    budget,
+  ]);
 
 
   return (

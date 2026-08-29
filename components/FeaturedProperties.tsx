@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 import useProperties from "@/hooks/useProperties";
 import { properties as oldProperties } from "@/data/properties";
 import PropertyCard from "./PropertyCard";
@@ -8,24 +9,26 @@ import PropertyCard from "./PropertyCard";
 export default function FeaturedProperties() {
   const { properties, loading } = useProperties();
 
-  const legacyProperties = oldProperties.map((property) => ({
-    ...property,
-    propertyType:
-      property.type?.toLowerCase() === "apartment"
-        ? "flat"
-        : property.type?.toLowerCase() === "flat"
-        ? "flat"
-        : property.type?.toLowerCase() === "villa"
-        ? "villa"
-        : property.type?.toLowerCase(),
-    purpose: "new",
-    propertyCondition: "new",
-  }));
+  const featured = useMemo(() => {
+    const legacyProperties = oldProperties.map((property) => ({
+      ...property,
+      propertyType:
+        property.type?.toLowerCase() === "apartment"
+          ? "flat"
+          : property.type?.toLowerCase() === "flat"
+            ? "flat"
+            : property.type?.toLowerCase() === "villa"
+              ? "villa"
+              : property.type?.toLowerCase(),
+      purpose: "new",
+      propertyCondition: "new",
+    }));
 
-  const featured = [
-    ...legacyProperties,
-    ...properties,
-  ].slice(0, 8);
+    return [
+      ...legacyProperties,
+      ...properties,
+    ].slice(0, 8);
+  }, [properties]);
 
   if (loading) {
     return (

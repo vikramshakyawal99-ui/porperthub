@@ -4,11 +4,9 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { doc, getDoc } from "firebase/firestore";
 
 import { optimizeImage } from "@/lib/image";
-import { db } from "@/lib/firebase";
-import { addFavorite, removeFavorite } from "@/lib/favorites";
+import { addFavorite, isFavorite, removeFavorite } from "@/lib/favorites";
 import { useAuth } from "@/components/AuthProvider";
 
 interface Property {
@@ -67,18 +65,13 @@ export default function PropertyCard({
       }
 
       try {
-        const favoriteRef = doc(
-          db,
-          "users",
+        const favorite = await isFavorite(
           user.uid,
-          "favorites",
           propertyId
         );
 
-        const snapshot = await getDoc(favoriteRef);
-
         if (active) {
-          setSaved(snapshot.exists());
+          setSaved(favorite);
         }
       } catch (error) {
         console.error(

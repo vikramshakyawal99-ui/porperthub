@@ -46,23 +46,51 @@ export type Property = {
   gender?: string;
 };
 
+let cachedProperties: Property[] | null = null;
+let pendingPropertiesRequest: Promise<Property[]> | null = null;
+
 async function fetchProperties(): Promise<Property[]> {
-  const snapshot = await getDocs(
+  if (cachedProperties) {
+    return cachedProperties;
+  }
+
+  if (pendingPropertiesRequest) {
+    return pendingPropertiesRequest;
+  }
+
+  pendingPropertiesRequest = getDocs(
     query(
       collection(db, "properties"),
       where("status", "==", "approved")
     )
-  );
+  )
+    .then((snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Property[];
 
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as Property[];
+      cachedProperties = data;
+      pendingPropertiesRequest = null;
+
+      return data;
+    })
+    .catch((error) => {
+      pendingPropertiesRequest = null;
+      throw error;
+    });
+
+  return pendingPropertiesRequest;
 }
 
 export default function useProperties() {
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [properties, setProperties] = useState<Property[]>(
+    () => cachedProperties || []
+  );
+
+  const [loading, setLoading] = useState(
+    () => cachedProperties === null
+  );
 
   useEffect(() => {
     let mounted = true;
