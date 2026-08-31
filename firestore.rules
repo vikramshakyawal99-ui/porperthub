@@ -17,6 +17,17 @@ service cloud.firestore {
         && request.auth.token.role == "admin";
     }
 
+    function isNormalUser() {
+      return isLoggedIn()
+        &&
+        get(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.role in [
+          "user",
+          "buyer"
+        ];
+    }
+
     function isOwnerRole() {
       return isLoggedIn()
         &&
@@ -59,9 +70,20 @@ service cloud.firestore {
       // Admin may read every listing.
       // Owners, dealers and team members may read their own listings
       // regardless of approval status.
-      allow read: if
-        resource.data.get("status", "") == "approved"
-        || isAdmin()
+      // Public collection queries may return approved listings only.
+      // Firestore requires public queries to include:
+      // where("status", "==", "approved")
+      allow list: if resource.data.status == "approved";
+
+      // Individual property reads remain approved-only.
+      allow get: if resource.data.status == "approved";
+
+      // Private listing access for staff/owners/dealers/team.
+      allow read: if isAdmin()
+        || (
+          isNormalUser()
+          && resource.data.get("ownerId", "") == request.auth.uid
+        )
         || (
           isOwnerRole()
           && resource.data.get("ownerId", "") == request.auth.uid
@@ -78,6 +100,21 @@ service cloud.firestore {
       // ADMIN
       // Admin keeps full property control.
       allow create, update, delete: if isAdmin();
+
+      // NORMAL ACCOUNT CREATE
+      // One normal PropertyHub account can buy and list property.
+      // "buyer" is retained only for old-account compatibility.
+      allow create: if isNormalUser()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.status == "approved"
+        && request.resource.data.get("featured", false) == false
+        && request.resource.data.get("dealerId", "") == ""
+        && request.resource.data.get("role", "") == ""
+        && request.resource.data.get("source", "") == ""
+        && request.resource.data.get("addedByUid", "") == ""
+        && request.resource.data.get("addedByRole", "") == ""
+        && request.resource.data.get("contactHandlerUid", "") == ""
+        && request.resource.data.get("contactHandlerEmail", "") == "";
 
       // PROPERTY OWNER CREATE
       // Direct approval remains enabled.
@@ -124,6 +161,24 @@ service cloud.firestore {
         && request.resource.data.get("contactHandlerRole", "") == "team_member"
         && request.resource.data.get("dealerId", "") == "";
 
+      // NORMAL ACCOUNT UPDATE
+      // Normal users may edit only their own listing and cannot
+      // modify ownership, routing or privileged metadata.
+      allow update: if isNormalUser()
+        && resource.data.ownerId == request.auth.uid
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          "ownerId",
+          "dealerId",
+          "role",
+          "source",
+          "addedByUid",
+          "addedByRole",
+          "contactHandlerUid",
+          "contactHandlerEmail",
+          "featured"
+        ])
+        && request.resource.data.status == "approved";
+
       // OWNER UPDATE
       // Normal property details may be edited, but ownership,
       // routing and privileged metadata cannot be changed.
@@ -160,7 +215,10 @@ service cloud.firestore {
           "status"
         ]);
 
-      // OWNER / DEALER may remove only their own listing.
+      // NORMAL ACCOUNT / OWNER / DEALER may remove only their own listing.
+      allow delete: if isNormalUser()
+        && resource.data.ownerId == request.auth.uid;
+
       allow delete: if isOwnerRole()
         && resource.data.ownerId == request.auth.uid;
 
@@ -445,18 +503,50 @@ service cloud.firestore {
         );
 
       // New users can create only their own profile.
-      // Self-registration is limited to non-admin application roles.
+      // Client self-registration is limited to:
+      // 1) normal customer accounts
+      // 2) complete dealer/builder business registrations
+      //
+      // Admin, team and owner-type roles cannot be self-assigned.
       allow create: if isLoggedIn()
         && request.auth.uid == userId
-        && request.resource.data.role in [
-          "buyer",
-          "property_owner",
-          "hostel_owner",
-          "pg_owner",
-          "room_owner",
-          "resale_seller",
-          "property_dealer"
-        ];
+        &&
+        (
+          (
+            request.resource.data.role in ["user", "buyer"]
+            && request.resource.data.accountType == "customer"
+            && request.resource.data.status == "active"
+          )
+          ||
+          (
+            request.resource.data.role == "property_dealer"
+            && request.resource.data.accountType == "business"
+            && request.resource.data.businessType in [
+              "dealer",
+              "builder"
+            ]
+            && request.resource.data.status == "active"
+            && request.resource.data.contactName is string
+            && request.resource.data.contactName.size() >= 2
+            && request.resource.data.contactName.size() <= 100
+            && request.resource.data.businessName is string
+            && request.resource.data.businessName.size() >= 2
+            && request.resource.data.businessName.size() <= 150
+            && request.resource.data.mobile is string
+            && request.resource.data.mobile.size() == 10
+            && request.resource.data.businessAddress is string
+            && request.resource.data.businessAddress.size() >= 5
+            && request.resource.data.businessAddress.size() <= 300
+            && request.resource.data.city is string
+            && request.resource.data.city.size() >= 2
+            && request.resource.data.city.size() <= 100
+            && request.resource.data.state is string
+            && request.resource.data.state.size() >= 2
+            && request.resource.data.state.size() <= 100
+            && request.resource.data.pinCode is string
+            && request.resource.data.pinCode.size() == 6
+          )
+        );
 
       // Admin can change anything.
       // Normal user can update own profile,
@@ -480,6 +570,33 @@ service cloud.firestore {
     allow read, create, delete: if isLoggedIn()
       && request.auth.uid == userId;
   }
+    }
+
+
+    // =========================
+    // MOBILE SAVED PROPERTIES
+    // =========================
+
+    match /savedProperties/{savedId} {
+
+      allow read: if isLoggedIn()
+        && resource.data.userId == request.auth.uid;
+
+      allow create: if isLoggedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.propertyId is string
+        && request.resource.data.propertyId != ""
+        && exists(
+          /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+        )
+        && get(
+          /databases/$(database)/documents/properties/$(request.resource.data.propertyId)
+        ).data.get("status", "") == "approved";
+
+      allow delete: if isLoggedIn()
+        && resource.data.userId == request.auth.uid;
+
+      allow update: if false;
     }
 
 

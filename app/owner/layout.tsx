@@ -24,8 +24,9 @@ export default function OwnerLayout({
     }
 
     const allowedRoles = [
-          "buyer",
-"property_owner",
+      "user",
+      "buyer",
+      "property_owner",
       "hostel_owner",
       "pg_owner",
       "room_owner",
@@ -50,8 +51,9 @@ export default function OwnerLayout({
   }
 
   const allowedRoles = [
-        "buyer",
-"property_owner",
+    "user",
+    "buyer",
+    "property_owner",
     "hostel_owner",
     "pg_owner",
     "room_owner",

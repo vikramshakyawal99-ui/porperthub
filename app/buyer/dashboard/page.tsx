@@ -281,8 +281,7 @@ Logout
 
 
 
-<div className="grid md:grid-cols-3 gap-6 mt-10">
-
+<div className="grid gap-6 mt-10 md:grid-cols-2 lg:grid-cols-5">
 
 <Link
 href="/properties"
@@ -291,6 +290,19 @@ className="bg-green-600 p-6 rounded-2xl font-bold text-xl"
 🏠 Browse Properties
 </Link>
 
+<Link
+href="/owner/add-property"
+className="bg-green-700 p-6 rounded-2xl font-bold text-xl text-white"
+>
+➕ Add Property
+</Link>
+
+<Link
+href="/owner/my-properties"
+className="bg-white p-6 rounded-2xl font-bold text-xl"
+>
+🏘️ My Properties
+</Link>
 
 <Link
 href="/my-enquiries"
@@ -299,14 +311,12 @@ className="bg-white p-6 rounded-2xl font-bold text-xl"
 📩 My Enquiries
 </Link>
 
-
 <Link
 href="/wishlist"
 className="bg-white p-6 rounded-2xl font-bold text-xl"
 >
 ❤️ My Wishlist
 </Link>
-
 
 </div>
 
