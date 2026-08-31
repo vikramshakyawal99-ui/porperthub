@@ -21,6 +21,7 @@ const ALLOWED_IMAGE_TYPES = new Set([
 
 const ALLOWED_ROLES = new Set([
   "admin",
+  "buyer",
   "property_owner",
   "hostel_owner",
   "pg_owner",
@@ -30,67 +31,63 @@ const ALLOWED_ROLES = new Set([
   "team_member",
 ]);
 
-function hasValidImageSignature(
-  buffer: Buffer,
-  mimeType: string
-) {
-  if (mimeType === "image/jpeg") {
-    return (
-      buffer.length >= 3 &&
-      buffer[0] === 0xff &&
-      buffer[1] === 0xd8 &&
-      buffer[2] === 0xff
-    );
+function detectImageMimeType(
+  buffer: Buffer
+): string | null {
+  // JPEG
+  if (
+    buffer.length >= 3 &&
+    buffer[0] === 0xff &&
+    buffer[1] === 0xd8 &&
+    buffer[2] === 0xff
+  ) {
+    return "image/jpeg";
   }
 
-  if (mimeType === "image/png") {
-    return (
-      buffer.length >= 8 &&
-      buffer[0] === 0x89 &&
-      buffer[1] === 0x50 &&
-      buffer[2] === 0x4e &&
-      buffer[3] === 0x47 &&
-      buffer[4] === 0x0d &&
-      buffer[5] === 0x0a &&
-      buffer[6] === 0x1a &&
-      buffer[7] === 0x0a
-    );
+  // PNG
+  if (
+    buffer.length >= 8 &&
+    buffer[0] === 0x89 &&
+    buffer[1] === 0x50 &&
+    buffer[2] === 0x4e &&
+    buffer[3] === 0x47 &&
+    buffer[4] === 0x0d &&
+    buffer[5] === 0x0a &&
+    buffer[6] === 0x1a &&
+    buffer[7] === 0x0a
+  ) {
+    return "image/png";
   }
 
-  if (mimeType === "image/webp") {
-    return (
-      buffer.length >= 12 &&
-      buffer.toString("ascii", 0, 4) === "RIFF" &&
-      buffer.toString("ascii", 8, 12) === "WEBP"
-    );
+  // WebP
+  if (
+    buffer.length >= 12 &&
+    buffer.toString("ascii", 0, 4) === "RIFF" &&
+    buffer.toString("ascii", 8, 12) === "WEBP"
+  ) {
+    return "image/webp";
   }
 
-  if (mimeType === "image/avif") {
-    if (buffer.length < 12) {
-      return false;
+  // AVIF
+  if (
+    buffer.length >= 12 &&
+    buffer.toString("ascii", 4, 8) === "ftyp"
+  ) {
+    const brands = buffer.toString(
+      "ascii",
+      8,
+      Math.min(buffer.length, 64)
+    );
+
+    if (
+      brands.includes("avif") ||
+      brands.includes("avis")
+    ) {
+      return "image/avif";
     }
-
-    const boxType =
-      buffer.toString("ascii", 4, 8);
-
-    if (boxType !== "ftyp") {
-      return false;
-    }
-
-    const brand =
-      buffer.toString(
-        "ascii",
-        8,
-        Math.min(buffer.length, 32)
-      );
-
-    return (
-      brand.includes("avif") ||
-      brand.includes("avis")
-    );
   }
 
-  return false;
+  return null;
 }
 
 cloudinary.config({
@@ -306,16 +303,17 @@ export async function POST(request: Request) {
 
     const buffer = Buffer.from(bytes);
 
+    const detectedMimeType =
+      detectImageMimeType(buffer);
+
     if (
-      !hasValidImageSignature(
-        buffer,
-        value.type
-      )
+      !detectedMimeType ||
+      !ALLOWED_IMAGE_TYPES.has(detectedMimeType)
     ) {
       return json(
         {
           error:
-            "Uploaded file does not match a valid image format.",
+            "Uploaded file is not a valid JPG, PNG, WebP or AVIF image.",
         },
         415
       );
