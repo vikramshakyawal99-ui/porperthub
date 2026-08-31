@@ -426,9 +426,9 @@ export default function BuyerLogin() {
       const role = profileSnapshot.exists()
         ? String(
             profileSnapshot.data().role ||
-            "buyer"
+            "user"
           )
-        : "buyer";
+        : "user";
 
       const hasExplicitRedirect =
         new URLSearchParams(
@@ -490,7 +490,7 @@ export default function BuyerLogin() {
 
             role: isBusiness
               ? "property_dealer"
-              : "buyer",
+              : "user",
 
             businessType: isBusiness
               ? businessType
@@ -535,7 +535,7 @@ export default function BuyerLogin() {
               result.user.email ||
               email.trim().toLowerCase(),
             accountType: "customer",
-            role: "buyer",
+            role: "user",
             canBuy: true,
             canListProperty: true,
             status: "active",
@@ -549,7 +549,7 @@ export default function BuyerLogin() {
       }
 
       const profile = profileSnap.data();
-      const role = String(profile.role || "buyer");
+      const role = String(profile.role || "user");
 
       if (role === "admin") {
         await signOut(auth);

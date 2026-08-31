@@ -21,6 +21,7 @@ const ALLOWED_IMAGE_TYPES = new Set([
 
 const ALLOWED_ROLES = new Set([
   "admin",
+  "user",
   "buyer",
   "property_owner",
   "hostel_owner",

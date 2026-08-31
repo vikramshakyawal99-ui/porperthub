@@ -405,7 +405,7 @@ export async function POST(request: Request) {
       await profileRef.set({
         uid: user.uid,
         email,
-        role: "buyer",
+        role: "user",
         accountType: "customer",
         canBuy: true,
         canListProperty: true,
@@ -427,7 +427,7 @@ export async function POST(request: Request) {
       };
 
       if (!profile.role) {
-        updates.role = "buyer";
+        updates.role = "user";
       }
 
       if (!profile.accountType) {
