@@ -21,7 +21,7 @@ export async function createUserProfile(
 
       email: data.email,
 
-      role: data.role || "buyer",
+      role: data.role || "user",
 
       ownerType: data.ownerType || "",
 

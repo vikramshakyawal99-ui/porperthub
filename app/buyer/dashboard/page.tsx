@@ -45,7 +45,7 @@ window.location.href="/buyer-login";
 return;
 }
 
-if(role && role!=="buyer"){
+if(role && !["user","buyer"].includes(role)){
 window.location.href="/buyer-login";
 return;
 }
@@ -186,7 +186,7 @@ return(
 <div>
 
 <h1 className="text-4xl font-bold">
-👋 Welcome {user?.displayName || "Buyer"}
+👋 Welcome {user?.displayName || "User"}
 </h1>
 
 

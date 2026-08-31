@@ -110,10 +110,10 @@ export default function ProfilePage() {
 
 
 
-  const role = profile?.role || "buyer";
+  const role = profile?.role || "user";
 
   const isOwner = ownerRoles.includes(role);
-  const isBuyer = role === "buyer";
+  const isNormalUser = role === "user" || role === "buyer";
   const isDealer = role === "property_dealer";
   const isTeamMember = role === "team_member";
   const isAdmin = role === "admin";
@@ -193,7 +193,7 @@ export default function ProfilePage() {
 
             <p className="text-green-400 text-xl">
 
-              {profile?.role || "buyer"}
+              {role === "buyer" ? "user" : role}
 
             </p>
 
@@ -230,7 +230,7 @@ export default function ProfilePage() {
 
 
 
-            {isBuyer && (
+            {isNormalUser && (
 
               <Link
 
@@ -240,7 +240,7 @@ export default function ProfilePage() {
 
               >
 
-                👤 Buyer Dashboard
+                👤 My Dashboard
 
               </Link>
 

@@ -28,6 +28,7 @@ export default function BuyerLayout({
 
 
     const allowedRoles = [
+      "user",
       "buyer",
     ];
 
@@ -61,7 +62,7 @@ export default function BuyerLayout({
 
   if (
     !role ||
-    !["buyer"].includes(role)
+    !["user", "buyer"].includes(role)
   ) {
 
     return null;

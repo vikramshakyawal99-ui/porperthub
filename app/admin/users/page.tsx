@@ -22,7 +22,7 @@ type UserRecord = {
 };
 
 const roles = [
-  "buyer",
+  "user",
   "property_owner",
   "hostel_owner",
   "pg_owner",
@@ -259,7 +259,7 @@ export default function AdminUsersPage() {
                   <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
 
                     <select
-                      value={user.role || "buyer"}
+                      value={user.role || "user"}
                       onChange={(event) =>
                         changeRole(
                           user.id,
