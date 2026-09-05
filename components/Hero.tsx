@@ -27,8 +27,26 @@ type HomepageAd = {
   title: string;
   subtitle: string;
   startingPrice: string;
+  backgroundColor?: string;
+  primaryColor?: string;
+  accentColor?: string;
+  textColor?: string;
+  buttonColor?: string;
+  buttonTextColor?: string;
+  projectImage?: string;
+  imageFit?: "cover" | "contain";
+  imagePosition?: "left" | "center" | "right";
+  imageZoom?: string;
   desktopImage: string;
+  desktopDescription?: string;
   mobileImage: string;
+  mobileDescription?: string;
+  clubhouseImage?: string;
+  clubhouseDescription?: string;
+  gardenImage?: string;
+  gardenDescription?: string;
+  roomImage?: string;
+  roomDescription?: string;
   ctaLabel: string;
   targetUrl: string;
   placement: "website" | "app" | "both";
@@ -68,9 +86,74 @@ export default function Hero({
     useState<HomepageAd[]>([]);
   const [activeAdIndex, setActiveAdIndex] =
     useState(0);
+  const [adInteractionVersion, setAdInteractionVersion] =
+    useState(0);
+
+  function resetAdRotation() {
+    setAdInteractionVersion((current) => current + 1);
+  }
+
+  const [activeMediaSlide, setActiveMediaSlide] =
+    useState(0);
 
   const activeAd =
     activeAds[activeAdIndex] || null;
+
+  const mediaSlides = activeAd
+    ? [
+        {
+          id: "main",
+          image:
+            activeAd.desktopImage ||
+            activeAd.projectImage ||
+            activeAd.mobileImage,
+          mobileImage:
+            activeAd.mobileImage ||
+            activeAd.desktopImage ||
+            activeAd.projectImage,
+          title: activeAd.projectName || activeAd.title,
+          description:
+            activeAd.desktopDescription ||
+            activeAd.subtitle,
+          mobileDescription:
+            activeAd.mobileDescription ||
+            activeAd.desktopDescription ||
+            activeAd.subtitle,
+        },
+        {
+          id: "clubhouse",
+          image: activeAd.clubhouseImage,
+          mobileImage: activeAd.clubhouseImage,
+          title: "Clubhouse",
+          description: activeAd.clubhouseDescription,
+          mobileDescription: activeAd.clubhouseDescription,
+        },
+        {
+          id: "garden",
+          image: activeAd.gardenImage,
+          mobileImage: activeAd.gardenImage,
+          title: "Garden & Landscape",
+          description: activeAd.gardenDescription,
+          mobileDescription: activeAd.gardenDescription,
+        },
+        {
+          id: "room",
+          image: activeAd.roomImage,
+          mobileImage: activeAd.roomImage,
+          title: "Room & Interior",
+          description: activeAd.roomDescription,
+          mobileDescription: activeAd.roomDescription,
+        },
+      ].filter((slide) => Boolean(slide.image))
+    : [];
+
+  const safeMediaSlide =
+    mediaSlides.length > 0
+      ? activeMediaSlide % mediaSlides.length
+      : 0;
+
+  const currentMediaSlide =
+    mediaSlides[safeMediaSlide] || null;
 
   useEffect(() => {
     let mounted = true;
@@ -149,12 +232,19 @@ export default function Hero({
   }, []);
 
   useEffect(() => {
+    setActiveMediaSlide(0);
+  }, [activeAd?.id]);
+
+  useEffect(() => {
     if (activeAds.length <= 1) {
       return;
     }
 
-    const rotationTimer = window.setInterval(() => {
-      if (document.hidden) return;
+    const rotationTimer = window.setTimeout(() => {
+      if (document.hidden) {
+        resetAdRotation();
+        return;
+      }
 
       setActiveAdIndex((currentIndex) =>
         (currentIndex + 1) % activeAds.length
@@ -162,9 +252,29 @@ export default function Hero({
     }, 5000);
 
     return () => {
-      window.clearInterval(rotationTimer);
+      window.clearTimeout(rotationTimer);
     };
-  }, [activeAds.length]);
+  }, [activeAds.length, activeAdIndex, adInteractionVersion]);
+
+  function goToPreviousMediaSlide() {
+    if (!mediaSlides.length) return;
+    resetAdRotation();
+
+    setActiveMediaSlide((current) =>
+      current <= 0
+        ? mediaSlides.length - 1
+        : current - 1
+    );
+  }
+
+  function goToNextMediaSlide() {
+    if (!mediaSlides.length) return;
+    resetAdRotation();
+
+    setActiveMediaSlide((current) =>
+      (current + 1) % mediaSlides.length
+    );
+  }
 
   function getPostPropertyLink() {
     if (!user) {
@@ -237,36 +347,105 @@ export default function Hero({
           }`}
         >
           {activeAd ? (
-            <picture key={activeAd.id}>
-              {activeAd.mobileImage && (
-                <source
-                  media="(max-width: 639px)"
-                  srcSet={activeAd.mobileImage}
-                />
+            <div key={activeAd.id}>
+              <div className="absolute inset-0 overflow-hidden">
+                <picture>
+                  {currentMediaSlide?.mobileImage && (
+                    <source
+                      media="(max-width: 639px)"
+                      srcSet={currentMediaSlide.mobileImage}
+                    />
+                  )}
+
+                  <img
+                    src={
+                      currentMediaSlide?.image ||
+                      activeAd.projectImage ||
+                      activeAd.desktopImage ||
+                      activeAd.mobileImage
+                    }
+                    fetchPriority="high"
+                    decoding="async"
+                    alt={
+                      activeAd.title ||
+                      "Sponsored project"
+                    }
+                    className="h-full w-full"
+                    style={{
+                      objectFit:
+                        activeAd.projectImage
+                          ? activeAd.imageFit || "cover"
+                          : "cover",
+
+                      objectPosition:
+                        activeAd.projectImage
+                          ? activeAd.imagePosition === "left"
+                            ? "left center"
+                            : activeAd.imagePosition === "right"
+                              ? "right center"
+                              : "center center"
+                          : "64% center",
+
+                      transform: activeAd.projectImage
+                        ? `scale(${
+                            Number(
+                              activeAd.imageZoom || 100
+                            ) / 100
+                          })`
+                        : undefined,
+
+                      transformOrigin:
+                        activeAd.imagePosition === "left"
+                          ? "left center"
+                          : activeAd.imagePosition === "right"
+                            ? "right center"
+                            : "center center",
+                    }}
+                  />
+                </picture>
+              </div>
+
+              {mediaSlides.length > 1 && (
+                <div className="absolute bottom-6 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/85 px-3 py-2 shadow-lg backdrop-blur-sm">
+                  {mediaSlides.map((slide, index) => (
+                    <button
+                      key={slide.id}
+                      type="button"
+                      onClick={() => { resetAdRotation(); setActiveMediaSlide(index); }}
+                      aria-label={`Show ${slide.title}`}
+                      className={`h-2 rounded-full transition-all ${
+                        index === safeMediaSlide
+                          ? "w-7"
+                          : "w-2 bg-slate-300"
+                      }`}
+                      style={
+                        index === safeMediaSlide
+                          ? {
+                              backgroundColor:
+                                activeAd.primaryColor || "#1F5A3A",
+                            }
+                          : undefined
+                      }
+                    />
+                  ))}
+                </div>
               )}
 
-              <img
-                src={activeAd.desktopImage}
-                fetchPriority="high"
-                decoding="async"
-                alt={
-                  activeAd.title ||
-                  "Sponsored project"
-                }
-                className="absolute inset-0 h-full w-full object-cover object-[64%_center]"
-              />
-
               <div
-                className="absolute inset-y-0 left-0 w-[52%] bg-[#f8f6ef]"
+                className="absolute inset-y-0 left-0 w-[52%]"
                 style={{
+                  backgroundColor:
+                    activeAd.backgroundColor || "#F8F6EF",
                   clipPath:
                     "ellipse(96% 125% at 0% 50%)",
                 }}
               />
 
               <div
-                className="absolute inset-y-0 left-0 w-[52%] border-r border-[#caa24c]/55"
+                className="absolute inset-y-0 left-0 w-[52%] border-r"
                 style={{
+                  borderColor:
+                    activeAd.accentColor || "#D4AF55",
                   clipPath:
                     "ellipse(96% 125% at 0% 50%)",
                 }}
@@ -274,18 +453,51 @@ export default function Hero({
 
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-black/10" />
 
+              {mediaSlides.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={goToPreviousMediaSlide}
+                    className="absolute left-[48%] top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-2xl font-black text-white shadow-xl backdrop-blur-sm transition hover:bg-black/75"
+                    aria-label="Previous slide"
+                  >
+                    ‹
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={goToNextMediaSlide}
+                    className="absolute right-5 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-2xl font-black text-white shadow-xl backdrop-blur-sm transition hover:bg-black/75"
+                    aria-label="Next slide"
+                  >
+                    ›
+                  </button>
+
+                  <div className="absolute right-6 bottom-6 z-30 rounded-full bg-black/55 px-3 py-1.5 text-xs font-black text-white backdrop-blur-sm">
+                    {safeMediaSlide + 1}/{mediaSlides.length}
+                  </div>
+                </>
+              )}
+
               <button
                 type="button"
                 className="absolute right-6 top-6 z-20 inline-flex items-center gap-2 rounded-full bg-[#24683f] px-5 py-2.5 text-sm font-black text-white shadow-lg"
                 onClick={() => {
-                  if (activeAd.desktopImage) {
-                    window.open(activeAd.desktopImage, "_blank");
+                  resetAdRotation();
+                  const fullImage =
+                    currentMediaSlide?.image ||
+                    activeAd.projectImage ||
+                    activeAd.desktopImage ||
+                    activeAd.mobileImage;
+
+                  if (fullImage) {
+                    window.open(fullImage, "_blank");
                   }
                 }}
               >
                 ⛶ Full Screen
               </button>
-            </picture>
+            </div>
           ) : (
             <>
               <Image
@@ -310,7 +522,17 @@ export default function Hero({
           >
             {activeAd ? (
               <>
-                <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#d4b75d] bg-[#205f3c] px-4 py-2 text-[10px] font-black uppercase tracking-[0.15em] text-white shadow-md">
+                <div
+                  className="inline-flex w-fit items-center gap-2 rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-[0.15em] shadow-md"
+                  style={{
+                    backgroundColor:
+                      activeAd.primaryColor || "#1F5A3A",
+                    borderColor:
+                      activeAd.accentColor || "#D4AF55",
+                    color:
+                      activeAd.buttonTextColor || "#FFFFFF",
+                  }}
+                >
                   <span className="text-amber-300">★</span>
                   Sponsored Project
                 </div>
@@ -330,7 +552,13 @@ export default function Hero({
                   )}
 
                   <div className="min-w-0">
-                    <p className="text-[22px] font-black uppercase tracking-[0.08em] text-[#24543a]">
+                    <p
+                      className="text-[22px] font-black uppercase tracking-[0.08em]"
+                      style={{
+                        color:
+                          activeAd.primaryColor || "#1F5A3A",
+                      }}
+                    >
                       {activeAd.sponsorName}
                     </p>
 
@@ -350,7 +578,13 @@ export default function Hero({
 
                 {/* PROJECT NAME */}
                 <div className="mt-4">
-                  <h1 className="max-w-[470px] font-serif text-3xl font-bold leading-[0.95] tracking-[-0.02em] text-[#173b2b] sm:text-[36px] lg:text-[42px]">
+                  <h1
+                    className="max-w-[470px] font-serif text-3xl font-bold leading-[0.95] tracking-[-0.02em] sm:text-[36px] lg:text-[42px]"
+                    style={{
+                      color:
+                        activeAd.textColor || "#173D2A",
+                    }}
+                  >
                     {activeAd.projectName || activeAd.title}
                   </h1>
 
@@ -361,10 +595,17 @@ export default function Hero({
                     </p>
                   )}
 
-                  <div className="mt-2 h-px w-12 bg-[#c99c46]" />
+                  <div
+                    className="mt-2 h-px w-12"
+                    style={{
+                      backgroundColor:
+                        activeAd.accentColor || "#D4AF55",
+                    }}
+                  />
 
                   <p className="mt-2 max-w-md text-sm font-medium leading-5 text-slate-600">
-                    {activeAd.subtitle ||
+                    {currentMediaSlide?.description ||
+                      activeAd.subtitle ||
                       "Premium luxury living in the heart of Jaipur."}
                   </p>
                 </div>
@@ -378,7 +619,13 @@ export default function Hero({
                         Starting Price
                       </span>
 
-                      <span className="mt-1 text-2xl font-black text-[#1e5638]">
+                      <span
+                        className="mt-1 text-2xl font-black"
+                        style={{
+                          color:
+                            activeAd.primaryColor || "#1F5A3A",
+                        }}
+                      >
                         {activeAd.startingPrice}
                       </span>
 
@@ -403,7 +650,13 @@ export default function Hero({
                               ? "noopener noreferrer sponsored"
                               : undefined
                           }
-                          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#24683f] px-5 text-sm font-black text-white shadow-[0_8px_20px_rgba(36,104,63,0.20)] transition hover:-translate-y-0.5 hover:bg-[#1c5533]"
+                          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-black shadow-lg transition hover:-translate-y-0.5"
+                          style={{
+                            backgroundColor:
+                              activeAd.buttonColor || "#1F5A3A",
+                            color:
+                              activeAd.buttonTextColor || "#FFFFFF",
+                          }}
                         >
                           {activeAd.ctaLabel || "Explore Project"}
                           <span>→</span>

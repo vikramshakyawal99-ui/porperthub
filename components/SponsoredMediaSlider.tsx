@@ -76,22 +76,6 @@ export default function SponsoredMediaSlider({
     setActiveIndex(0);
   }, [ad.desktopImage]);
 
-  useEffect(() => {
-    if (slides.length <= 1) return;
-
-    const timer = window.setInterval(() => {
-      if (document.hidden) return;
-
-      setActiveIndex((current) =>
-        (current + 1) % slides.length
-      );
-    }, 5500);
-
-    return () => {
-      window.clearInterval(timer);
-    };
-  }, [slides.length]);
-
   function handleTouchStart(
     event: React.TouchEvent<HTMLDivElement>
   ) {

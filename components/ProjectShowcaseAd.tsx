@@ -71,6 +71,13 @@ export default function ProjectShowcaseAd() {
   const [activeIndex, setActiveIndex] =
     useState(0);
 
+  const [adInteractionVersion, setAdInteractionVersion] =
+    useState(0);
+
+  function resetAdRotation() {
+    setAdInteractionVersion((current) => current + 1);
+  }
+
   const [isFullscreen, setIsFullscreen] =
     useState(false);
 
@@ -173,27 +180,13 @@ export default function ProjectShowcaseAd() {
   }, [campaign?.id]);
 
   useEffect(() => {
-    if (totalSlides <= 1) return;
-
-    const timer = window.setInterval(() => {
-      if (document.hidden) return;
-
-      setActiveIndex(
-        (current) =>
-          (current + 1) % totalSlides
-      );
-    }, 5500);
-
-    return () => {
-      window.clearInterval(timer);
-    };
-  }, [totalSlides]);
-
-  useEffect(() => {
     if (campaigns.length <= 1) return;
 
-    const timer = window.setInterval(() => {
-      if (document.hidden) return;
+    const timer = window.setTimeout(() => {
+      if (document.hidden) {
+        resetAdRotation();
+        return;
+      }
 
       setCampaignIndex(
         (current) =>
@@ -202,12 +195,16 @@ export default function ProjectShowcaseAd() {
       );
 
       setActiveIndex(0);
-    }, 45000);
+    }, 5000);
 
     return () => {
-      window.clearInterval(timer);
+      window.clearTimeout(timer);
     };
-  }, [campaigns.length]);
+  }, [
+    campaigns.length,
+    campaignIndex,
+    adInteractionVersion,
+  ]);
 
   if (
     !campaign ||
@@ -251,6 +248,7 @@ export default function ProjectShowcaseAd() {
         ];
 
   function previousSlide() {
+    resetAdRotation();
     setActiveIndex(
       (current) =>
         (current - 1 + totalSlides) %
@@ -259,6 +257,7 @@ export default function ProjectShowcaseAd() {
   }
 
   function nextSlide() {
+    resetAdRotation();
     setActiveIndex(
       (current) =>
         (current + 1) % totalSlides
@@ -520,7 +519,7 @@ export default function ProjectShowcaseAd() {
               {!showHighlights && (
                 <button
                   type="button"
-                  onClick={() => setIsFullscreen(true)}
+                  onClick={() => { resetAdRotation(); setIsFullscreen(true); }}
                   aria-label="View image full screen"
                   className="absolute right-5 top-5 z-30 flex h-10 items-center justify-center gap-2 rounded-xl border border-white/30 bg-black/45 px-3 text-xs font-black text-white shadow-lg backdrop-blur-md transition hover:bg-black/70"
                 >
@@ -540,9 +539,10 @@ export default function ProjectShowcaseAd() {
                         `${slide.image}-${index}`
                       }
                       type="button"
-                      onClick={() =>
-                        setActiveIndex(index)
-                      }
+                      onClick={() => {
+                        resetAdRotation();
+                        setActiveIndex(index);
+                      }}
                       className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/55"
                       aria-label={`Open image ${
                         index + 1
